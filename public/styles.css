@@ -481,108 +481,6 @@ h1, h2, h3, h4, h5, h6 {
     gap: 0.7rem;
 }
 
-/* Academic Features Grid (Home Page) */
-.features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.25rem;
-    margin-top: 2.75rem;
-    text-align: left;
-    width: 100%;
-}
-
-.feature-item {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 14px;
-    padding: 1.35rem 1.25rem;
-    display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.feature-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
-}
-
-.feature-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 10px;
-    background: rgba(5, 150, 105, 0.08);
-    color: var(--primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.35rem;
-    flex-shrink: 0;
-}
-
-.feature-text h3 {
-    font-size: 1rem;
-    font-weight: 700;
-    margin-bottom: 0.25rem;
-    color: var(--text-color);
-}
-
-.feature-text p {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    line-height: 1.5;
-}
-
-/* Author Overview Banner */
-.author-banner {
-    background: #ffffff;
-    border: 1px solid var(--card-border);
-    border-radius: 16px;
-    padding: 1.75rem 2rem;
-    margin-top: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    text-align: left;
-    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
-}
-
-.author-avatar-badge {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: rgba(37, 99, 235, 0.08);
-    color: var(--secondary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.75rem;
-    flex-shrink: 0;
-}
-
-.author-tag {
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--primary);
-    margin-bottom: 0.2rem;
-    display: inline-block;
-}
-
-.author-name {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-bottom: 0.35rem;
-}
-
-.author-desc {
-    font-size: 0.885rem;
-    color: var(--text-muted);
-    line-height: 1.55;
-}
-
 /* Handbook Info Banner on Teachers Hub */
 .handbook-info-banner {
     background: #ffffff;
@@ -1013,20 +911,6 @@ footer {
     .portal-desc {
         font-size: 0.925rem;
         margin-bottom: 1.25rem;
-    }
-
-    .features-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-        margin-top: 2rem;
-    }
-
-    .author-banner {
-        flex-direction: column;
-        text-align: center;
-        padding: 1.5rem 1.25rem;
-        gap: 1rem;
-        margin-top: 1.75rem;
     }
 
     .handbook-info-banner {
