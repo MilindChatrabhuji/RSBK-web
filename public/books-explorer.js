@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     let currentFolderId = ROOT_ID;
     let currentFolderName = 'Books Archive';
     let folderBreadcrumbs = [{ id: ROOT_ID, title: 'Books Archive' }];
-    let currentView = 'grid'; // 'grid' | 'details' | 'compact'
     let currentSort = 'folders-first'; // 'folders-first' | 'name-asc' | 'name-desc' | 'date-desc' | 'date-asc'
     let searchQuery = '';
     let currentFilter = 'all'; // 'all' | 'folders' | 'pdfs'
@@ -67,25 +66,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <option value="date-asc">Modified (Oldest)</option>
                         </select>
                     </div>
-
-                    <!-- View Switcher -->
-                    <div class="view-switcher" role="group" aria-label="View Mode">
-                        <button type="button" class="view-btn active" data-view="grid" title="Thumbnails / Grid View">
-                            <ion-icon name="grid-outline"></ion-icon>
-                        </button>
-                        <button type="button" class="view-btn" data-view="details" title="Details / List View">
-                            <ion-icon name="list-outline"></ion-icon>
-                        </button>
-                        <button type="button" class="view-btn" data-view="compact" title="Compact View">
-                            <ion-icon name="apps-outline"></ion-icon>
-                        </button>
-                    </div>
                 </div>
             </div>
 
             <!-- Explorer Content Area -->
             <div class="explorer-body">
-                <div id="explorerItemsContainer" class="explorer-grid-view"></div>
+                <div id="explorerItemsContainer" class="explorer-details-view"></div>
             </div>
 
             <!-- Footer Toolbar / Live Sync Info -->
@@ -149,7 +135,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const sortSelect = document.getElementById('explorerSortSelect');
     const itemsContainer = document.getElementById('explorerItemsContainer');
     const filterPills = document.querySelectorAll('.filter-pill');
-    const viewBtns = document.querySelectorAll('.view-btn');
     const toggleRawBtn = document.getElementById('toggleRawFrameBtn');
     const closeRawBtn = document.getElementById('closeRawFrameBtn');
     const rawFrameContainer = document.getElementById('rawDriveFrameContainer');
@@ -287,14 +272,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         return items;
     };
 
-    // Render Explorer Items
+    // Render Explorer Items (Details View)
     const renderExplorer = () => {
         renderBreadcrumbs();
         const items = getFilteredItems();
 
         const folderCount = items.filter(i => i.isFolder).length;
         const fileCount = items.filter(i => !i.isFolder).length;
-        countEl.textContent = `${items.length} items (${folderCount} folders, ${fileCount} PDFs)`;
+        countEl.textContent = `${items.length} items (${folderCount} ${folderCount === 1 ? 'folder' : 'folders'}, ${fileCount} PDFs)`;
 
         if (items.length === 0) {
             itemsContainer.innerHTML = `
@@ -307,139 +292,68 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // Update container view class
-        itemsContainer.className = `explorer-items-container explorer-${currentView}-view`;
-
-        if (currentView === 'details') {
-            // Table List View
-            let tableHtml = `
+        // Details Table View
+        let tableHtml = `
+            <div class="explorer-table-responsive">
                 <table class="explorer-table">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Type</th>
-                            <th>Date Modified</th>
-                            <th style="text-align: right;">Action</th>
+                            <th class="th-name">Book / Treatise Name</th>
+                            <th class="th-type">Type</th>
+                            <th class="th-date">Date Modified</th>
+                            <th class="th-action" style="text-align: right;">Action</th>
                         </tr>
                     </thead>
                     <tbody>
+        `;
+
+        items.forEach(item => {
+            const icon = item.isFolder 
+                ? '<ion-icon name="folder" class="table-icon folder"></ion-icon>' 
+                : '<ion-icon name="document-text" class="table-icon pdf"></ion-icon>';
+            const typeText = item.isFolder ? 'Folder' : 'PDF Document';
+            const actionBtn = item.isFolder 
+                ? `<button type="button" class="btn-table-action open-folder" data-id="${item.id}" data-title="${encodeURIComponent(item.title)}"><span>Browse Inside</span> <ion-icon name="arrow-forward-outline"></ion-icon></button>`
+                : `<button type="button" class="btn-table-action read-pdf" data-id="${item.id}" data-title="${encodeURIComponent(item.title)}"><ion-icon name="eye-outline"></ion-icon> <span>Read Online</span></button>`;
+
+            tableHtml += `
+                <tr class="explorer-table-row ${item.isFolder ? 'is-folder' : 'is-file'}" data-id="${item.id}" data-title="${encodeURIComponent(item.title)}" data-type="${item.isFolder ? 'folder' : 'pdf'}">
+                    <td class="table-col-name">
+                        <div class="table-name-wrapper">
+                            ${icon}
+                            <span class="table-item-title" title="${item.title}">${item.title}</span>
+                        </div>
+                    </td>
+                    <td class="table-col-type"><span class="badge-type ${item.isFolder ? 'folder' : 'pdf'}">${typeText}</span></td>
+                    <td class="table-col-date">${item.date || '—'}</td>
+                    <td class="table-col-action">
+                        <div class="table-action-group">
+                            ${actionBtn}
+                            <a href="https://drive.google.com/${item.isFolder ? 'drive/folders' : 'file/d'}/${item.id}/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="table-ext-link" title="Open in Google Drive (External)">
+                                <ion-icon name="open-outline"></ion-icon>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
             `;
-
-            items.forEach(item => {
-                const icon = item.isFolder ? '<ion-icon name="folder" class="table-icon folder"></ion-icon>' : '<ion-icon name="document-text" class="table-icon pdf"></ion-icon>';
-                const typeText = item.isFolder ? 'Folder' : 'PDF Document';
-                const actionBtn = item.isFolder 
-                    ? `<button type="button" class="btn-table-action open-folder" data-id="${item.id}" data-title="${encodeURIComponent(item.title)}">Open Folder →</button>`
-                    : `<button type="button" class="btn-table-action read-pdf" data-id="${item.id}" data-title="${encodeURIComponent(item.title)}"><ion-icon name="eye-outline"></ion-icon> Read Online</button>`;
-
-                tableHtml += `
-                    <tr class="explorer-table-row ${item.isFolder ? 'is-folder' : 'is-file'}" data-id="${item.id}" data-title="${encodeURIComponent(item.title)}" data-type="${item.isFolder ? 'folder' : 'pdf'}">
-                        <td class="table-col-name">
-                            <div class="table-name-wrapper">
-                                ${icon}
-                                <span class="table-item-title" title="${item.title}">${item.title}</span>
-                            </div>
-                        </td>
-                        <td class="table-col-type"><span class="badge-type ${item.isFolder ? 'folder' : 'pdf'}">${typeText}</span></td>
-                        <td class="table-col-date">${item.date || '—'}</td>
-                        <td class="table-col-action">
-                            <div class="table-action-group">
-                                ${actionBtn}
-                                <a href="https://drive.google.com/${item.isFolder ? 'drive/folders' : 'file/d'}/${item.id}/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="table-ext-link" title="Open in Google Drive">
-                                    <ion-icon name="open-outline"></ion-icon>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            tableHtml += `</tbody></table>`;
-            itemsContainer.innerHTML = tableHtml;
-
-        } else {
-            // Grid / Thumbnail & Compact View
-            let cardsHtml = '';
-
-            items.forEach(item => {
-                if (item.isFolder) {
-                    cardsHtml += `
-                        <div class="explorer-card-item folder-card" data-id="${item.id}" data-title="${encodeURIComponent(item.title)}">
-                            <div class="folder-icon-top">
-                                <ion-icon name="folder"></ion-icon>
-                                <span class="badge-type folder">Folder</span>
-                            </div>
-                            <div class="folder-body">
-                                <h4 class="folder-title" title="${item.title}">${item.title}</h4>
-                                <div class="item-meta-row">
-                                    <span>${item.date || 'Directory'}</span>
-                                    <span class="meta-tag">Click to explore</span>
-                                </div>
-                            </div>
-                            <div class="folder-footer">
-                                <button type="button" class="btn-card-primary open-folder" data-id="${item.id}" data-title="${encodeURIComponent(item.title)}">
-                                    <span>Browse Inside</span>
-                                    <ion-icon name="arrow-forward-outline"></ion-icon>
-                                </button>
-                                <a href="https://drive.google.com/drive/folders/${item.id}?usp=sharing" target="_blank" rel="noopener noreferrer" class="card-ext-btn" title="Open in Google Drive">
-                                    <ion-icon name="open-outline"></ion-icon>
-                                </a>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    const thumbHtml = item.thumb 
-                        ? `<img src="${item.thumb}" alt="${item.title}" class="pdf-card-thumb" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                           <div class="pdf-card-fallback" style="display: none;"><ion-icon name="document-text"></ion-icon></div>`
-                        : `<div class="pdf-card-fallback"><ion-icon name="document-text"></ion-icon></div>`;
-
-                    cardsHtml += `
-                        <div class="explorer-card-item pdf-card" data-id="${item.id}" data-title="${encodeURIComponent(item.title)}">
-                            <div class="pdf-thumb-wrapper">
-                                ${thumbHtml}
-                                <span class="badge-type pdf">PDF</span>
-                            </div>
-                            <div class="pdf-body">
-                                <h4 class="pdf-title" title="${item.title}">${item.title}</h4>
-                                <div class="item-meta-row">
-                                    <span>Modified: ${item.date || 'Recent'}</span>
-                                </div>
-                            </div>
-                            <div class="pdf-footer">
-                                <button type="button" class="btn-card-primary read-pdf" data-id="${item.id}" data-title="${encodeURIComponent(item.title)}">
-                                    <ion-icon name="eye-outline"></ion-icon>
-                                    <span>Read Online</span>
-                                </button>
-                                <a href="https://drive.google.com/file/d/${item.id}/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="card-ext-btn" title="Open in Google Drive">
-                                    <ion-icon name="open-outline"></ion-icon>
-                                </a>
-                            </div>
-                        </div>
-                    `;
-                }
-            });
-
-            itemsContainer.innerHTML = cardsHtml;
-        }
-
-        // Attach click handlers
-        // Clicking folder card or button -> navigate inside website
-        itemsContainer.querySelectorAll('.open-folder, .folder-card').forEach(el => {
-            el.addEventListener('click', (e) => {
-                if (e.target.closest('.card-ext-btn') || e.target.closest('.table-ext-link')) return;
-                const id = el.dataset.id;
-                const title = decodeURIComponent(el.dataset.title);
-                navigateToFolder(id, title);
-            });
         });
 
-        // Clicking PDF card or button -> open in-website modal reader
-        itemsContainer.querySelectorAll('.read-pdf, .pdf-card').forEach(el => {
-            el.addEventListener('click', (e) => {
-                if (e.target.closest('.card-ext-btn') || e.target.closest('.table-ext-link')) return;
-                const id = el.dataset.id;
-                const title = decodeURIComponent(el.dataset.title);
-                openReader(id, title);
+        tableHtml += `</tbody></table></div>`;
+        itemsContainer.innerHTML = tableHtml;
+
+        // Row Click: entire row is interactive
+        itemsContainer.querySelectorAll('.explorer-table-row').forEach(row => {
+            row.addEventListener('click', (e) => {
+                if (e.target.closest('.table-ext-link')) return;
+                const id = row.dataset.id;
+                const title = decodeURIComponent(row.dataset.title);
+                const isFolder = row.dataset.type === 'folder';
+
+                if (isFolder) {
+                    navigateToFolder(id, title);
+                } else {
+                    openReader(id, title);
+                }
             });
         });
     };
@@ -472,16 +386,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     sortSelect.addEventListener('change', (e) => {
         currentSort = e.target.value;
         renderExplorer();
-    });
-
-    // View buttons
-    viewBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            viewBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentView = btn.dataset.view;
-            renderExplorer();
-        });
     });
 
     // Toggle Raw Frame
