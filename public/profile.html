@@ -51,7 +51,7 @@ lang="en">
                 <!-- User Header Card -->
                 <div class="profile-header-card">
                     <div class="profile-avatar-wrapper">
-                        <img id="profileAvatarImg" src="https://ui-avatars.com/api/?name=Scholar&background=059669&color=fff" alt="User Profile" class="profile-avatar" referrerpolicy="no-referrer">
+                        <img id="profileAvatarImg" src="https://ui-avatars.com/api/?name=User&background=059669&color=fff" alt="User Profile" class="profile-avatar" referrerpolicy="no-referrer">
                         <div class="profile-status-dot" title="Active Account"></div>
                     </div>
                     <div class="profile-header-info">
@@ -59,15 +59,15 @@ lang="en">
                             <span class="badge badge-verified">
                                 <ion-icon name="checkmark-circle"></ion-icon> Google Verified
                             </span>
-                            <span class="badge badge-tier" id="profileTierBadge">Free Scholar</span>
+                            <span class="badge badge-tier" id="profileTierBadge">Member</span>
                         </div>
-                        <h1 class="profile-name" id="profileDisplayName">Academic Scholar</h1>
-                        <p class="profile-email" id="profileDisplayEmail">scholar@ayurveda.edu</p>
+                        <h1 class="profile-name" id="profileDisplayName">User Profile</h1>
+                        <p class="profile-email" id="profileDisplayEmail">user@domain.com</p>
                     </div>
                     <div class="profile-header-action">
                         <a href="membership.html" class="btn-tier-action">
                             <ion-icon name="wallet-outline"></ion-icon>
-                            <span>Scholar Wallet (₹1/Day)</span>
+                            <span>Wallet (₹1/Day)</span>
                         </a>
                     </div>
                 </div>
@@ -340,7 +340,7 @@ lang="en">
                         tierBadge.textContent = `Active Member (${days} ${days === 1 ? 'Day' : 'Days'} Remaining)`;
                         tierBadge.className = 'badge badge-tier pro';
                     } else {
-                        tierBadge.textContent = 'Scholar (Top-up to Activate)';
+                        tierBadge.textContent = 'Inactive (Top-up to Activate)';
                         tierBadge.className = 'badge badge-tier free';
                     }
                 }
@@ -402,7 +402,7 @@ lang="en">
                 const fullNameInput = document.getElementById('profFullName');
 
                 if (avatar && user.photoURL) avatar.src = user.photoURL;
-                if (nameEl) nameEl.textContent = user.displayName || 'Academic Scholar';
+                if (nameEl) nameEl.textContent = user.displayName || 'User Profile';
                 if (emailEl) emailEl.textContent = user.email || '';
                 if (fullNameInput && !fullNameInput.value) fullNameInput.value = user.displayName || '';
 

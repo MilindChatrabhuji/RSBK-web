@@ -93,11 +93,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <span>Sign in</span>
             </button>
             <div id="userProfileArea" class="user-profile-area" style="display: none;">
-                <a href="profile.html" class="user-profile-link" title="Open My Scholar Profile">
+                <a href="profile.html" class="user-profile-link" title="Open Profile">
                     <img id="userAvatar" class="user-avatar" src="" alt="User" referrerpolicy="no-referrer" />
                     <span id="userName" class="user-name"></span>
                 </a>
-                <a href="membership.html" id="userTierPill" class="user-tier-pill" title="Membership Plan">Scholar</a>
                 <button id="signOutBtn" class="btn-signout" type="button" title="Sign out">Sign out</button>
             </div>
         `;
@@ -176,7 +175,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const signOutBtn = document.getElementById('signOutBtn');
 
         onAuthStateChanged(auth, (user) => {
-            const userTierPill = document.getElementById('userTierPill');
             if (user) {
                 document.body.classList.add('auth-verified');
                 if (signInBtn) signInBtn.style.display = 'none';
@@ -187,27 +185,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (userName) {
                     const firstName = (user.displayName || user.email || 'User').split(' ')[0];
                     userName.textContent = firstName;
-                }
-                if (userTierPill) {
-                    let walletBal = 0;
-                    try {
-                        const wRaw = localStorage.getItem(`rsbk_wallet_${user.uid}`);
-                        if (wRaw) {
-                            const w = JSON.parse(wRaw);
-                            walletBal = w.balance || 0;
-                        }
-                    } catch (e) {}
-
-                    if (walletBal >= 1) {
-                        const days = Math.floor(walletBal);
-                        userTierPill.textContent = `₹${days} · ${days}d`;
-                        userTierPill.className = 'user-tier-pill pro';
-                        userTierPill.title = `Active Scholar Wallet: ₹${walletBal.toFixed(2)} (${days} days of access remaining)`;
-                    } else {
-                        userTierPill.textContent = 'SCHOLAR';
-                        userTierPill.className = 'user-tier-pill free';
-                        userTierPill.title = 'Scholar Account — Top-up ₹1/day to activate';
-                    }
                 }
                 window.dispatchEvent(new CustomEvent('rsbk-user-authenticated', { detail: user }));
             } else {
