@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -21,14 +21,25 @@
     <header class="navbar">
         <div class="nav-container">
             <a href="index.html" class="logo">
-                <span class="logo-text">RSBK Online</span>
-                <span class="logo-dot">.</span>
+                <span class="logo-text">RSBK Online</span><span class="logo-dot">.</span>
             </a>
-            <nav class="nav-links">
-                <a href="index.html">Home</a>
-                <a href="students.html" class="active">For Students</a>
-                <a href="teachers.html">For Teachers</a>
+
+            <div class="nav-overlay" id="navOverlay"></div>
+
+            <nav class="nav-links" id="navLinks">
+                <a href="index.html"><ion-icon name="home-outline"></ion-icon><span>Home</span></a>
+                <a href="students.html" class="active"><ion-icon name="school-outline"></ion-icon><span>For Students</span></a>
+                <a href="teachers.html"><ion-icon name="easel-outline"></ion-icon><span>For Teachers</span></a>
             </nav>
+
+            <div class="nav-actions">
+                <div class="auth-widget" id="authWidget"></div>
+                <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false">
+                    <span class="bar bar-1"></span>
+                    <span class="bar bar-2"></span>
+                    <span class="bar bar-3"></span>
+                </button>
+            </div>
         </div>
     </header>
 

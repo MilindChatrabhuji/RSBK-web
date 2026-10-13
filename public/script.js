@@ -35,12 +35,54 @@ document.addEventListener('DOMContentLoaded', async () => {
         observer.observe(el);
     });
 
-    // Inject Auth Container into Navbar
-    const navLinks = document.querySelector('.nav-links');
-    if (navLinks) {
-        const authWidget = document.createElement('div');
-        authWidget.className = 'auth-widget';
-        authWidget.innerHTML = `
+    // Setup Mobile Navigation Toggle
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    const navOverlay = document.getElementById('navOverlay');
+
+    if (navToggle && navLinks) {
+        const setMenuOpen = (isOpen) => {
+            navLinks.classList.toggle('open', isOpen);
+            navToggle.classList.toggle('active', isOpen);
+            navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            if (navOverlay) navOverlay.classList.toggle('open', isOpen);
+            document.body.style.overflow = isOpen ? 'hidden' : '';
+        };
+
+        navToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = navLinks.classList.contains('open');
+            setMenuOpen(!isOpen);
+        });
+
+        if (navOverlay) {
+            navOverlay.addEventListener('click', () => setMenuOpen(false));
+        }
+
+        // Close when clicking any nav link
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => setMenuOpen(false));
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && navLinks.classList.contains('open')) {
+                setMenuOpen(false);
+            }
+        });
+
+        // Close on window resize back to desktop
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768 && navLinks.classList.contains('open')) {
+                setMenuOpen(false);
+            }
+        });
+    }
+
+    // Mount Auth Widget into Navbar
+    const authContainer = document.getElementById('authWidget') || document.querySelector('.auth-widget');
+    if (authContainer) {
+        authContainer.innerHTML = `
             <button id="googleSignInBtn" class="btn-google-signin" type="button" title="Sign in with Google">
                 <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18">
                     <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
@@ -56,7 +98,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <button id="signOutBtn" class="btn-signout" type="button" title="Sign out">Sign out</button>
             </div>
         `;
-        navLinks.appendChild(authWidget);
     }
 
     // Initialize Firebase Authentication
