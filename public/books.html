@@ -31,6 +31,7 @@
                 <a href="students.html"><ion-icon name="school-outline"></ion-icon><span>For Students</span></a>
                 <a href="teachers.html"><ion-icon name="easel-outline"></ion-icon><span>For Teachers</span></a>
                 <a href="books.html" class="active"><ion-icon name="library-outline"></ion-icon><span>Books</span></a>
+                <a href="membership.html"><ion-icon name="ribbon-outline"></ion-icon><span>Membership</span></a>
             </nav>
 
             <div class="nav-actions">
@@ -48,26 +49,14 @@
         <section class="drive-embed-section">
             <div class="section-header">
                 <div class="badge">
-                    <ion-icon name="cloud-done-outline" style="vertical-align: -2px; margin-right: 4px;"></ion-icon> Live Drive Repository · Auto-Sync
+                    <ion-icon name="cloud-done-outline" style="vertical-align: -2px; margin-right: 4px;"></ion-icon> Live Drive Repository · In-Website Explorer
                 </div>
                 <h1 class="section-title">Reference Books Archive</h1>
-                <p class="section-description">Classical Ayurvedic treatises, research volumes, textbooks, and monographs curated by Dr. Milind Chatrabhuji. Any newly added books in the cloud folder automatically appear here in real time.</p>
+                <p class="section-description">Classical Ayurvedic treatises, research volumes, textbooks, and monographs curated by Dr. Milind Chatrabhuji. Browse folders, switch between grid and detail views, sort, and read books directly on the website.</p>
             </div>
 
-            <div class="drive-toolbar">
-                <div class="drive-toolbar-info">
-                    <ion-icon name="folder-open-outline"></ion-icon>
-                    <span><strong>Live Cloud Repository</strong> — Click any book to preview or download</span>
-                </div>
-                <a href="https://drive.google.com/drive/folders/1QQJbbI84f7hlVqSNB4cs5AgeKVdDz-9v?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn-drive-external">
-                    <ion-icon name="open-outline"></ion-icon>
-                    <span>Open in Google Drive</span>
-                </a>
-            </div>
-
-            <div class="drive-frame-wrapper">
-                <iframe src="https://drive.google.com/embeddedfolderview?id=1QQJbbI84f7hlVqSNB4cs5AgeKVdDz-9v#grid" class="drive-frame" title="RSBK Reference Books Google Drive Archive" allow="autoplay"></iframe>
-            </div>
+            <!-- In-Website Folder & Books Explorer -->
+            <div id="booksExplorer"></div>
         </section>
     </main>
 
@@ -89,6 +78,10 @@
             <ion-icon name="library-outline"></ion-icon>
             <span>Books</span>
         </a>
+        <a href="profile.html">
+            <ion-icon name="person-outline"></ion-icon>
+            <span>Profile</span>
+        </a>
     </nav>
 
     <footer>
@@ -97,6 +90,7 @@
         </div>
     </footer>
 
-    <script src="script.js?v=3.1"></script>
+    <script src="books-explorer.js?v=3.3"></script>
+    <script src="script.js?v=3.3"></script>
 </body>
 </html>

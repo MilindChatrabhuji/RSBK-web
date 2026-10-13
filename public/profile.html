@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scholar Profile | Dr. Milind Chatrabhuji — RSBK Online</title>
+    <meta name="description" content="Academic scholar profile for postgraduates, researchers, and faculty members on RSBK Online portal.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=3.3">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body class="protected-page">
+    <div class="background-effects">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+    </div>
+
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <span class="logo-text">RSBK Online</span><span class="logo-dot">.</span>
+            </a>
+
+            <div class="nav-overlay" id="navOverlay"></div>
+
+            <nav class="nav-links" id="navLinks">
+                <a href="index.html"><ion-icon name="home-outline"></ion-icon><span>Home</span></a>
+                <a href="students.html"><ion-icon name="school-outline"></ion-icon><span>For Students</span></a>
+                <a href="teachers.html"><ion-icon name="easel-outline"></ion-icon><span>For Teachers</span></a>
+                <a href="books.html"><ion-icon name="library-outline"></ion-icon><span>Books</span></a>
+                <a href="membership.html"><ion-icon name="ribbon-outline"></ion-icon><span>Membership</span></a>
+            </nav>
+
+            <div class="nav-actions">
+                <div class="auth-widget" id="authWidget"></div>
+                <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false">
+                    <span class="bar bar-1"></span>
+                    <span class="bar bar-2"></span>
+                    <span class="bar bar-3"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="page-main">
+        <section class="profile-section">
+            <div class="profile-container">
+                <!-- User Header Card -->
+                <div class="profile-header-card">
+                    <div class="profile-avatar-wrapper">
+                        <img id="profileAvatarImg" src="https://ui-avatars.com/api/?name=Scholar&background=059669&color=fff" alt="User Profile" class="profile-avatar" referrerpolicy="no-referrer">
+                        <div class="profile-status-dot" title="Active Account"></div>
+                    </div>
+                    <div class="profile-header-info">
+                        <div class="profile-badge-row">
+                            <span class="badge badge-verified">
+                                <ion-icon name="checkmark-circle"></ion-icon> Google Verified
+                            </span>
+                            <span class="badge badge-tier" id="profileTierBadge">Free Scholar</span>
+                        </div>
+                        <h1 class="profile-name" id="profileDisplayName">Academic Scholar</h1>
+                        <p class="profile-email" id="profileDisplayEmail">scholar@ayurveda.edu</p>
+                    </div>
+                    <div class="profile-header-action">
+                        <a href="membership.html" class="btn-tier-action">
+                            <ion-icon name="sparkles-outline"></ion-icon>
+                            <span>Membership Plans</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Form Notice -->
+                <div class="profile-notice">
+                    <ion-icon name="information-circle-outline"></ion-icon>
+                    <span><strong>Voluntary Academic Profile:</strong> All fields are voluntary. Filling this helps tailor curriculum-aligned updates, pedagogical resources, and publication announcements to your academic focus.</span>
+                </div>
+
+                <!-- Profile Edit Form -->
+                <form id="profileForm" class="profile-form" onsubmit="return false;">
+                    <!-- Card 1: Credentials & Institution -->
+                    <div class="profile-card">
+                        <div class="profile-card-header">
+                            <div class="card-header-icon"><ion-icon name="school-outline"></ion-icon></div>
+                            <div>
+                                <h2 class="card-header-title">Academic &amp; Institutional Credentials</h2>
+                                <p class="card-header-desc">Your professional title, designation, and institutional affiliation.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group form-col-2">
+                                <label for="profSalutation">Title / Salutation</label>
+                                <select id="profSalutation" name="salutation">
+                                    <option value="Dr.">Dr.</option>
+                                    <option value="Vd.">Vaidya (Vd.)</option>
+                                    <option value="Prof.">Prof.</option>
+                                    <option value="Mr.">Mr.</option>
+                                    <option value="Ms.">Ms.</option>
+                                    <option value="Scholar">Scholar</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group form-col-4">
+                                <label for="profFullName">Full Name</label>
+                                <input type="text" id="profFullName" name="fullName" placeholder="e.g. Dr. Ramesh Sharma">
+                            </div>
+
+                            <div class="form-group form-col-3">
+                                <label for="profDesignation">Academic Designation</label>
+                                <select id="profDesignation" name="designation">
+                                    <option value="">Select Designation...</option>
+                                    <option value="PG Scholar (MD/MS Ay.)">PG Scholar (MD/MS Ay.)</option>
+                                    <option value="UG Student (BAMS)">UG Student (BAMS)</option>
+                                    <option value="Assistant Professor">Assistant Professor</option>
+                                    <option value="Associate Professor">Associate Professor</option>
+                                    <option value="Professor & HOD">Professor &amp; HOD</option>
+                                    <option value="Research Scholar / PhD">Research Scholar / PhD</option>
+                                    <option value="Medical Officer / Practitioner">Medical Officer / Practitioner</option>
+                                    <option value="Industry / Pharmacist">Industry / Quality Expert</option>
+                                    <option value="Other">Other Academician</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group form-col-3">
+                                <label for="profDepartment">Primary Department</label>
+                                <select id="profDepartment" name="department">
+                                    <option value="Rasashastra & Bhaishajya Kalpana">Rasashastra &amp; Bhaishajya Kalpana</option>
+                                    <option value="Dravyaguna Vijnana">Dravyaguna Vijnana</option>
+                                    <option value="Kayachikitsa">Kayachikitsa</option>
+                                    <option value="Shalya Tantra">Shalya Tantra</option>
+                                    <option value="Shalakya Tantra">Shalakya Tantra</option>
+                                    <option value="Prasuti & Stri Roga">Prasuti &amp; Stri Roga</option>
+                                    <option value="Kaumarbhritya">Kaumarbhritya</option>
+                                    <option value="Swasthavritta">Swasthavritta</option>
+                                    <option value="Samhita & Siddhanta">Samhita &amp; Siddhanta</option>
+                                    <option value="Agada Tantra">Agada Tantra</option>
+                                    <option value="Other">Other Specialty</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group form-col-6">
+                                <label for="profInstitution">College / University / Institution Name</label>
+                                <input type="text" id="profInstitution" name="institution" placeholder="e.g. Government Ayurved College &amp; Hospital">
+                            </div>
+
+                            <div class="form-group form-col-3">
+                                <label for="profCity">City</label>
+                                <input type="text" id="profCity" name="city" placeholder="e.g. Vadodara">
+                            </div>
+
+                            <div class="form-group form-col-3">
+                                <label for="profState">State / Country</label>
+                                <input type="text" id="profState" name="state" placeholder="e.g. Gujarat, India">
+                            </div>
+
+                            <div class="form-group form-col-6">
+                                <label for="profRegNumber">Registration / NCISM Number <span class="voluntary-tag">(Voluntary)</span></label>
+                                <input type="text" id="profRegNumber" name="regNumber" placeholder="e.g. State Board / Central Council Reg. No.">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Academic Focus & Curriculum -->
+                    <div class="profile-card">
+                        <div class="profile-card-header">
+                            <div class="card-header-icon"><ion-icon name="book-outline"></ion-icon></div>
+                            <div>
+                                <h2 class="card-header-title">Academic Curriculum &amp; Specialization Areas</h2>
+                                <p class="card-header-desc">Identify your current study stage and clinical/laboratory focus.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group form-col-6">
+                                <label for="profStage">Current Academic Stage / Semester</label>
+                                <select id="profStage" name="stage">
+                                    <option value="">Select Academic Stage...</option>
+                                    <option value="UG BAMS - Professional Year II/III">UG BAMS - Professional Year II/III</option>
+                                    <option value="MD/MS RSBK - Semester 1 (Applied Basics)">MD/MS RSBK - Semester 1 (Applied Basics)</option>
+                                    <option value="MD/MS RSBK - Semester 2">MD/MS RSBK - Semester 2</option>
+                                    <option value="MD/MS RSBK - Semester 3 to 6 (Specialty)">MD/MS RSBK - Semester 3 to 6 (Specialty)</option>
+                                    <option value="Faculty Member / Academic Mentorship">Faculty Member / Academic Mentorship</option>
+                                    <option value="Researcher / Practitioner">Independent Researcher / Practitioner</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group form-col-6">
+                                <label>Areas of Interest &amp; Study Focus <span class="voluntary-tag">(Select all that apply)</span></label>
+                                <div class="interests-grid" id="interestsContainer">
+                                    <label class="interest-chip">
+                                        <input type="checkbox" name="interests" value="Herbo-Mineral Formulations & Bhasma">
+                                        <span>Herbo-Mineral Formulations &amp; Bhasma</span>
+                                    </label>
+                                    <label class="interest-chip">
+                                        <input type="checkbox" name="interests" value="Bloom's & Miller's Pedagogical Frameworks">
+                                        <span>Bloom's &amp; Miller's Pedagogy</span>
+                                    </label>
+                                    <label class="interest-chip">
+                                        <input type="checkbox" name="interests" value="ABQ Question Banks & Examination Blueprints">
+                                        <span>ABQ Question Banks</span>
+                                    </label>
+                                    <label class="interest-chip">
+                                        <input type="checkbox" name="interests" value="Practical Training Proformas & Logbooks">
+                                        <span>Practical Training Proformas</span>
+                                    </label>
+                                    <label class="interest-chip">
+                                        <input type="checkbox" name="interests" value="Classical Ayurvedic Treatises & Manuscripts">
+                                        <span>Classical Treatises &amp; Manuscripts</span>
+                                    </label>
+                                    <label class="interest-chip">
+                                        <input type="checkbox" name="interests" value="Standardization & Analytical Chemistry">
+                                        <span>Standardization &amp; Quality Analysis</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group form-col-6">
+                                <label for="profBio">Short Academic Bio / Research Summary <span class="voluntary-tag">(Voluntary)</span></label>
+                                <textarea id="profBio" name="bio" rows="3" placeholder="Brief outline of your research topics, clinical interests, or pedagogical goals..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Contact & Academic Links -->
+                    <div class="profile-card">
+                        <div class="profile-card-header">
+                            <div class="card-header-icon"><ion-icon name="link-outline"></ion-icon></div>
+                            <div>
+                                <h2 class="card-header-title">Academic Links &amp; Connectivity</h2>
+                                <p class="card-header-desc">Optional links to your research publications and academic profiles.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group form-col-3">
+                                <label for="profPhone">Mobile / WhatsApp Number <span class="voluntary-tag">(Voluntary)</span></label>
+                                <input type="tel" id="profPhone" name="phone" placeholder="+91 98765 43210">
+                            </div>
+
+                            <div class="form-group form-col-3">
+                                <label for="profLanguage">Preferred Academic Language</label>
+                                <select id="profLanguage" name="language">
+                                    <option value="English">English</option>
+                                    <option value="Hindi">Hindi (हिंदी)</option>
+                                    <option value="Sanskrit">Sanskrit (संस्कृतम्)</option>
+                                    <option value="Gujarati">Gujarati (ગુજરાતી)</option>
+                                    <option value="Bilingual">Bilingual / Multilingual</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group form-col-3">
+                                <label for="profLinkedIn">LinkedIn Profile URL</label>
+                                <input type="url" id="profLinkedIn" name="linkedin" placeholder="https://linkedin.com/in/username">
+                            </div>
+
+                            <div class="form-group form-col-3">
+                                <label for="profResearchGate">ResearchGate / ORCID URL</label>
+                                <input type="url" id="profResearchGate" name="researchGate" placeholder="https://orcid.org/0000-...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit / Save Bar -->
+                    <div class="profile-action-bar">
+                        <div id="profileSaveFeedback" class="save-feedback" style="display: none;">
+                            <ion-icon name="checkmark-circle"></ion-icon>
+                            <span>Profile updated successfully!</span>
+                        </div>
+                        <div class="action-buttons">
+                            <button type="button" id="resetProfileBtn" class="btn-profile-secondary">Reset Changes</button>
+                            <button type="button" id="saveProfileBtn" class="btn-profile-primary">
+                                <ion-icon name="save-outline"></ion-icon>
+                                <span>Save Academic Profile</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Semi-Transparent Floating Menu Bar for Mobile Mode -->
+    <nav class="mobile-menu-bar" aria-label="Mobile Navigation">
+        <a href="index.html">
+            <ion-icon name="home-outline"></ion-icon>
+            <span>Home</span>
+        </a>
+        <a href="students.html">
+            <ion-icon name="school-outline"></ion-icon>
+            <span>Students</span>
+        </a>
+        <a href="teachers.html">
+            <ion-icon name="easel-outline"></ion-icon>
+            <span>Teachers</span>
+        </a>
+        <a href="books.html">
+            <ion-icon name="library-outline"></ion-icon>
+            <span>Books</span>
+        </a>
+        <a href="profile.html" class="active">
+            <ion-icon name="person-outline"></ion-icon>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2026 Dr. Milind Chatrabhuji. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js?v=3.3"></script>
+    <script>
+        // Profile form auto-save and pre-populate script
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('profileForm');
+            const saveBtn = document.getElementById('saveProfileBtn');
+            const resetBtn = document.getElementById('resetProfileBtn');
+            const feedback = document.getElementById('profileSaveFeedback');
+            const tierBadge = document.getElementById('profileTierBadge');
+
+            const loadProfileData = (uid) => {
+                const stored = localStorage.getItem(`rsbk_profile_${uid}`);
+                const membership = localStorage.getItem(`rsbk_membership_${uid}`) || 'free';
+                
+                // Tier badge
+                if (tierBadge) {
+                    if (membership === 'faculty') {
+                        tierBadge.textContent = 'Faculty Elite Member';
+                        tierBadge.className = 'badge badge-tier faculty';
+                    } else if (membership === 'pro') {
+                        tierBadge.textContent = 'PG Scholar Pro';
+                        tierBadge.className = 'badge badge-tier pro';
+                    } else {
+                        tierBadge.textContent = 'Free Scholar';
+                        tierBadge.className = 'badge badge-tier free';
+                    }
+                }
+
+                if (!stored) return;
+                try {
+                    const data = JSON.parse(stored);
+                    Object.keys(data).forEach(key => {
+                        const input = form.elements[key];
+                        if (input) {
+                            if (input.type === 'checkbox') {
+                                input.checked = data[key];
+                            } else if (input.length && input[0].type === 'checkbox') {
+                                const vals = Array.isArray(data[key]) ? data[key] : [data[key]];
+                                for (let i = 0; i < input.length; i++) {
+                                    input[i].checked = vals.includes(input[i].value);
+                                }
+                            } else {
+                                input.value = data[key];
+                            }
+                        }
+                    });
+                } catch (e) {
+                    console.error('Error parsing stored profile:', e);
+                }
+            };
+
+            const saveProfileData = (uid) => {
+                const data = {};
+                const formData = new FormData(form);
+                const interests = [];
+                formData.forEach((val, key) => {
+                    if (key === 'interests') {
+                        interests.push(val);
+                    } else {
+                        data[key] = val;
+                    }
+                });
+                data.interests = interests;
+
+                localStorage.setItem(`rsbk_profile_${uid}`, JSON.stringify(data));
+                
+                if (feedback) {
+                    feedback.style.display = 'inline-flex';
+                    setTimeout(() => {
+                        feedback.style.display = 'none';
+                    }, 3500);
+                }
+            };
+
+            // Listen for Firebase Auth user
+            window.addEventListener('rsbk-user-authenticated', (e) => {
+                const user = e.detail;
+                if (!user) return;
+                
+                const avatar = document.getElementById('profileAvatarImg');
+                const nameEl = document.getElementById('profileDisplayName');
+                const emailEl = document.getElementById('profileDisplayEmail');
+                const fullNameInput = document.getElementById('profFullName');
+
+                if (avatar && user.photoURL) avatar.src = user.photoURL;
+                if (nameEl) nameEl.textContent = user.displayName || 'Academic Scholar';
+                if (emailEl) emailEl.textContent = user.email || '';
+                if (fullNameInput && !fullNameInput.value) fullNameInput.value = user.displayName || '';
+
+                loadProfileData(user.uid);
+
+                saveBtn.addEventListener('click', () => saveProfileData(user.uid));
+                resetBtn.addEventListener('click', () => {
+                    form.reset();
+                    loadProfileData(user.uid);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

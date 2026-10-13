@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membership Plans | Dr. Milind Chatrabhuji — RSBK Online</title>
+    <meta name="description" content="Academic membership plans for Ayurvedic scholars, postgraduate students, and faculty members on RSBK Online.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=3.3">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body class="protected-page">
+    <div class="background-effects">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+    </div>
+
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <span class="logo-text">RSBK Online</span><span class="logo-dot">.</span>
+            </a>
+
+            <div class="nav-overlay" id="navOverlay"></div>
+
+            <nav class="nav-links" id="navLinks">
+                <a href="index.html"><ion-icon name="home-outline"></ion-icon><span>Home</span></a>
+                <a href="students.html"><ion-icon name="school-outline"></ion-icon><span>For Students</span></a>
+                <a href="teachers.html"><ion-icon name="easel-outline"></ion-icon><span>For Teachers</span></a>
+                <a href="books.html"><ion-icon name="library-outline"></ion-icon><span>Books</span></a>
+                <a href="membership.html" class="active"><ion-icon name="ribbon-outline"></ion-icon><span>Membership</span></a>
+            </nav>
+
+            <div class="nav-actions">
+                <div class="auth-widget" id="authWidget"></div>
+                <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false">
+                    <span class="bar bar-1"></span>
+                    <span class="bar bar-2"></span>
+                    <span class="bar bar-3"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="page-main">
+        <section class="membership-section">
+            <div class="membership-container">
+                <!-- Header -->
+                <div class="section-header">
+                    <div class="badge">
+                        <ion-icon name="ribbon-outline" style="vertical-align: -2px; margin-right: 4px;"></ion-icon> Academic Tiers &amp; Plans
+                    </div>
+                    <h1 class="section-title">Empower Your Scholarship &amp; Pedagogy</h1>
+                    <p class="section-description">Choose the academic tier tailored to your educational journey — from classical treatises to postgraduate ABQ question banks and institutional Bloom's-Miller's pedagogical frameworks.</p>
+                </div>
+
+                <!-- Membership Current Status Bar -->
+                <div class="current-membership-strip">
+                    <div class="strip-left">
+                        <ion-icon name="shield-checkmark-outline"></ion-icon>
+                        <div>
+                            <span class="strip-label">Your Current Academic Tier</span>
+                            <strong class="strip-tier-name" id="currentTierName">Free Scholar</strong>
+                        </div>
+                    </div>
+                    <div class="strip-right">
+                        <a href="profile.html" class="btn-strip-profile">
+                            <ion-icon name="person-circle-outline"></ion-icon>
+                            <span>View Scholar Profile</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Pricing & Plans Grid -->
+                <div class="plans-grid">
+                    <!-- Plan 1: Free Scholar -->
+                    <div class="plan-card plan-free">
+                        <div class="plan-header">
+                            <span class="plan-tier-badge">Entry Tier</span>
+                            <h3 class="plan-title">Free Scholar</h3>
+                            <p class="plan-desc">Essential classical treatises and curriculum foundations for BAMS students and general readers.</p>
+                            <div class="plan-price">
+                                <span class="currency">₹</span>
+                                <span class="amount">0</span>
+                                <span class="period">/ Free Forever</span>
+                            </div>
+                        </div>
+
+                        <ul class="plan-features">
+                            <li><ion-icon name="checkmark-circle"></ion-icon> <span>Reference Books Archive (60+ Treatises)</span></li>
+                            <li><ion-icon name="checkmark-circle"></ion-icon> <span>In-website Folder Explorer &amp; Search</span></li>
+                            <li><ion-icon name="checkmark-circle"></ion-icon> <span>In-Website Digital PDF Reader</span></li>
+                            <li><ion-icon name="checkmark-circle"></ion-icon> <span>Google Verified Scholar Profile</span></li>
+                            <li class="locked"><ion-icon name="lock-closed-outline"></ion-icon> <span>Complete ABQ Question Bank</span></li>
+                            <li class="locked"><ion-icon name="lock-closed-outline"></ion-icon> <span>47 Practical Training Proformas</span></li>
+                            <li class="locked"><ion-icon name="lock-closed-outline"></ion-icon> <span>6-Volume Bloom's &amp; Miller's Series</span></li>
+                        </ul>
+
+                        <div class="plan-footer">
+                            <button type="button" class="btn-plan-select plan-btn-free" data-tier="free">
+                                <ion-icon name="checkmark-outline"></ion-icon>
+                                <span>Default Plan (Active)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Plan 2: PG Scholar Pro (Featured) -->
+                    <div class="plan-card plan-pro featured">
+                        <div class="plan-popular-ribbon">Most Popular for Postgraduates</div>
+                        <div class="plan-header">
+                            <span class="plan-tier-badge pro-badge">Scholars Tier</span>
+                            <h3 class="plan-title">PG Scholar Pro</h3>
+                            <p class="plan-desc">Comprehensive study modules, complete ABQ question banks, and practical proformas for MD/MS scholars.</p>
+                            <div class="plan-price">
+                                <span class="currency">₹</span>
+                                <span class="amount">499</span>
+                                <span class="period">/ Semester</span>
+                            </div>
+                        </div>
+
+                        <ul class="plan-features">
+                            <li><ion-icon name="checkmark-circle"></ion-icon> <span>Everything included in Free Scholar</span></li>
+                            <li><ion-icon name="checkmark-circle"></ion-icon> <span><strong>Complete ABQ Question Bank (Applied Basics)</strong></span></li>
+                            <li><ion-icon name="checkmark-circle"></ion-icon> <span><strong>All 47 Practical Training Proformas &amp; Logbooks</strong></span></li>
+                            <li><ion-icon name="checkmark-circle"></ion-icon> <span>Semester-wise High-Yield Examination Blueprints</span></li>
+                            <li><ion-icon name="checkmark-circle"></ion-icon> <span>Offline PDF Study Pass &amp; Printing Rights</span></li>
+                            <li><ion-icon name="checkmark-circle"></ion-icon> <span>Priority Academic Discussion &amp; Doubt Clearing</span></li>
+                            <li class="locked"><ion-icon name="lock-closed-outline"></ion-icon> <span>Institutional Faculty Series</span></li>
+                        </ul>
+
+                        <div class="plan-footer">
+                            <button type="button" class="btn-plan-select plan-btn-pro" data-tier="pro">
+                                <ion-icon name="sparkles-outline"></ion-icon>
+                                <span>Select PG Scholar Pro</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Plan 3: Faculty Elite -->
+                    <div class="plan-card plan-faculty">
+                        <div class="plan-header">
+                            <span class="plan-tier-badge faculty-badge">Faculty &amp; HODs</span>
+                            <h3 class="plan-title">Faculty Elite</h3>
+                            <p class="plan-desc">Complete pedagogical frameworks, cognitive matrices, and competency rubrics for academic faculty.</p>
+                            <div class="plan-price">
+                                <span class="currency">₹</span>
+                                <span class="amount">1,499</span>
+                                <span class="period">/ Annual License</span>
+                            </div>
+                        </div>
+
+                        <ul class="plan-features">
+                            <li><ion-icon name="checkmark-circle"></ion-icon> <span>Everything included in PG Scholar Pro</span></li>
+                            <li><ion-icon name="checkmark-circle"></ion-icon> <span><strong>Complete 6-Volume Bloom's Taxonomy Series</strong></span></li>
+                            <li><ion-icon name="checkmark-circle"></ion-icon> <span><strong>Miller's Pyramid Clinical Competency Series</strong></span></li>
+                            <li><ion-icon name="checkmark-circle"></ion-icon> <span>Model Practical Lesson Plan Proformas for Teachers</span></li>
+                            <li><ion-icon name="checkmark-circle"></ion-icon> <span>Semester 1 to 6 Curricular Blueprints &amp; Rubrics</span></li>
+                            <li><ion-icon name="checkmark-circle"></ion-icon> <span>Verified Academician Badge on Scholar Profile</span></li>
+                            <li><ion-icon name="checkmark-circle"></ion-icon> <span>Departmental Curriculum Committee Rights</span></li>
+                        </ul>
+
+                        <div class="plan-footer">
+                            <button type="button" class="btn-plan-select plan-btn-faculty" data-tier="faculty">
+                                <ion-icon name="school-outline"></ion-icon>
+                                <span>Select Faculty Elite</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security & Payment Architecture Notice -->
+                <div class="security-architecture-card">
+                    <div class="security-icon"><ion-icon name="lock-closed"></ion-icon></div>
+                    <div class="security-info">
+                        <h3>Security &amp; Paywall Architecture</h3>
+                        <p>Memberships are linked to your Google Verified UID with role-based access verification. Payment gateway integration (Razorpay / UPI / NetBanking) and content-specific paywalls will be fully connected in the upcoming release. You can test and toggle your tier activation right now.</p>
+                        <div class="security-tags">
+                            <span class="sec-tag"><ion-icon name="shield-checkmark"></ion-icon> Single-Scholar License</span>
+                            <span class="sec-tag"><ion-icon name="checkmark-done"></ion-icon> 256-bit SSL Security</span>
+                            <span class="sec-tag"><ion-icon name="ribbon"></ion-icon> NCISM Curriculum Compliant</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Plan Activation / Preview Modal -->
+    <div id="planActivationModal" class="pdf-reader-modal" aria-hidden="true" role="dialog">
+        <div class="pdf-modal-backdrop" id="planModalBackdrop"></div>
+        <div class="pdf-modal-dialog plan-modal-dialog">
+            <div class="pdf-modal-header">
+                <div class="pdf-modal-title-area">
+                    <ion-icon name="sparkles-outline"></ion-icon>
+                    <h3 id="planModalTitle" class="pdf-modal-title">Confirm Membership Tier</h3>
+                </div>
+                <button type="button" id="planModalClose" class="btn-modal-close" title="Close">✕</button>
+            </div>
+            <div class="plan-modal-body">
+                <div class="plan-modal-icon" id="planModalIcon">
+                    <ion-icon name="ribbon-outline"></ion-icon>
+                </div>
+                <h4 id="planModalTierName" class="plan-modal-tier-name">PG Scholar Pro</h4>
+                <p id="planModalDesc" class="plan-modal-desc">You are selecting the PG Scholar Pro plan (₹499 / Semester). Payment gateway details and live billing will be finalized in the upcoming release. Activate early access testing now?</p>
+                <div class="plan-modal-buttons">
+                    <button type="button" id="cancelPlanModal" class="btn-profile-secondary">Cancel</button>
+                    <button type="button" id="confirmPlanActivation" class="btn-profile-primary">
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <span>Activate Tier on My Profile</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Semi-Transparent Floating Menu Bar for Mobile Mode -->
+    <nav class="mobile-menu-bar" aria-label="Mobile Navigation">
+        <a href="index.html">
+            <ion-icon name="home-outline"></ion-icon>
+            <span>Home</span>
+        </a>
+        <a href="students.html">
+            <ion-icon name="school-outline"></ion-icon>
+            <span>Students</span>
+        </a>
+        <a href="teachers.html">
+            <ion-icon name="easel-outline"></ion-icon>
+            <span>Teachers</span>
+        </a>
+        <a href="books.html">
+            <ion-icon name="library-outline"></ion-icon>
+            <span>Books</span>
+        </a>
+        <a href="profile.html">
+            <ion-icon name="person-outline"></ion-icon>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2026 Dr. Milind Chatrabhuji. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js?v=3.3"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let currentUser = null;
+            let targetTier = 'free';
+
+            const tierNameEl = document.getElementById('currentTierName');
+            const modal = document.getElementById('planActivationModal');
+            const backdrop = document.getElementById('planModalBackdrop');
+            const closeBtn = document.getElementById('planModalClose');
+            const cancelBtn = document.getElementById('cancelPlanModal');
+            const confirmBtn = document.getElementById('confirmPlanActivation');
+            const modalTierName = document.getElementById('planModalTierName');
+            const modalDesc = document.getElementById('planModalDesc');
+
+            const planDetails = {
+                'free': { name: 'Free Scholar', price: '₹0', desc: 'Standard free access to classical treatises and curriculum outlines.' },
+                'pro': { name: 'PG Scholar Pro', price: '₹499 / Semester', desc: 'Full access to ABQ Question Banks, Practical Training Proformas, and high-yield examination notes.' },
+                'faculty': { name: 'Faculty Elite', price: '₹1,499 / Year', desc: 'Complete 6-Volume Bloom’s Taxonomy & Miller’s Pyramid series, rubrics, and curricular matrices.' }
+            };
+
+            const updateCurrentTierDisplay = (tier) => {
+                const info = planDetails[tier] || planDetails['free'];
+                if (tierNameEl) {
+                    tierNameEl.textContent = info.name;
+                }
+
+                // Update plan select buttons
+                document.querySelectorAll('.btn-plan-select').forEach(btn => {
+                    const btnTier = btn.dataset.tier;
+                    if (btnTier === tier) {
+                        btn.innerHTML = `<ion-icon name="checkmark-circle"></ion-icon> <span>Current Active Plan</span>`;
+                        btn.classList.add('active-plan');
+                    } else {
+                        btn.classList.remove('active-plan');
+                        if (btnTier === 'free') {
+                            btn.innerHTML = `<span>Switch to Free Tier</span>`;
+                        } else if (btnTier === 'pro') {
+                            btn.innerHTML = `<ion-icon name="sparkles-outline"></ion-icon> <span>Select PG Scholar Pro</span>`;
+                        } else if (btnTier === 'faculty') {
+                            btn.innerHTML = `<ion-icon name="school-outline"></ion-icon> <span>Select Faculty Elite</span>`;
+                        }
+                    }
+                });
+            };
+
+            const openModal = (tier) => {
+                targetTier = tier;
+                const info = planDetails[tier];
+                modalTierName.textContent = info.name + ' (' + info.price + ')';
+                modalDesc.textContent = `You are selecting ${info.name}. ${info.desc} Live payment gateway integration is scheduled for the next release. Activate early testing on your account?`;
+                modal.classList.add('active');
+                modal.setAttribute('aria-hidden', 'false');
+            };
+
+            const closeModal = () => {
+                modal.classList.remove('active');
+                modal.setAttribute('aria-hidden', 'true');
+            };
+
+            [closeBtn, cancelBtn, backdrop].forEach(el => {
+                if (el) el.addEventListener('click', closeModal);
+            });
+
+            document.querySelectorAll('.btn-plan-select').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tier = btn.dataset.tier;
+                    openModal(tier);
+                });
+            });
+
+            confirmBtn.addEventListener('click', () => {
+                if (currentUser) {
+                    localStorage.setItem(`rsbk_membership_${currentUser.uid}`, targetTier);
+                } else {
+                    localStorage.setItem('rsbk_membership_guest', targetTier);
+                }
+                updateCurrentTierDisplay(targetTier);
+                closeModal();
+                alert(`Membership tier updated to ${planDetails[targetTier].name}!`);
+            });
+
+            window.addEventListener('rsbk-user-authenticated', (e) => {
+                currentUser = e.detail;
+                if (!currentUser) return;
+                const savedTier = localStorage.getItem(`rsbk_membership_${currentUser.uid}`) || 'free';
+                updateCurrentTierDisplay(savedTier);
+            });
+        });
+    </script>
+</body>
+</html>

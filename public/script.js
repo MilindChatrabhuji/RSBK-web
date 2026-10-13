@@ -93,8 +93,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <span>Sign in</span>
             </button>
             <div id="userProfileArea" class="user-profile-area" style="display: none;">
-                <img id="userAvatar" class="user-avatar" src="" alt="User" referrerpolicy="no-referrer" />
-                <span id="userName" class="user-name"></span>
+                <a href="profile.html" class="user-profile-link" title="Open My Scholar Profile">
+                    <img id="userAvatar" class="user-avatar" src="" alt="User" referrerpolicy="no-referrer" />
+                    <span id="userName" class="user-name"></span>
+                </a>
+                <a href="membership.html" id="userTierPill" class="user-tier-pill" title="Membership Plan">Scholar</a>
                 <button id="signOutBtn" class="btn-signout" type="button" title="Sign out">Sign out</button>
             </div>
         `;
@@ -173,6 +176,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const signOutBtn = document.getElementById('signOutBtn');
 
         onAuthStateChanged(auth, (user) => {
+            const userTierPill = document.getElementById('userTierPill');
             if (user) {
                 document.body.classList.add('auth-verified');
                 if (signInBtn) signInBtn.style.display = 'none';
@@ -184,10 +188,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const firstName = (user.displayName || user.email || 'User').split(' ')[0];
                     userName.textContent = firstName;
                 }
+                if (userTierPill) {
+                    const tier = localStorage.getItem(`rsbk_membership_${user.uid}`) || 'free';
+                    if (tier === 'faculty') {
+                        userTierPill.textContent = 'Faculty';
+                        userTierPill.className = 'user-tier-pill faculty';
+                    } else if (tier === 'pro') {
+                        userTierPill.textContent = 'Pro';
+                        userTierPill.className = 'user-tier-pill pro';
+                    } else {
+                        userTierPill.textContent = 'Scholar';
+                        userTierPill.className = 'user-tier-pill free';
+                    }
+                }
+                window.dispatchEvent(new CustomEvent('rsbk-user-authenticated', { detail: user }));
             } else {
                 document.body.classList.remove('auth-verified');
                 if (signInBtn) signInBtn.style.display = 'inline-flex';
                 if (userProfileArea) userProfileArea.style.display = 'none';
+                window.dispatchEvent(new CustomEvent('rsbk-user-authenticated', { detail: null }));
             }
         });
 
