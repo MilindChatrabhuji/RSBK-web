@@ -79,11 +79,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Fast synchronous cached authentication restoration (Zero Flash)
+    const isCachedAuth = localStorage.getItem('rsbk_auth_cached') === 'true';
+    const cachedName = localStorage.getItem('rsbk_user_name') || '';
+    const cachedAvatar = localStorage.getItem('rsbk_user_avatar') || '';
+
+    if (isCachedAuth) {
+        document.documentElement.classList.add('auth-verified');
+        document.body.classList.add('auth-verified');
+    }
+
     // Mount Auth Widget into Navbar
     const authContainer = document.getElementById('authWidget') || document.querySelector('.auth-widget');
     if (authContainer) {
         authContainer.innerHTML = `
-            <button id="googleSignInBtn" class="btn-google-signin" type="button" title="Sign in with Google">
+            <button id="googleSignInBtn" class="btn-google-signin" type="button" title="Sign in with Google" style="${isCachedAuth ? 'display: none !important;' : ''}">
                 <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18">
                     <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
                     <path fill="#34A853" d="M12 24c3.3 0 6.08-1.09 8.1-2.96l-3.88-3.05c-1.08.72-2.45 1.16-4.22 1.16-3.24 0-5.98-2.18-6.96-5.11H1.05v3.14C3.06 21.2 7.22 24 12 24z"/>
@@ -92,10 +102,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </svg>
                 <span>Sign in</span>
             </button>
-            <div id="userProfileArea" class="user-profile-area" style="display: none;">
+            <div id="userProfileArea" class="user-profile-area" style="${isCachedAuth ? 'display: inline-flex !important;' : 'display: none;'}">
                 <a href="profile.html" class="user-profile-link" title="Open Profile">
-                    <img id="userAvatar" class="user-avatar" src="" alt="User" referrerpolicy="no-referrer" />
-                    <span id="userName" class="user-name"></span>
+                    <img id="userAvatar" class="user-avatar" src="${cachedAvatar || ''}" alt="User" referrerpolicy="no-referrer" />
+                    <span id="userName" class="user-name">${cachedName}</span>
                 </a>
                 <button id="signOutBtn" class="btn-signout" type="button" title="Sign out">Sign out</button>
             </div>
@@ -112,6 +122,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             authGate = document.createElement('div');
             authGate.id = 'authGate';
             authGate.className = 'auth-gate';
+            if (isCachedAuth) {
+                authGate.style.display = 'none';
+            }
             authGate.innerHTML = `
                 <div class="auth-gate-card">
                     <div class="auth-gate-icon">
@@ -175,22 +188,43 @@ document.addEventListener('DOMContentLoaded', async () => {
         const signOutBtn = document.getElementById('signOutBtn');
 
         onAuthStateChanged(auth, (user) => {
+            const authGate = document.getElementById('authGate');
             if (user) {
+                const firstName = (user.displayName || user.email || 'User').split(' ')[0];
+                const photo = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'U')}&background=059669&color=fff`;
+
+                localStorage.setItem('rsbk_auth_cached', 'true');
+                localStorage.setItem('rsbk_user_name', firstName);
+                localStorage.setItem('rsbk_user_avatar', photo);
+                localStorage.setItem('rsbk_user_email', user.email || '');
+
+                document.documentElement.classList.add('auth-verified');
+                document.documentElement.classList.remove('auth-unverified');
                 document.body.classList.add('auth-verified');
+                document.body.classList.remove('auth-unverified');
+
                 if (signInBtn) signInBtn.style.display = 'none';
                 if (userProfileArea) userProfileArea.style.display = 'inline-flex';
-                if (userAvatar) {
-                    userAvatar.src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'U')}&background=059669&color=fff`;
-                }
-                if (userName) {
-                    const firstName = (user.displayName || user.email || 'User').split(' ')[0];
-                    userName.textContent = firstName;
-                }
+                if (userAvatar) userAvatar.src = photo;
+                if (userName) userName.textContent = firstName;
+                if (authGate) authGate.style.display = 'none';
+
                 window.dispatchEvent(new CustomEvent('rsbk-user-authenticated', { detail: user }));
             } else {
+                localStorage.removeItem('rsbk_auth_cached');
+                localStorage.removeItem('rsbk_user_name');
+                localStorage.removeItem('rsbk_user_avatar');
+                localStorage.removeItem('rsbk_user_email');
+
+                document.documentElement.classList.remove('auth-verified');
+                document.documentElement.classList.add('auth-unverified');
                 document.body.classList.remove('auth-verified');
+                document.body.classList.add('auth-unverified');
+
                 if (signInBtn) signInBtn.style.display = 'inline-flex';
                 if (userProfileArea) userProfileArea.style.display = 'none';
+                if (authGate) authGate.style.display = 'flex';
+
                 window.dispatchEvent(new CustomEvent('rsbk-user-authenticated', { detail: null }));
             }
         });
@@ -217,7 +251,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (signOutBtn) {
             signOutBtn.addEventListener('click', async () => {
                 try {
+                    localStorage.removeItem('rsbk_auth_cached');
+                    localStorage.removeItem('rsbk_user_name');
+                    localStorage.removeItem('rsbk_user_avatar');
+                    localStorage.removeItem('rsbk_user_email');
+                    document.documentElement.classList.remove('auth-verified');
+                    document.documentElement.classList.add('auth-unverified');
+                    document.body.classList.remove('auth-verified');
+                    document.body.classList.add('auth-unverified');
                     await signOut(auth);
+                    window.location.href = 'index.html';
                 } catch (err) {
                     console.error('Sign-Out error:', err);
                 }

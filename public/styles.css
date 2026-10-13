@@ -176,7 +176,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-google-signin {
-    display: inline-flex;
+    display: none;
     align-items: center;
     gap: 0.5rem;
     padding: 0.42rem 0.85rem;
@@ -193,6 +193,18 @@ h1, h2, h3, h4, h5, h6 {
     white-space: nowrap;
 }
 
+/* Display sign-in button only when explicitly unverified */
+body.auth-unverified .btn-google-signin,
+html:not(.auth-verified) body.auth-unverified .btn-google-signin {
+    display: inline-flex;
+}
+
+/* Strictly hide sign-in button when verified */
+html.auth-verified .btn-google-signin,
+body.auth-verified .btn-google-signin {
+    display: none !important;
+}
+
 .btn-google-signin:hover {
     background: #f9fafb;
     border-color: rgba(15, 23, 42, 0.25);
@@ -206,7 +218,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .user-profile-area {
-    display: inline-flex;
+    display: none;
     align-items: center;
     gap: 0.45rem;
     padding: 0.25rem 0.6rem 0.25rem 0.35rem;
@@ -214,6 +226,11 @@ h1, h2, h3, h4, h5, h6 {
     border: 1px solid rgba(15, 23, 42, 0.08);
     border-radius: 50px;
     white-space: nowrap;
+}
+
+html.auth-verified .user-profile-area,
+body.auth-verified .user-profile-area {
+    display: inline-flex !important;
 }
 
 .user-avatar {
@@ -1526,8 +1543,15 @@ footer {
 /* ===================================================
    Auth Gate: Require Sign-In on Non-Homepage Pages
    =================================================== */
-body.protected-page:not(.auth-verified) .page-main {
+/* Hide page-main ONLY when user is confirmed unverified */
+body.protected-page.auth-unverified .page-main {
     display: none !important;
+}
+
+/* When verified, always display page-main */
+html.auth-verified body.protected-page .page-main,
+body.protected-page.auth-verified .page-main {
+    display: block !important;
 }
 
 .auth-gate {
@@ -1539,8 +1563,15 @@ body.protected-page:not(.auth-verified) .page-main {
     padding: 6.5rem 1.5rem 4rem;
 }
 
-body.protected-page:not(.auth-verified) .auth-gate {
-    display: flex;
+/* Only display auth gate when user is explicitly confirmed unverified */
+body.protected-page.auth-unverified .auth-gate {
+    display: flex !important;
+}
+
+/* Strictly hide auth gate when verified */
+html.auth-verified .auth-gate,
+body.auth-verified .auth-gate {
+    display: none !important;
 }
 
 .auth-gate-card {
