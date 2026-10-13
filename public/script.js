@@ -79,6 +79,46 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Mount Right-Side Vertical Menubar (Home, Books, Membership, Profile)
+    let vMenubar = document.getElementById('rightVerticalMenubar');
+    if (!vMenubar) {
+        vMenubar = document.createElement('aside');
+        vMenubar.id = 'rightVerticalMenubar';
+        vMenubar.className = 'right-vertical-menubar';
+        vMenubar.setAttribute('aria-label', 'Right Navigation Menubar');
+        document.body.appendChild(vMenubar);
+    }
+
+    const path = window.location.pathname.toLowerCase();
+    const isHome = path.endsWith('/') || path.endsWith('index.html') || path.endsWith('index') || (!path.includes('students') && !path.includes('teachers') && !path.includes('books') && !path.includes('membership') && !path.includes('profile') && !path.includes('payment'));
+    const isBooks = path.includes('books');
+    const isMembership = path.includes('membership');
+    const isProfile = path.includes('profile');
+
+    vMenubar.innerHTML = `
+        <div class="vmenu-header">
+            <span class="vmenu-badge">MENU</span>
+        </div>
+        <nav class="vmenu-nav">
+            <a href="index.html" class="vmenu-item ${isHome ? 'active' : ''}" title="Home">
+                <ion-icon name="home-outline"></ion-icon>
+                <span class="vmenu-text">Home</span>
+            </a>
+            <a href="books.html" class="vmenu-item ${isBooks ? 'active' : ''}" title="Books Archive">
+                <ion-icon name="library-outline"></ion-icon>
+                <span class="vmenu-text">Books</span>
+            </a>
+            <a href="membership.html" class="vmenu-item ${isMembership ? 'active' : ''}" title="Membership &amp; Wallet">
+                <ion-icon name="ribbon-outline"></ion-icon>
+                <span class="vmenu-text">Membership</span>
+            </a>
+            <a href="profile.html" class="vmenu-item ${isProfile ? 'active' : ''}" title="User Profile">
+                <ion-icon name="person-outline"></ion-icon>
+                <span class="vmenu-text">Profile</span>
+            </a>
+        </nav>
+    `;
+
     // Fast synchronous cached authentication restoration (Zero Flash)
     const isCachedAuth = localStorage.getItem('rsbk_auth_cached') === 'true';
     const cachedName = localStorage.getItem('rsbk_user_name') || '';
