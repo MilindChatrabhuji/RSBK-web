@@ -174,7 +174,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Helper: Build User Tier Pill HTML
     const buildUserTierPill = (type, trialDays, balance) => {
         if (type === 'trial') {
-            return `<span class="user-tier-pill trial" id="userTierPill" title="30-Day Free Trial Active"><ion-icon name="sparkles"></ion-icon> Trial: ${trialDays}d</span>`;
+            const daysNum = parseInt(trialDays, 10) || 0;
+            const daysLabel = daysNum === 1 ? '1 Day' : `${daysNum} Days`;
+            return `<span class="user-tier-pill trial" id="userTierPill" title="30-Day Free Trial Active"><ion-icon name="sparkles"></ion-icon> Trial: ${daysLabel}</span>`;
         } else if (type === 'paid') {
             return `<span class="user-tier-pill pro" id="userTierPill" title="Active Member"><ion-icon name="checkmark-circle"></ion-icon> ₹${Math.floor(balance)}</span>`;
         } else if (type === 'expired') {

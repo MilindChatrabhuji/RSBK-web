@@ -2048,15 +2048,77 @@ body.page-confirmation .auth-gate {
 .user-tier-pill {
     display: inline-flex;
     align-items: center;
-    padding: 0.2rem 0.6rem;
+    padding: 0.22rem 0.65rem;
     border-radius: 50px;
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    text-transform: none;
+    letter-spacing: 0.02em;
     text-decoration: none;
     border: 1px solid transparent;
     transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+/* Non-Refundable Policy Alert */
+.non-refundable-alert {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.15rem;
+    border-radius: 12px;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.28);
+    color: #991b1b;
+    font-size: 0.84rem;
+    line-height: 1.45;
+    margin-top: 1.15rem;
+    margin-bottom: 0.5rem;
+    text-align: left;
+}
+
+.non-ref-icon {
+    font-size: 1.35rem;
+    color: #dc2626;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.non-ref-text {
+    flex: 1;
+}
+
+.non-ref-text strong {
+    color: #b91c1c;
+    font-weight: 800;
+}
+
+.non-ref-highlight {
+    color: #dc2626;
+    font-weight: 700;
+}
+
+.trust-item.trust-item-nonref {
+    color: #dc2626;
+}
+
+.trust-item.trust-item-nonref ion-icon {
+    color: #dc2626;
+}
+
+.policy-box.policy-box-nonref {
+    border-color: rgba(239, 68, 68, 0.25);
+    background: rgba(239, 68, 68, 0.03);
+}
+
+.policy-box.policy-box-nonref .policy-box-num {
+    color: #dc2626;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.policy-box.policy-box-nonref h4 {
+    color: #b91c1c;
 }
 
 .user-tier-pill.trial {

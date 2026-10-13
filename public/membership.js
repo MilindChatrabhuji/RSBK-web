@@ -419,6 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 purpose: 'Wallet Daily Membership',
                 daily_rate: '1 INR per day at 5 AM IST',
                 days_credited: amount,
+                refund_policy: 'Non-refundable under any circumstances',
                 user_id: currentUser ? currentUser.uid : 'guest_user'
             },
             theme: {
