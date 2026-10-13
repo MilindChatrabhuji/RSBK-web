@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=3.0">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -69,9 +69,62 @@
                         <span class="portal-link">Explore Teacher Section <ion-icon name="arrow-forward-outline"></ion-icon></span>
                     </a>
                 </div>
+
+                <!-- Academic Highlights (Fills viewport and adds academic value) -->
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon"><ion-icon name="ribbon-outline"></ion-icon></div>
+                        <div class="feature-text">
+                            <h3>NCISM Syllabus Aligned</h3>
+                            <p>Strictly aligned with national curriculum guidelines for BAMS and MD/MS Ayurveda.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><ion-icon name="layers-outline"></ion-icon></div>
+                        <div class="feature-text">
+                            <h3>Bloom's &amp; Miller's Frameworks</h3>
+                            <p>Systematic cognitive domain mapping and clinical competency assessment benchmarks.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><ion-icon name="library-outline"></ion-icon></div>
+                        <div class="feature-text">
+                            <h3>6-Volume Book Series</h3>
+                            <p>Comprehensive textbooks, ABQ question banks, and practical training proformas.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Author Academic Overview Banner -->
+                <div class="author-banner">
+                    <div class="author-avatar-badge">
+                        <ion-icon name="person-circle-outline"></ion-icon>
+                    </div>
+                    <div class="author-info">
+                        <span class="author-tag">Author &amp; Academician</span>
+                        <h3 class="author-name">Dr. Milind Chatrabhuji</h3>
+                        <p class="author-desc">Associate Professor &amp; HOD, Department of Rasashastra &amp; Bhaishajya Kalpana. Committed to delivering structured, high-yield academic publications and pedagogical resources for Ayurveda faculty and postgraduate scholars.</p>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
+
+    <!-- Semi-Transparent Floating Menu Bar for Mobile Mode -->
+    <nav class="mobile-menu-bar" aria-label="Mobile Navigation">
+        <a href="index.html" class="active">
+            <ion-icon name="home-outline"></ion-icon>
+            <span>Home</span>
+        </a>
+        <a href="students.html">
+            <ion-icon name="school-outline"></ion-icon>
+            <span>Students</span>
+        </a>
+        <a href="teachers.html">
+            <ion-icon name="easel-outline"></ion-icon>
+            <span>Teachers</span>
+        </a>
+    </nav>
 
     <footer>
         <div class="footer-content">
@@ -79,6 +132,6 @@
         </div>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=3.0"></script>
 </body>
 </html>

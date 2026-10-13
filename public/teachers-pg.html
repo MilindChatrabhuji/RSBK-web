@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=3.0">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -83,13 +83,29 @@
         </section>
     </main>
 
+    <!-- Semi-Transparent Floating Menu Bar for Mobile Mode -->
+    <nav class="mobile-menu-bar" aria-label="Mobile Navigation">
+        <a href="index.html">
+            <ion-icon name="home-outline"></ion-icon>
+            <span>Home</span>
+        </a>
+        <a href="students.html">
+            <ion-icon name="school-outline"></ion-icon>
+            <span>Students</span>
+        </a>
+        <a href="teachers.html" class="active">
+            <ion-icon name="easel-outline"></ion-icon>
+            <span>Teachers</span>
+        </a>
+    </nav>
+
     <footer>
         <div class="footer-content">
             <p>&copy; 2026 Dr. Milind Chatrabhuji. All rights reserved.</p>
         </div>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=3.0"></script>
 </body>
 </html>
 
