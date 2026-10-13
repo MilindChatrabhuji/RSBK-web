@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment Confirmation &amp; Receipt | Dr. Milind Chatrabhuji — RSBK Online</title>
-    <meta name="description" content="Cryptographic verification and confirmation waiting page for RSBK Online Scholar Membership top-ups via Razorpay.">
+    <meta name="description" content="Cryptographic verification and confirmation waiting page for RSBK Online Membership top-ups via Razorpay.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -53,7 +53,7 @@
                     </div>
 
                     <h2 class="confirm-title">Verifying Razorpay Transaction...</h2>
-                    <p class="confirm-subtitle">Please wait while our secure gateway verifies your transaction and credits your Scholar Wallet. Do not close or refresh this page.</p>
+                    <p class="confirm-subtitle">Please wait while our secure gateway verifies your transaction and credits your Wallet. Do not close or refresh this page.</p>
 
                     <div class="verify-steps-list">
                         <div class="verify-step done" id="step1">
@@ -66,7 +66,7 @@
                         </div>
                         <div class="verify-step" id="step3">
                             <span class="step-check">3</span>
-                            <span class="step-text">Crediting balance to RSBK Scholar Wallet</span>
+                            <span class="step-text">Crediting balance to RSBK Wallet</span>
                         </div>
                         <div class="verify-step" id="step4">
                             <span class="step-check">4</span>
@@ -91,14 +91,14 @@
                     </div>
 
                     <h2 class="confirm-title">Recharge Successful!</h2>
-                    <p class="confirm-subtitle">Your Scholar Wallet has been credited. You now have uninterrupted access to classical treatises, question banks, and academic resources.</p>
+                    <p class="confirm-subtitle">Your Wallet has been credited. You now have uninterrupted access to classical treatises, question banks, and academic resources.</p>
 
                     <!-- Digital Transaction Receipt -->
                     <div class="digital-receipt-box" id="printableReceipt">
                         <div class="receipt-header">
                             <div class="receipt-brand">
                                 <strong>RSBK Online</strong>
-                                <span>Academic Scholar Wallet</span>
+                                <span>Membership Wallet</span>
                             </div>
                             <div class="receipt-meta-right">
                                 <span class="receipt-badge">PAID</span>
@@ -110,12 +110,12 @@
 
                         <div class="receipt-grid">
                             <div class="receipt-item">
-                                <span class="r-label">Scholar Name</span>
-                                <strong class="r-val" id="receiptScholarName">—</strong>
+                                <span class="r-label">Member Name</span>
+                                <strong class="r-val" id="receiptMemberName">—</strong>
                             </div>
                             <div class="receipt-item">
-                                <span class="r-label">Scholar Email</span>
-                                <strong class="r-val" id="receiptScholarEmail">—</strong>
+                                <span class="r-label">Member Email</span>
+                                <strong class="r-val" id="receiptMemberEmail">—</strong>
                             </div>
                             <div class="receipt-item">
                                 <span class="r-label">Amount Paid</span>
@@ -264,7 +264,7 @@
                 step4.querySelector('.step-check').innerHTML = '<div class="mini-spinner"></div>';
 
                 // Credit the user's wallet persistently in localStorage
-                let userKey = 'rsbk_wallet_default_scholar';
+                let userKey = 'rsbk_wallet_default_user';
                 const userRaw = localStorage.getItem('rsbk_user_profile');
                 if (userRaw) {
                     try {
@@ -292,7 +292,7 @@
                     rawDate: Date.now(),
                     type: 'credit',
                     amount: amount,
-                    note: `Scholar Balance Recharge via Razorpay (+${amount} Days Access)`,
+                    note: `Balance Recharge via Razorpay (+${amount} Days Access)`,
                     refId: paymentId,
                     balanceAfter: wallet.balance
                 };
@@ -303,8 +303,8 @@
                 // Populate receipt
                 const receiptId = 'RSBK-RCPT-' + Math.floor(100000 + Math.random() * 900000);
                 document.getElementById('receiptNum').textContent = receiptId;
-                document.getElementById('receiptScholarName').textContent = (pending && pending.scholarName) ? pending.scholarName : 'Verified Scholar';
-                document.getElementById('receiptScholarEmail').textContent = (pending && pending.scholarEmail) ? pending.scholarEmail : 'Linked Google Account';
+                document.getElementById('receiptMemberName').textContent = (pending && pending.userName) ? pending.userName : 'Verified Member';
+                document.getElementById('receiptMemberEmail').textContent = (pending && pending.userEmail) ? pending.userEmail : 'Linked Google Account';
                 document.getElementById('receiptAmountPaid').textContent = `₹${amount.toFixed(2)}`;
                 document.getElementById('receiptDaysAdded').textContent = `+${amount} Days Access`;
                 document.getElementById('receiptPaymentId').textContent = paymentId;

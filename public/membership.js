@@ -1,5 +1,5 @@
 // ===================================================
-// RSBK Online — Scholar Membership & Wallet Controller
+// RSBK Online — Membership & Wallet Controller
 // ₹1 Per Day · 5:00 AM IST Daily Deduction · Razorpay Gateway
 // ===================================================
 
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Wallet Storage Key
     const getWalletKey = () => {
-        const uid = currentUser && currentUser.uid ? currentUser.uid : 'default_scholar';
+        const uid = currentUser && currentUser.uid ? currentUser.uid : 'default_user';
         return `rsbk_wallet_${uid}`;
     };
 
@@ -158,9 +158,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Display user info
         if (currentUser) {
-            walletUserName.textContent = currentUser.displayName || currentUser.email || 'Verified Scholar';
+            walletUserName.textContent = currentUser.displayName || currentUser.email || 'Verified Member';
         } else {
-            walletUserName.textContent = 'Scholar Account (Sign In with Google to Sync)';
+            walletUserName.textContent = 'Member Account (Sign In with Google to Sync)';
         }
 
         // Metrics
@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Expiry calculation
         if (daysRemaining > 0) {
             walletStatusBadge.className = 'wallet-status-badge active';
-            walletStatusText.textContent = 'Active Scholar';
+            walletStatusText.textContent = 'Active Member';
 
             const latest5AM = getLatest5AMBoundary();
             const expiryDate = new Date(latest5AM.getTime() + (daysRemaining * 24 * 60 * 60 * 1000));
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <tr>
                     <td colspan="6" class="passbook-empty">
                         <ion-icon name="receipt-outline"></ion-icon>
-                        <p>No transactions found in this view. Load your balance to start your scholar ledger.</p>
+                        <p>No transactions found in this view. Load your balance to start your transaction ledger.</p>
                     </td>
                 </tr>
             `;
@@ -333,8 +333,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const scholarName = currentUser ? (currentUser.displayName || 'RSBK Scholar') : 'RSBK Scholar';
-        const scholarEmail = currentUser ? (currentUser.email || '') : '';
+        const payerName = currentUser ? (currentUser.displayName || 'RSBK Member') : 'RSBK Member';
+        const payerEmail = currentUser ? (currentUser.email || '') : '';
 
         // Configure Razorpay Checkout options
         const options = {
@@ -342,18 +342,18 @@ document.addEventListener('DOMContentLoaded', () => {
             amount: amount * 100, // paise
             currency: 'INR',
             name: 'RSBK Online',
-            description: `Scholar Wallet Top-Up: ₹${amount} (${amount} Days Access)`,
+            description: `Wallet Top-Up: ₹${amount} (${amount} Days Access)`,
             image: 'https://rsbk-online.web.app/assets/books/dr_milind_photo.png',
             prefill: {
-                name: scholarName,
-                email: scholarEmail,
+                name: payerName,
+                email: payerEmail,
                 contact: ''
             },
             notes: {
-                purpose: 'Scholar Wallet Daily Membership',
+                purpose: 'Wallet Daily Membership',
                 daily_rate: '1 INR per day at 5 AM IST',
                 days_credited: amount,
-                user_id: currentUser ? currentUser.uid : 'guest_scholar'
+                user_id: currentUser ? currentUser.uid : 'guest_user'
             },
             theme: {
                 color: '#059669' // RSBK Emerald
@@ -379,9 +379,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     amount: amount,
                     days: amount,
                     timestamp: Date.now(),
-                    scholarName: scholarName,
-                    scholarEmail: scholarEmail,
-                    userId: currentUser ? currentUser.uid : 'scholar_' + Date.now()
+                    userName: payerName,
+                    userEmail: payerEmail,
+                    userId: currentUser ? currentUser.uid : 'user_' + Date.now()
                 };
 
                 // Store in sessionStorage for the confirmation waiting page
