@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script>if(localStorage.getItem('rsbk_auth_cached')==='true'){document.documentElement.classList.add('auth-verified');}</script>
+    <script>if(localStorage.getItem('rsbk_auth_cached')==='true'){document.documentElement.classList.add('auth-verified');if(localStorage.getItem('rsbk_access_valid')==='true'){document.documentElement.classList.add('access-granted');}else if(localStorage.getItem('rsbk_access_valid')==='false'){document.documentElement.classList.add('paywall-expired');}}</script>
     <title>Books | Dr. Milind Chatrabhuji — RSBK Online</title>
     <meta name="description" content="Digital reference books archive on Rasashastra and Bhaishajya Kalpana live synchronized with Google Drive authored and curated by Dr. Milind Chatrabhuji">
     <link rel="preconnect" href="https://fonts.googleapis.com">

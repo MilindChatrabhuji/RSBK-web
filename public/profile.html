@@ -3,7 +3,7 @@ lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script>if(localStorage.getItem('rsbk_auth_cached')==='true'){document.documentElement.classList.add('auth-verified');}</script>
+    <script>if(localStorage.getItem('rsbk_auth_cached')==='true'){document.documentElement.classList.add('auth-verified');if(localStorage.getItem('rsbk_access_valid')==='true'){document.documentElement.classList.add('access-granted');}else if(localStorage.getItem('rsbk_access_valid')==='false'){document.documentElement.classList.add('paywall-expired');}}</script>
     <title>Profile | Dr. Milind Chatrabhuji — RSBK Online</title>
     <meta name="description" content="Academic profile for students, researchers, and faculty members on RSBK Online portal.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -348,23 +348,37 @@ lang="en">
             const loadProfileData = (uid) => {
                 const stored = localStorage.getItem(`rsbk_profile_${uid}`);
                 let walletBal = 0;
+                let trialStart = Date.now();
                 try {
                     const wRaw = localStorage.getItem(`rsbk_wallet_${uid}`);
                     if (wRaw) {
                         const w = JSON.parse(wRaw);
                         walletBal = w.balance || 0;
+                        if (w.trialStartDate) trialStart = w.trialStartDate;
+                    } else {
+                        const st = localStorage.getItem(`rsbk_trial_start_${uid}`);
+                        if (st) trialStart = parseInt(st, 10);
                     }
                 } catch (e) {}
 
+                const now = Date.now();
+                const TRIAL_MS = 30 * 24 * 60 * 60 * 1000;
+                const trialEnd = trialStart + TRIAL_MS;
+                const isTrialActive = now < trialEnd;
+                const trialDaysRemaining = isTrialActive ? Math.max(1, Math.ceil((trialEnd - now) / (24 * 60 * 60 * 1000))) : 0;
+
                 // Wallet / Tier badge
                 if (tierBadge) {
-                    if (walletBal >= 1) {
+                    if (isTrialActive) {
+                        tierBadge.textContent = `30-Day Free Trial (${trialDaysRemaining} ${trialDaysRemaining === 1 ? 'Day' : 'Days'} Remaining)`;
+                        tierBadge.className = 'badge badge-tier trial';
+                    } else if (walletBal >= 1) {
                         const days = Math.floor(walletBal);
                         tierBadge.textContent = `Active Member (${days} ${days === 1 ? 'Day' : 'Days'} Remaining)`;
                         tierBadge.className = 'badge badge-tier pro';
                     } else {
-                        tierBadge.textContent = 'Inactive (Top-up to Activate)';
-                        tierBadge.className = 'badge badge-tier free';
+                        tierBadge.textContent = 'Trial Ended (Recharge to Reactivate)';
+                        tierBadge.className = 'badge badge-tier expired';
                     }
                 }
 

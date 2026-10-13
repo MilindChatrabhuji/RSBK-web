@@ -90,9 +90,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!wallet) {
             wallet = {
                 balance: 0,
+                trialStartDate: Date.now(),
                 lastDeductedEpoch: null,
                 transactions: []
             };
+        }
+
+        if (!wallet.trialStartDate && currentUser && currentUser.uid) {
+            const storedTrial = localStorage.getItem(`rsbk_trial_start_${currentUser.uid}`);
+            wallet.trialStartDate = storedTrial ? parseInt(storedTrial, 10) : Date.now();
+            localStorage.setItem(`rsbk_trial_start_${currentUser.uid}`, wallet.trialStartDate.toString());
         }
 
         return wallet;
@@ -108,19 +115,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Process Daily Deductions (₹1 / day at 5:00 AM IST)
+    // Process Daily Deductions (₹1 / day at 5:00 AM IST, ONLY after 30-day free trial)
+    const TRIAL_MS = 30 * 24 * 60 * 60 * 1000;
+
     const processDailyDeductions = (wallet) => {
+        const now = Date.now();
+        const trialStart = wallet.trialStartDate || now;
+        const trialEnd = trialStart + TRIAL_MS;
+
+        // Zero deductions during 30-day free trial period
+        if (now < trialEnd) {
+            wallet.lastDeductedEpoch = trialEnd;
+            saveWallet(wallet);
+            return wallet;
+        }
+
+        // Deductions apply only after trial ends and if balance > 0
         if (!wallet.balance || wallet.balance <= 0) return wallet;
 
         const latest5AM = getLatest5AMBoundary();
         const latest5AMEpoch = latest5AM.getTime();
 
-        if (!wallet.lastDeductedEpoch) {
-            // Initialize anchor
-            wallet.lastDeductedEpoch = latest5AMEpoch;
-            saveWallet(wallet);
-            return wallet;
+        if (!wallet.lastDeductedEpoch || wallet.lastDeductedEpoch < trialEnd) {
+            wallet.lastDeductedEpoch = trialEnd;
         }
+
+        if (latest5AMEpoch <= wallet.lastDeductedEpoch) return wallet;
 
         const diffMs = latest5AMEpoch - wallet.lastDeductedEpoch;
         const daysPassed = Math.floor(diffMs / (24 * 60 * 60 * 1000));
@@ -153,8 +173,18 @@ document.addEventListener('DOMContentLoaded', () => {
         let wallet = loadWallet();
         wallet = processDailyDeductions(wallet);
 
+        const now = Date.now();
+        const trialStart = wallet.trialStartDate || now;
+        const trialEnd = trialStart + TRIAL_MS;
+        const isTrialActive = now < trialEnd;
+        const trialDaysRemaining = isTrialActive ? Math.max(1, Math.ceil((trialEnd - now) / (24 * 60 * 60 * 1000))) : 0;
+
         const balance = Math.max(0, wallet.balance || 0);
-        const daysRemaining = Math.floor(balance / 1);
+        const paidDays = Math.floor(balance / 1);
+
+        const trialInfoAlert = document.getElementById('trialInfoAlert');
+        const trialAlertTitle = document.getElementById('trialAlertTitle');
+        const trialAlertDesc = document.getElementById('trialAlertDesc');
 
         // Display user info
         if (currentUser) {
@@ -163,24 +193,47 @@ document.addEventListener('DOMContentLoaded', () => {
             walletUserName.textContent = 'Member Account (Sign In with Google to Sync)';
         }
 
-        // Metrics
         walletBalanceNumber.textContent = balance.toFixed(2);
-        walletDaysRemaining.textContent = daysRemaining;
 
-        // Expiry calculation
-        if (daysRemaining > 0) {
-            walletStatusBadge.className = 'wallet-status-badge active';
-            walletStatusText.textContent = 'Active Member';
+        if (isTrialActive) {
+            walletStatusBadge.className = 'wallet-status-badge trial active';
+            walletStatusBadge.innerHTML = '<ion-icon name="sparkles" style="color:#0284c7; margin-right:4px;"></ion-icon> <span>Free Trial Active</span>';
+            walletDaysRemaining.textContent = trialDaysRemaining + paidDays;
 
-            const latest5AM = getLatest5AMBoundary();
-            const expiryDate = new Date(latest5AM.getTime() + (daysRemaining * 24 * 60 * 60 * 1000));
-            walletValidUntil.textContent = formatISTDate(expiryDate);
-            walletDaysSubtext.textContent = `Full access unlocked for ${daysRemaining} ${daysRemaining === 1 ? 'day' : 'days'}`;
+            const totalExpiryDate = new Date(trialEnd + (paidDays * 24 * 60 * 60 * 1000));
+            walletValidUntil.textContent = formatISTDate(totalExpiryDate);
+            walletDaysSubtext.textContent = `${trialDaysRemaining} days complimentary trial remaining` + (paidDays > 0 ? ` (+${paidDays} paid days queued)` : '');
+
+            if (trialInfoAlert) {
+                trialInfoAlert.style.display = 'flex';
+                if (trialAlertTitle) trialAlertTitle.textContent = `30-Day Free Trial Active (${trialDaysRemaining} Days Remaining)`;
+                if (trialAlertDesc) trialAlertDesc.textContent = `Your account has complimentary full access until ${formatISTDateShort(new Date(trialEnd))}. No balance is deducted during your trial! Any balance loaded below will start deducting ₹1/day only AFTER your 30-day trial ends.`;
+            }
         } else {
-            walletStatusBadge.className = 'wallet-status-badge inactive';
-            walletStatusText.textContent = 'Top-Up Required';
-            walletValidUntil.textContent = 'No active balance';
-            walletDaysSubtext.textContent = 'Load balance starting at ₹1 to activate daily access';
+            if (paidDays > 0) {
+                walletStatusBadge.className = 'wallet-status-badge active';
+                walletStatusBadge.innerHTML = '<span class="status-pulse-dot"></span> <span>Active Member</span>';
+                walletDaysRemaining.textContent = paidDays;
+
+                const latest5AM = getLatest5AMBoundary();
+                const expiryDate = new Date(latest5AM.getTime() + (paidDays * 24 * 60 * 60 * 1000));
+                walletValidUntil.textContent = formatISTDate(expiryDate);
+                walletDaysSubtext.textContent = `Full access unlocked for ${paidDays} ${paidDays === 1 ? 'day' : 'days'}`;
+
+                if (trialInfoAlert) trialInfoAlert.style.display = 'none';
+            } else {
+                walletStatusBadge.className = 'wallet-status-badge inactive';
+                walletStatusBadge.innerHTML = '<span class="status-pulse-dot"></span> <span>Trial Completed</span>';
+                walletDaysRemaining.textContent = '0';
+                walletValidUntil.textContent = `Trial ended on ${formatISTDateShort(new Date(trialEnd))}`;
+                walletDaysSubtext.textContent = 'Load balance below (₹1/day) to restore daily access';
+
+                if (trialInfoAlert) {
+                    trialInfoAlert.style.display = 'flex';
+                    if (trialAlertTitle) trialAlertTitle.textContent = '30-Day Free Trial Completed';
+                    if (trialAlertDesc) trialAlertDesc.textContent = `Your 30-day complimentary access has finished. Load balance below (from ₹1) to reactivate access to all academic handbooks and books.`;
+                }
+            }
         }
 
         // Update preview date
@@ -193,18 +246,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // Calculate Preview Expiry for amount to top-up
     const updatePreviewDate = () => {
         const wallet = loadWallet();
-        const currentDays = Math.floor((wallet.balance || 0) / 1);
-        const addDays = Math.max(0, parseInt(customAmountInput.value, 10) || 0);
-        const totalDays = currentDays + addDays;
+        const now = Date.now();
+        const trialStart = wallet.trialStartDate || now;
+        const trialEnd = trialStart + TRIAL_MS;
+        const isTrialActive = now < trialEnd;
 
-        if (totalDays > 0) {
-            const latest5AM = getLatest5AMBoundary();
-            const futureDate = new Date(latest5AM.getTime() + (totalDays * 24 * 60 * 60 * 1000));
+        const currentPaidDays = Math.floor((wallet.balance || 0) / 1);
+        const addDays = Math.max(0, parseInt(customAmountInput.value, 10) || 0);
+        const totalPaidDays = currentPaidDays + addDays;
+
+        if (isTrialActive) {
+            const baseDate = new Date(trialEnd);
+            const futureDate = new Date(baseDate.getTime() + (totalPaidDays * 24 * 60 * 60 * 1000));
             if (previewExpiryDate) {
                 previewExpiryDate.textContent = formatISTDateShort(futureDate) + ' (05:00 AM IST)';
             }
         } else {
-            if (previewExpiryDate) previewExpiryDate.textContent = '—';
+            if (totalPaidDays > 0) {
+                const latest5AM = getLatest5AMBoundary();
+                const futureDate = new Date(latest5AM.getTime() + (totalPaidDays * 24 * 60 * 60 * 1000));
+                if (previewExpiryDate) {
+                    previewExpiryDate.textContent = formatISTDateShort(futureDate) + ' (05:00 AM IST)';
+                }
+            } else {
+                if (previewExpiryDate) previewExpiryDate.textContent = '—';
+            }
         }
     };
 

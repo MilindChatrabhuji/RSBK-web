@@ -119,15 +119,69 @@ document.addEventListener('DOMContentLoaded', async () => {
         </nav>
     `;
 
-    // Fast synchronous cached authentication restoration (Zero Flash)
+    // Helper: IST Time formatting & 5:00 AM Boundary
+    const getISTTime = (d = new Date()) => {
+        const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+        return new Date(utc + (3600000 * 5.5));
+    };
+
+    const getLatest5AMBoundary = (now = new Date()) => {
+        const istNow = getISTTime(now);
+        const boundary = new Date(istNow);
+        if (istNow.getHours() < 5) {
+            boundary.setDate(boundary.getDate() - 1);
+        }
+        boundary.setHours(5, 0, 0, 0);
+        return boundary;
+    };
+
+    const formatISTDateShort = (date) => {
+        return new Intl.DateTimeFormat('en-IN', {
+            timeZone: 'Asia/Kolkata',
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        }).format(date);
+    };
+
+    // Fast synchronous cached authentication & access restoration (Zero Flash)
     const isCachedAuth = localStorage.getItem('rsbk_auth_cached') === 'true';
+    const cachedAccessValid = localStorage.getItem('rsbk_access_valid') === 'true';
+    const cachedAccessType = localStorage.getItem('rsbk_access_type') || 'trial';
+    const cachedTrialDays = localStorage.getItem('rsbk_trial_days_left') || '30';
+    const cachedBalance = localStorage.getItem('rsbk_wallet_balance') || '0';
     const cachedName = localStorage.getItem('rsbk_user_name') || '';
     const cachedAvatar = localStorage.getItem('rsbk_user_avatar') || '';
 
     if (isCachedAuth) {
         document.documentElement.classList.add('auth-verified');
         document.body.classList.add('auth-verified');
+        if (cachedAccessValid) {
+            document.documentElement.classList.add('access-granted');
+            document.body.classList.add('access-granted');
+        } else {
+            document.body.classList.add('paywall-expired');
+        }
     }
+
+    // Determine Page Type
+    const currentPath = window.location.pathname.toLowerCase();
+    const isHomepage = currentPath.endsWith('/') || currentPath.endsWith('index.html') || currentPath.endsWith('index');
+    const isMembershipPage = currentPath.includes('membership');
+    const isConfirmationPage = currentPath.includes('payment-confirmation');
+    const isProtectedContentPage = document.body.classList.contains('protected-page') && !isMembershipPage && !isConfirmationPage;
+
+    // Helper: Build User Tier Pill HTML
+    const buildUserTierPill = (type, trialDays, balance) => {
+        if (type === 'trial') {
+            return `<span class="user-tier-pill trial" id="userTierPill" title="30-Day Free Trial Active"><ion-icon name="sparkles"></ion-icon> Trial: ${trialDays}d</span>`;
+        } else if (type === 'paid') {
+            return `<span class="user-tier-pill pro" id="userTierPill" title="Active Member"><ion-icon name="checkmark-circle"></ion-icon> ₹${Math.floor(balance)}</span>`;
+        } else if (type === 'expired') {
+            return `<a href="membership.html" class="user-tier-pill expired" id="userTierPill" title="Trial Expired · Recharge Wallet"><ion-icon name="alert-circle"></ion-icon> Top-Up</a>`;
+        }
+        return '';
+    };
 
     // Mount Auth Widget into Navbar
     const authContainer = document.getElementById('authWidget') || document.querySelector('.auth-widget');
@@ -147,36 +201,195 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <img id="userAvatar" class="user-avatar" src="${cachedAvatar || ''}" alt="User" referrerpolicy="no-referrer" />
                     <span id="userName" class="user-name">${cachedName}</span>
                 </a>
+                <span id="navTierPillSlot">${isCachedAuth ? buildUserTierPill(cachedAccessType, cachedTrialDays, cachedBalance) : ''}</span>
                 <button id="signOutBtn" class="btn-signout" type="button" title="Sign out">Sign out</button>
             </div>
         `;
     }
 
-    // Mount Auth Gate if on a protected page (any page other than homepage)
-    const isProtectedPage = document.body.classList.contains('protected-page');
-    let gateSignInBtn = null;
+    // Ensure Auth Gate element exists on protected content pages
+    let authGate = document.getElementById('authGate');
+    if (isProtectedContentPage && !authGate) {
+        authGate = document.createElement('div');
+        authGate.id = 'authGate';
+        authGate.className = 'auth-gate';
+        if (isCachedAuth && cachedAccessValid) {
+            authGate.style.display = 'none';
+        }
+        const mainEl = document.querySelector('.page-main');
+        if (mainEl && mainEl.parentNode) {
+            mainEl.parentNode.insertBefore(authGate, mainEl);
+        } else {
+            document.body.appendChild(authGate);
+        }
+    }
 
-    if (isProtectedPage) {
-        let authGate = document.getElementById('authGate');
-        if (!authGate) {
-            authGate = document.createElement('div');
-            authGate.id = 'authGate';
-            authGate.className = 'auth-gate';
-            if (isCachedAuth) {
-                authGate.style.display = 'none';
+    // Central Access Evaluation: 30-Day Free Trial & Wallet Balance Rules
+    const TRIAL_DURATION_DAYS = 30;
+    const TRIAL_MS = TRIAL_DURATION_DAYS * 24 * 60 * 60 * 1000;
+
+    const evaluateUserAccess = (user) => {
+        if (!user) {
+            return {
+                hasAccess: false,
+                status: 'unauthenticated',
+                isTrialActive: false,
+                trialDaysRemaining: 0,
+                balance: 0,
+                paidDaysRemaining: 0
+            };
+        }
+
+        const uid = user.uid;
+        const walletKey = `rsbk_wallet_${uid}`;
+        let wallet = null;
+        try {
+            const raw = localStorage.getItem(walletKey);
+            if (raw) wallet = JSON.parse(raw);
+        } catch (e) {
+            console.error('Error reading wallet:', e);
+        }
+
+        if (!wallet) {
+            wallet = {
+                balance: 0,
+                trialStartDate: Date.now(),
+                lastDeductedEpoch: null,
+                transactions: []
+            };
+        }
+
+        // Initialize 30-day trial start timestamp on first sign-in
+        if (!wallet.trialStartDate) {
+            const storedTrial = localStorage.getItem(`rsbk_trial_start_${uid}`);
+            wallet.trialStartDate = storedTrial ? parseInt(storedTrial, 10) : Date.now();
+        }
+        localStorage.setItem(`rsbk_trial_start_${uid}`, wallet.trialStartDate.toString());
+
+        const now = Date.now();
+        const trialEnd = wallet.trialStartDate + TRIAL_MS;
+        const isTrialActive = now < trialEnd;
+        const trialDaysRemaining = isTrialActive ? Math.max(1, Math.ceil((trialEnd - now) / (24 * 60 * 60 * 1000))) : 0;
+
+        // Daily balance deductions apply ONLY after 30-day free trial has expired
+        if (!isTrialActive && wallet.balance > 0) {
+            const latest5AM = getLatest5AMBoundary(new Date(now)).getTime();
+            if (!wallet.lastDeductedEpoch || wallet.lastDeductedEpoch < trialEnd) {
+                wallet.lastDeductedEpoch = trialEnd;
             }
-            authGate.innerHTML = `
-                <div class="auth-gate-card">
+
+            if (latest5AM > wallet.lastDeductedEpoch) {
+                const diffDays = Math.floor((latest5AM - wallet.lastDeductedEpoch) / (24 * 60 * 60 * 1000));
+                if (diffDays > 0) {
+                    const deduct = Math.min(diffDays, Math.floor(wallet.balance));
+                    if (deduct > 0) {
+                        wallet.balance = Math.max(0, wallet.balance - deduct);
+                        if (!wallet.transactions) wallet.transactions = [];
+                        wallet.transactions.unshift({
+                            id: 'TXN-DED-' + Date.now(),
+                            date: formatISTDateShort(new Date()) + ' (05:00 AM IST)',
+                            rawDate: Date.now(),
+                            type: 'debit',
+                            amount: deduct,
+                            note: `Daily Membership Charge (₹1/day × ${deduct} ${deduct === 1 ? 'day' : 'days'} at 5:00 AM IST)`,
+                            refId: 'AUTO-IST-0500',
+                            balanceAfter: wallet.balance
+                        });
+                    }
+                    wallet.lastDeductedEpoch = latest5AM;
+                }
+            }
+        }
+
+        // Save updated wallet
+        try {
+            localStorage.setItem(walletKey, JSON.stringify(wallet));
+        } catch (e) {}
+
+        const balance = Math.max(0, wallet.balance || 0);
+        const hasPaidAccess = balance >= 1;
+        const hasAccess = isTrialActive || hasPaidAccess;
+
+        let status = 'expired';
+        if (isTrialActive) {
+            status = 'trial';
+        } else if (hasPaidAccess) {
+            status = 'paid';
+        }
+
+        // Synchronize fast cache for zero-flash subpage navigation
+        localStorage.setItem('rsbk_access_valid', hasAccess ? 'true' : 'false');
+        localStorage.setItem('rsbk_access_type', status);
+        localStorage.setItem('rsbk_trial_days_left', trialDaysRemaining.toString());
+        localStorage.setItem('rsbk_wallet_balance', balance.toString());
+        localStorage.setItem('rsbk_trial_end_epoch', trialEnd.toString());
+
+        return {
+            hasAccess,
+            status, // 'trial' | 'paid' | 'expired'
+            isTrialActive,
+            trialDaysRemaining,
+            trialStartDate: wallet.trialStartDate,
+            trialEndDate: trialEnd,
+            balance,
+            paidDaysRemaining: Math.floor(balance / 1),
+            wallet
+        };
+    };
+
+    // Render Paywall UI & Enforce Page Gating
+    const renderPaywall = (accessInfo, onGoogleSignIn) => {
+        // Homepage and Wallet Management pages are never blocked
+        if (!isProtectedContentPage) return;
+
+        const gate = document.getElementById('authGate');
+        const main = document.querySelector('.page-main');
+
+        if (accessInfo.hasAccess) {
+            if (gate) gate.style.display = 'none';
+            if (main) main.style.display = 'block';
+            document.body.classList.add('access-granted');
+            document.body.classList.remove('auth-unverified', 'paywall-expired');
+            return;
+        }
+
+        // Access denied: hide page content and show appropriate paywall
+        if (main) main.style.display = 'none';
+        if (gate) gate.style.display = 'flex';
+        document.body.classList.remove('access-granted');
+
+        if (accessInfo.status === 'unauthenticated') {
+            document.body.classList.add('auth-unverified');
+            document.body.classList.remove('paywall-expired');
+
+            gate.innerHTML = `
+                <div class="auth-gate-card paywall-card-trial">
+                    <div class="paywall-trial-badge">
+                        <ion-icon name="sparkles"></ion-icon> 30-Day Free Trial Available
+                    </div>
                     <div class="auth-gate-icon">
-                        <ion-icon name="lock-closed-outline"></ion-icon>
+                        <ion-icon name="lock-closed"></ion-icon>
                     </div>
-                    <div class="badge auth-gate-badge">
-                        <ion-icon name="shield-checkmark-outline" style="vertical-align: -2px; margin-right: 4px;"></ion-icon> Sign-In Required
-                    </div>
-                    <h2 class="auth-gate-title">Sign In with Google</h2>
+                    <h2 class="auth-gate-title">Sign In to Start Your 30-Day Free Trial</h2>
                     <p class="auth-gate-desc">
-                        Full access to academic textbooks, Bloom's &amp; Miller's taxonomy handbooks, ABQ question banks, and practical training proformas authored by Dr. Milind Chatrabhuji requires signing in.
+                        Full curriculum taxonomy handbooks, cognitive assessment frameworks, and the complete reference books archive authored by <strong>Dr. Milind Chatrabhuji</strong> require an active membership. Sign in with Google to start your 30-day complimentary access immediately.
                     </p>
+
+                    <div class="paywall-features-list">
+                        <div class="paywall-feature-item">
+                            <ion-icon name="checkmark-circle"></ion-icon>
+                            <span><strong>30 Days Full Access</strong> — 100% Free on your first Google Sign-In.</span>
+                        </div>
+                        <div class="paywall-feature-item">
+                            <ion-icon name="checkmark-circle"></ion-icon>
+                            <span><strong>No Credit Card Required</strong> — Instant access without advance payment.</span>
+                        </div>
+                        <div class="paywall-feature-item">
+                            <ion-icon name="checkmark-circle"></ion-icon>
+                            <span><strong>Only ₹1 / Day After Trial</strong> — Simple, affordable daily membership wallet.</span>
+                        </div>
+                    </div>
+
                     <button id="gateGoogleSignInBtn" class="btn-google-gate" type="button" title="Sign in with Google">
                         <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20">
                             <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
@@ -184,8 +397,57 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <path fill="#FBBC05" d="M5.04 14.04c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.32H1.05C.38 7.66 0 9.16 0 10.75s.38 3.09 1.05 4.43l3.99-3.14z"/>
                             <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.22 0 3.06 2.8 1.05 6.82l3.99 3.14c.98-2.93 3.72-5.21 6.96-5.21z"/>
                         </svg>
-                        <span>Sign in with Google</span>
+                        <span>Sign in with Google (Start Free Trial)</span>
                     </button>
+
+                    <div class="auth-gate-footer">
+                        <a href="index.html" class="auth-gate-back-link">
+                            <ion-icon name="arrow-back-outline"></ion-icon> Return to Homepage (Free to browse)
+                        </a>
+                    </div>
+                </div>
+            `;
+
+            const gateBtn = document.getElementById('gateGoogleSignInBtn');
+            if (gateBtn && onGoogleSignIn) {
+                gateBtn.addEventListener('click', onGoogleSignIn);
+            }
+        } else if (accessInfo.status === 'expired') {
+            document.body.classList.add('paywall-expired');
+            document.body.classList.remove('auth-unverified');
+
+            const trialEndDateStr = accessInfo.trialEndDate ? formatISTDateShort(new Date(accessInfo.trialEndDate)) : 'recently';
+
+            gate.innerHTML = `
+                <div class="auth-gate-card paywall-card-expired">
+                    <div class="paywall-expired-badge">
+                        <ion-icon name="time-outline"></ion-icon> 30-Day Free Trial Completed
+                    </div>
+                    <div class="auth-gate-icon icon-expired">
+                        <ion-icon name="wallet-outline"></ion-icon>
+                    </div>
+                    <h2 class="auth-gate-title">Recharge Wallet to Continue Access</h2>
+                    <p class="auth-gate-desc">
+                        Your complimentary 30-day trial ended on <strong>${trialEndDateStr}</strong>. To maintain uninterrupted access to all curriculum handbooks, question banks, and reference books, please recharge your wallet.
+                    </p>
+
+                    <div class="paywall-pricing-box">
+                        <div class="pricing-rate-main">
+                            <span class="rate-currency">₹</span>
+                            <span class="rate-amount">1</span>
+                            <span class="rate-period">/ day</span>
+                        </div>
+                        <p class="rate-subtext">24-Hour Access · Auto-deducted daily at 5:00 AM IST</p>
+                        <div class="rate-wallet-pill">
+                            <span>Current Balance:</span> <strong>₹${Number(accessInfo.balance).toFixed(2)}</strong>
+                        </div>
+                    </div>
+
+                    <a href="membership.html" class="btn-paywall-recharge" title="Recharge Wallet">
+                        <ion-icon name="flash-outline"></ion-icon>
+                        <span>Recharge Wallet (From ₹1)</span>
+                    </a>
+
                     <div class="auth-gate-footer">
                         <a href="index.html" class="auth-gate-back-link">
                             <ion-icon name="arrow-back-outline"></ion-icon> Return to Homepage
@@ -193,15 +455,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 </div>
             `;
-            const mainEl = document.querySelector('.page-main');
-            if (mainEl && mainEl.parentNode) {
-                mainEl.parentNode.insertBefore(authGate, mainEl);
-            } else {
-                document.body.appendChild(authGate);
-            }
         }
-        gateSignInBtn = document.getElementById('gateGoogleSignInBtn');
-    }
+    };
 
     // Initialize Firebase Authentication
     try {
@@ -225,10 +480,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         const userProfileArea = document.getElementById('userProfileArea');
         const userAvatar = document.getElementById('userAvatar');
         const userName = document.getElementById('userName');
+        const navTierPillSlot = document.getElementById('navTierPillSlot');
         const signOutBtn = document.getElementById('signOutBtn');
 
+        const handleGoogleSignIn = async () => {
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (err) {
+                if (err.code !== 'auth/popup-closed-by-user') {
+                    console.error('Google Sign-In error:', err);
+                    alert('Unable to sign in right now: ' + (err.message || 'Please try again.'));
+                }
+            }
+        };
+
+        if (signInBtn) {
+            signInBtn.addEventListener('click', handleGoogleSignIn);
+        }
+
         onAuthStateChanged(auth, (user) => {
-            const authGate = document.getElementById('authGate');
             if (user) {
                 const firstName = (user.displayName || user.email || 'User').split(' ')[0];
                 const photo = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'U')}&background=059669&color=fff`;
@@ -247,46 +517,43 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (userProfileArea) userProfileArea.style.display = 'inline-flex';
                 if (userAvatar) userAvatar.src = photo;
                 if (userName) userName.textContent = firstName;
-                if (authGate) authGate.style.display = 'none';
 
-                window.dispatchEvent(new CustomEvent('rsbk-user-authenticated', { detail: user }));
+                // Evaluate 30-Day Free Trial & Wallet Status
+                const accessInfo = evaluateUserAccess(user);
+
+                // Update navbar tier pill
+                if (navTierPillSlot) {
+                    navTierPillSlot.innerHTML = buildUserTierPill(accessInfo.status, accessInfo.trialDaysRemaining, accessInfo.balance);
+                }
+
+                // Render or dismiss Paywall
+                renderPaywall(accessInfo, handleGoogleSignIn);
+
+                // Broadcast authentication and access detail
+                window.dispatchEvent(new CustomEvent('rsbk-user-authenticated', { detail: { ...user, accessInfo } }));
             } else {
                 localStorage.removeItem('rsbk_auth_cached');
                 localStorage.removeItem('rsbk_user_name');
                 localStorage.removeItem('rsbk_user_avatar');
                 localStorage.removeItem('rsbk_user_email');
+                localStorage.removeItem('rsbk_access_valid');
+                localStorage.removeItem('rsbk_access_type');
 
-                document.documentElement.classList.remove('auth-verified');
+                document.documentElement.classList.remove('auth-verified', 'access-granted');
                 document.documentElement.classList.add('auth-unverified');
-                document.body.classList.remove('auth-verified');
+                document.body.classList.remove('auth-verified', 'access-granted');
                 document.body.classList.add('auth-unverified');
 
                 if (signInBtn) signInBtn.style.display = 'inline-flex';
                 if (userProfileArea) userProfileArea.style.display = 'none';
-                if (authGate) authGate.style.display = 'flex';
+                if (navTierPillSlot) navTierPillSlot.innerHTML = '';
+
+                const accessInfo = evaluateUserAccess(null);
+                renderPaywall(accessInfo, handleGoogleSignIn);
 
                 window.dispatchEvent(new CustomEvent('rsbk-user-authenticated', { detail: null }));
             }
         });
-
-        const handleGoogleSignIn = async () => {
-            try {
-                await signInWithPopup(auth, provider);
-            } catch (err) {
-                if (err.code !== 'auth/popup-closed-by-user') {
-                    console.error('Google Sign-In error:', err);
-                    alert('Unable to sign in right now: ' + (err.message || 'Please try again.'));
-                }
-            }
-        };
-
-        if (signInBtn) {
-            signInBtn.addEventListener('click', handleGoogleSignIn);
-        }
-
-        if (gateSignInBtn) {
-            gateSignInBtn.addEventListener('click', handleGoogleSignIn);
-        }
 
         if (signOutBtn) {
             signOutBtn.addEventListener('click', async () => {
@@ -295,9 +562,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     localStorage.removeItem('rsbk_user_name');
                     localStorage.removeItem('rsbk_user_avatar');
                     localStorage.removeItem('rsbk_user_email');
-                    document.documentElement.classList.remove('auth-verified');
+                    localStorage.removeItem('rsbk_access_valid');
+                    localStorage.removeItem('rsbk_access_type');
+                    document.documentElement.classList.remove('auth-verified', 'access-granted');
                     document.documentElement.classList.add('auth-unverified');
-                    document.body.classList.remove('auth-verified');
+                    document.body.classList.remove('auth-verified', 'access-granted');
                     document.body.classList.add('auth-unverified');
                     await signOut(auth);
                     window.location.href = 'index.html';

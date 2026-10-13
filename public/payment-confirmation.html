@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script>if(localStorage.getItem('rsbk_auth_cached')==='true'){document.documentElement.classList.add('auth-verified');}</script>
+    <script>if(localStorage.getItem('rsbk_auth_cached')==='true'){document.documentElement.classList.add('auth-verified');if(localStorage.getItem('rsbk_access_valid')==='true'){document.documentElement.classList.add('access-granted');}else if(localStorage.getItem('rsbk_access_valid')==='false'){document.documentElement.classList.add('paywall-expired');}}</script>
     <title>Payment Confirmation &amp; Receipt | Dr. Milind Chatrabhuji — RSBK Online</title>
     <meta name="description" content="Cryptographic verification and confirmation waiting page for RSBK Online Membership top-ups via Razorpay.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,7 +13,7 @@
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
-<body class="protected-page">
+<body class="page-confirmation">
     <div class="background-effects">
         <div class="glow glow-1"></div>
         <div class="glow glow-2"></div>
@@ -290,12 +290,16 @@
 
                 // Credit the user's wallet persistently in localStorage
                 let userKey = 'rsbk_wallet_default_user';
-                const userRaw = localStorage.getItem('rsbk_user_profile');
-                if (userRaw) {
-                    try {
-                        const u = JSON.parse(userRaw);
-                        if (u.uid) userKey = 'rsbk_wallet_' + u.uid;
-                    } catch (e) {}
+                if (pending && pending.userId && pending.userId !== 'guest_user') {
+                    userKey = 'rsbk_wallet_' + pending.userId;
+                } else {
+                    const userRaw = localStorage.getItem('rsbk_user_profile');
+                    if (userRaw) {
+                        try {
+                            const u = JSON.parse(userRaw);
+                            if (u.uid) userKey = 'rsbk_wallet_' + u.uid;
+                        } catch (e) {}
+                    }
                 }
 
                 let wallet = { balance: 0, lastDeductedEpoch: null, transactions: [] };
@@ -322,8 +326,14 @@
                     balanceAfter: wallet.balance
                 };
 
+                if (!wallet.transactions) wallet.transactions = [];
                 wallet.transactions.unshift(txnRecord);
                 localStorage.setItem(userKey, JSON.stringify(wallet));
+
+                // Grant immediate access validity cache
+                localStorage.setItem('rsbk_access_valid', 'true');
+                localStorage.setItem('rsbk_access_type', 'paid');
+                localStorage.setItem('rsbk_wallet_balance', wallet.balance.toString());
 
                 // Populate receipt
                 const receiptId = 'RSBK-RCPT-' + Math.floor(100000 + Math.random() * 900000);

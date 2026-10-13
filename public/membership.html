@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script>if(localStorage.getItem('rsbk_auth_cached')==='true'){document.documentElement.classList.add('auth-verified');}</script>
+    <script>if(localStorage.getItem('rsbk_auth_cached')==='true'){document.documentElement.classList.add('auth-verified');if(localStorage.getItem('rsbk_access_valid')==='true'){document.documentElement.classList.add('access-granted');}else if(localStorage.getItem('rsbk_access_valid')==='false'){document.documentElement.classList.add('paywall-expired');}}</script>
     <title>Membership &amp; Wallet | Dr. Milind Chatrabhuji — RSBK Online</title>
     <meta name="description" content="Simple, unified membership for ₹1 per day. Daily deduction at 5 AM IST directly from wallet balance with Razorpay secure payments.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,7 +13,7 @@
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
-<body class="protected-page">
+<body class="page-membership">
     <div class="background-effects">
         <div class="glow glow-1"></div>
         <div class="glow glow-2"></div>
@@ -74,10 +74,21 @@
                 <!-- Section Header -->
                 <div class="section-header">
                     <div class="badge">
-                        <ion-icon name="flash-outline" style="vertical-align: -2px; margin-right: 4px;"></ion-icon> Transparent Fair-Billing · ₹1 Per Day
+                        <ion-icon name="sparkles" style="vertical-align: -2px; margin-right: 4px;"></ion-icon> 30-Day Free Trial · Fair Billing ₹1 Per Day
                     </div>
                     <h1 class="section-title">Membership &amp; Wallet</h1>
-                    <p class="section-description">A simple, unified membership without student vs. teacher divide. Access classical treatises, question banks, and pedagogical frameworks for just <strong>₹1 per day</strong>. Charges are deducted daily at <strong>5:00 AM IST</strong> directly from your loaded wallet balance with zero recurring bank auto-debits.</p>
+                    <p class="section-description">Sign in with Google for the first time to get an automatic <strong>30-day complimentary free trial</strong> with full access to all curriculum handbooks, research volumes, and reference books. After your trial completes, uninterrupted access is just <strong>₹1 per day</strong>, deducted at 5:00 AM IST from your prepaid balance with zero recurring auto-debits.</p>
+                </div>
+
+                <!-- 30-Day Trial Alert Notification -->
+                <div class="trial-info-alert" id="trialInfoAlert" style="display: none;">
+                    <div class="trial-alert-icon">
+                        <ion-icon name="sparkles"></ion-icon>
+                    </div>
+                    <div class="trial-alert-content">
+                        <h4 id="trialAlertTitle">30-Day Free Trial Active</h4>
+                        <p id="trialAlertDesc">Your account has complimentary full access. No balance is deducted during your trial! Any balance loaded below will start deducting ₹1/day only AFTER your 30-day trial ends.</p>
+                    </div>
                 </div>
 
                 <!-- Wallet Status Hero Card -->
