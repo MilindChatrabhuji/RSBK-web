@@ -8,7 +8,7 @@ lang="en">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=3.3">
+    <link rel="stylesheet" href="styles.css?v=4.0">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -66,8 +66,8 @@ lang="en">
                     </div>
                     <div class="profile-header-action">
                         <a href="membership.html" class="btn-tier-action">
-                            <ion-icon name="sparkles-outline"></ion-icon>
-                            <span>Membership Plans</span>
+                            <ion-icon name="wallet-outline"></ion-icon>
+                            <span>Scholar Wallet (₹1/Day)</span>
                         </a>
                     </div>
                 </div>
@@ -312,7 +312,7 @@ lang="en">
         </div>
     </footer>
 
-    <script src="script.js?v=3.3"></script>
+    <script src="script.js?v=4.0"></script>
     <script>
         // Profile form auto-save and pre-populate script
         document.addEventListener('DOMContentLoaded', () => {
@@ -324,18 +324,23 @@ lang="en">
 
             const loadProfileData = (uid) => {
                 const stored = localStorage.getItem(`rsbk_profile_${uid}`);
-                const membership = localStorage.getItem(`rsbk_membership_${uid}`) || 'free';
-                
-                // Tier badge
+                let walletBal = 0;
+                try {
+                    const wRaw = localStorage.getItem(`rsbk_wallet_${uid}`);
+                    if (wRaw) {
+                        const w = JSON.parse(wRaw);
+                        walletBal = w.balance || 0;
+                    }
+                } catch (e) {}
+
+                // Wallet / Tier badge
                 if (tierBadge) {
-                    if (membership === 'faculty') {
-                        tierBadge.textContent = 'Faculty Elite Member';
-                        tierBadge.className = 'badge badge-tier faculty';
-                    } else if (membership === 'pro') {
-                        tierBadge.textContent = 'PG Scholar Pro';
+                    if (walletBal >= 1) {
+                        const days = Math.floor(walletBal);
+                        tierBadge.textContent = `Active Member (${days} ${days === 1 ? 'Day' : 'Days'} Remaining)`;
                         tierBadge.className = 'badge badge-tier pro';
                     } else {
-                        tierBadge.textContent = 'Free Scholar';
+                        tierBadge.textContent = 'Scholar (Top-up to Activate)';
                         tierBadge.className = 'badge badge-tier free';
                     }
                 }

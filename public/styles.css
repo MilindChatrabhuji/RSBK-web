@@ -3451,3 +3451,1021 @@ body.protected-page:not(.auth-verified) .auth-gate {
         justify-content: center;
     }
 }
+
+/* ===================================================
+   RSBK Scholar Wallet & ₹1/Day Membership Styles
+   =================================================== */
+
+.wallet-hero-card {
+    background: #ffffff;
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 2rem 2.25rem;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.wallet-hero-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #10b981 0%, #059669 50%, #047857 100%);
+}
+
+.wallet-hero-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.75rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.wallet-user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.wallet-hero-icon {
+    font-size: 2.5rem;
+    color: var(--primary);
+    background: rgba(5, 150, 105, 0.1);
+    padding: 0.65rem;
+    border-radius: 14px;
+}
+
+.wallet-hero-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+.wallet-user-name {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.wallet-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 1rem;
+    border-radius: 50px;
+    font-size: 0.825rem;
+    font-weight: 700;
+}
+
+.wallet-status-badge.active {
+    background: rgba(16, 185, 129, 0.12);
+    color: #047857;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.wallet-status-badge.inactive {
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+}
+
+.status-pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    animation: pulseDot 2s infinite;
+}
+
+@keyframes pulseDot {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.wallet-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+}
+
+.wallet-metric-box {
+    background: #f8fafc;
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.wallet-metric-box.primary {
+    background: linear-gradient(135deg, rgba(5, 150, 105, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%);
+    border-color: rgba(5, 150, 105, 0.2);
+}
+
+.metric-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.5rem;
+}
+
+.metric-value-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    margin-bottom: 0.4rem;
+}
+
+.metric-currency {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.metric-number {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--text-color);
+    letter-spacing: -0.02em;
+}
+
+.metric-number.highlight {
+    color: var(--primary);
+}
+
+.metric-unit {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.metric-date-display {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 0.4rem;
+    line-height: 1.4;
+}
+
+.metric-subtext {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Wallet Top-Up Card */
+.wallet-topup-card {
+    background: #ffffff;
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 2.25rem;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    margin-bottom: 2rem;
+}
+
+.topup-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--card-border);
+    margin-bottom: 1.75rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.topup-title-area {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.topup-title-area ion-icon {
+    font-size: 2rem;
+    color: var(--primary);
+}
+
+.topup-title-area h3 {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--text-color);
+    margin: 0 0 0.25rem;
+}
+
+.topup-title-area p {
+    font-size: 0.885rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.topup-rate-pill {
+    background: rgba(5, 150, 105, 0.1);
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.45rem 1rem;
+    border-radius: 50px;
+    border: 1px solid rgba(5, 150, 105, 0.2);
+}
+
+.input-section-label {
+    display: block;
+    font-size: 0.885rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 0.85rem;
+}
+
+/* Amount Preset Chips */
+.amount-preset-chips {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+}
+
+.preset-chip {
+    position: relative;
+    background: #f8fafc;
+    border: 2px solid var(--card-border);
+    border-radius: 14px;
+    padding: 1.15rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.preset-chip:hover {
+    border-color: var(--primary);
+    background: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
+}
+
+.preset-chip.active {
+    border-color: var(--primary);
+    background: rgba(5, 150, 105, 0.04);
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+}
+
+.chip-amt {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--text-color);
+}
+
+.preset-chip.active .chip-amt {
+    color: var(--primary);
+}
+
+.chip-days {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.chip-badge {
+    position: absolute;
+    top: -10px;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: #ffffff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 0.2rem 0.65rem;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 6px rgba(217, 119, 6, 0.3);
+}
+
+/* Custom Input */
+.custom-amount-section {
+    margin-bottom: 1.75rem;
+}
+
+.custom-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    max-width: 480px;
+}
+
+.input-currency-prefix {
+    position: absolute;
+    left: 1.25rem;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.custom-input-wrapper input {
+    width: 100%;
+    padding: 0.95rem 1rem 0.95rem 2.85rem;
+    border: 2px solid var(--card-border);
+    border-radius: 12px;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-color);
+    background: #f8fafc;
+    transition: all 0.2s ease;
+}
+
+.custom-input-wrapper input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.15);
+}
+
+.input-limit-tag {
+    position: absolute;
+    right: 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: #e2e8f0;
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+    pointer-events: none;
+}
+
+.amount-live-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.885rem;
+    color: var(--text-color);
+    margin-top: 0.75rem;
+}
+
+.amount-live-summary ion-icon {
+    font-size: 1.15rem;
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+.topup-error-alert {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Proceed Payment Button */
+.topup-action-row {
+    margin-bottom: 1.75rem;
+}
+
+.btn-proceed-pay {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 480px;
+    padding: 1.15rem 2rem;
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 10px 25px rgba(5, 150, 105, 0.25);
+}
+
+.btn-proceed-pay:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(5, 150, 105, 0.35);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.btn-proceed-pay:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Payment Trust Bar */
+.payment-trust-bar {
+    display: flex;
+    align-items: center;
+    gap: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--card-border);
+    flex-wrap: wrap;
+}
+
+.trust-item {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.trust-item ion-icon {
+    font-size: 1rem;
+    color: var(--primary);
+}
+
+/* Passbook Card */
+.wallet-passbook-card {
+    background: #ffffff;
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 2.25rem;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    margin-bottom: 2rem;
+}
+
+.passbook-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.75rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.passbook-title-area {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.passbook-title-area ion-icon {
+    font-size: 2rem;
+    color: var(--primary);
+}
+
+.passbook-title-area h3 {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--text-color);
+    margin: 0 0 0.25rem;
+}
+
+.passbook-title-area p {
+    font-size: 0.885rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.passbook-filter-tabs {
+    display: flex;
+    background: #f1f5f9;
+    padding: 0.25rem;
+    border-radius: 50px;
+    gap: 0.25rem;
+}
+
+.pb-filter-tab {
+    border: none;
+    background: transparent;
+    padding: 0.45rem 1rem;
+    border-radius: 50px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pb-filter-tab.active {
+    background: #ffffff;
+    color: var(--text-color);
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+}
+
+.passbook-table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.passbook-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.passbook-table th {
+    text-align: left;
+    padding: 0.85rem 1rem;
+    background: #f8fafc;
+    border-bottom: 2px solid var(--card-border);
+    font-weight: 700;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.passbook-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--card-border);
+    vertical-align: middle;
+}
+
+.passbook-row:hover {
+    background: #f8fafc;
+}
+
+.pb-col-date {
+    white-space: nowrap;
+    color: var(--text-muted);
+    font-size: 0.825rem;
+}
+
+.pb-col-ref code {
+    background: #f1f5f9;
+    padding: 0.2rem 0.45rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: #475569;
+}
+
+.badge-pb-type {
+    display: inline-block;
+    padding: 0.25rem 0.65rem;
+    border-radius: 50px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.badge-pb-type.badge-credit {
+    background: rgba(16, 185, 129, 0.12);
+    color: #047857;
+}
+
+.badge-pb-type.badge-debit {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+}
+
+.pb-col-amt {
+    text-align: right;
+    font-weight: 800;
+    font-size: 0.95rem;
+}
+
+.pb-col-amt.text-credit {
+    color: #059669;
+}
+
+.pb-col-amt.text-debit {
+    color: #dc2626;
+}
+
+.pb-col-balance {
+    text-align: right;
+}
+
+.passbook-empty {
+    text-align: center;
+    padding: 3rem 1.5rem !important;
+    color: var(--text-muted);
+}
+
+.passbook-empty ion-icon {
+    font-size: 2.5rem;
+    color: #cbd5e1;
+    margin-bottom: 0.5rem;
+}
+
+/* Policy Grid */
+.policy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+}
+
+.policy-box {
+    background: #f8fafc;
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 1.25rem;
+}
+
+.policy-box-num {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 0.35rem;
+}
+
+.policy-box h4 {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--text-color);
+    margin: 0 0 0.35rem;
+}
+
+.policy-box p {
+    font-size: 0.825rem;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ===================================================
+   Payment Confirmation Waiting Page Styles
+   =================================================== */
+
+.confirmation-main {
+    min-height: calc(100vh - 120px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+}
+
+.confirmation-container {
+    width: 100%;
+    max-width: 680px;
+    margin: 0 auto;
+}
+
+.confirmation-card {
+    background: #ffffff;
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 2.75rem 2.25rem;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.verification-scanner {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.75rem;
+}
+
+.scanner-rings {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid transparent;
+}
+
+.ring-1 {
+    width: 100%;
+    height: 100%;
+    border-top-color: var(--primary);
+    border-bottom-color: var(--primary);
+    animation: spinScanner 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+}
+
+.ring-2 {
+    width: 75%;
+    height: 75%;
+    border-left-color: #10b981;
+    border-right-color: #10b981;
+    animation: spinScannerRev 1s linear infinite;
+}
+
+.scanner-icon {
+    font-size: 2.25rem;
+    color: var(--primary);
+}
+
+@keyframes spinScanner {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes spinScannerRev {
+    from { transform: rotate(360deg); }
+    to { transform: rotate(0deg); }
+}
+
+.confirm-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-color);
+    margin: 0 0 0.5rem;
+}
+
+.confirm-subtitle {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0 0 2rem;
+}
+
+.verify-steps-list {
+    background: #f8fafc;
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    text-align: left;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.verify-step {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    font-size: 0.885rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.verify-step.done {
+    color: #047857;
+    font-weight: 600;
+}
+
+.verify-step.active {
+    color: var(--text-color);
+    font-weight: 700;
+}
+
+.step-check {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.verify-step.done .step-check {
+    background: #10b981;
+    color: #ffffff;
+    font-size: 0.95rem;
+}
+
+.verify-step.active .step-check {
+    background: rgba(5, 150, 105, 0.15);
+    color: var(--primary);
+}
+
+.mini-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(5, 150, 105, 0.2);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spinScanner 0.8s linear infinite;
+}
+
+.waiting-meta-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+/* Success Card */
+.success-icon-badge {
+    font-size: 4rem;
+    color: #10b981;
+    margin-bottom: 0.5rem;
+}
+
+.success-pill {
+    margin-bottom: 0.85rem;
+    background: rgba(16, 185, 129, 0.12) !important;
+    color: #047857 !important;
+}
+
+/* Digital Receipt */
+.digital-receipt-box {
+    background: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    border-radius: 18px;
+    padding: 1.75rem;
+    text-align: left;
+    margin-bottom: 2rem;
+}
+
+.receipt-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.receipt-brand strong {
+    display: block;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-color);
+}
+
+.receipt-brand span {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.receipt-meta-right {
+    text-align: right;
+}
+
+.receipt-badge {
+    background: #10b981;
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    display: inline-block;
+    margin-bottom: 0.2rem;
+}
+
+.receipt-num {
+    display: block;
+    font-size: 0.75rem;
+    font-family: monospace;
+    color: var(--text-muted);
+}
+
+.receipt-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 1.25rem 0;
+}
+
+.receipt-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.15rem;
+}
+
+.receipt-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.r-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.r-val {
+    font-size: 0.95rem;
+    color: var(--text-color);
+    font-weight: 700;
+}
+
+.r-val.highlight {
+    font-size: 1.25rem;
+    color: var(--primary);
+}
+
+.r-val.success {
+    color: #047857;
+}
+
+.r-val.mono {
+    font-family: monospace;
+    font-size: 0.85rem;
+    word-break: break-all;
+}
+
+.receipt-footer {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #cbd5e1;
+}
+
+.receipt-rate-info {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.receipt-rate-info ion-icon {
+    font-size: 1.1rem;
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+/* Receipt Action Buttons */
+.receipt-action-buttons {
+    display: flex;
+    gap: 0.85rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-receipt-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.85rem 1.35rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.btn-receipt-action.print {
+    background: #ffffff;
+    border: 1px solid var(--card-border);
+    color: var(--text-color);
+}
+
+.btn-receipt-action.print:hover {
+    background: #f1f5f9;
+}
+
+.btn-receipt-action.primary {
+    background: var(--primary);
+    color: #ffffff;
+}
+
+.btn-receipt-action.primary:hover {
+    background: #047857;
+    transform: translateY(-2px);
+}
+
+.btn-receipt-action.secondary {
+    background: #0f172a;
+    color: #ffffff;
+}
+
+.btn-receipt-action.secondary:hover {
+    background: #1e293b;
+    transform: translateY(-2px);
+}
+
+/* Print CSS */
+@media print {
+    .navbar, .footer, .no-print, .background-effects, .mobile-menu-bar {
+        display: none !important;
+    }
+    .confirmation-main {
+        padding: 0 !important;
+    }
+    .confirmation-card {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+}
+

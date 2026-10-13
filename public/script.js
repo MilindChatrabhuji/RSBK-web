@@ -189,16 +189,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                     userName.textContent = firstName;
                 }
                 if (userTierPill) {
-                    const tier = localStorage.getItem(`rsbk_membership_${user.uid}`) || 'free';
-                    if (tier === 'faculty') {
-                        userTierPill.textContent = 'Faculty';
-                        userTierPill.className = 'user-tier-pill faculty';
-                    } else if (tier === 'pro') {
-                        userTierPill.textContent = 'Pro';
+                    let walletBal = 0;
+                    try {
+                        const wRaw = localStorage.getItem(`rsbk_wallet_${user.uid}`);
+                        if (wRaw) {
+                            const w = JSON.parse(wRaw);
+                            walletBal = w.balance || 0;
+                        }
+                    } catch (e) {}
+
+                    if (walletBal >= 1) {
+                        const days = Math.floor(walletBal);
+                        userTierPill.textContent = `₹${days} · ${days}d`;
                         userTierPill.className = 'user-tier-pill pro';
+                        userTierPill.title = `Active Scholar Wallet: ₹${walletBal.toFixed(2)} (${days} days of access remaining)`;
                     } else {
-                        userTierPill.textContent = 'Scholar';
+                        userTierPill.textContent = 'SCHOLAR';
                         userTierPill.className = 'user-tier-pill free';
+                        userTierPill.title = 'Scholar Account — Top-up ₹1/day to activate';
                     }
                 }
                 window.dispatchEvent(new CustomEvent('rsbk-user-authenticated', { detail: user }));
