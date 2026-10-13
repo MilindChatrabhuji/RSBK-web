@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=3.2">
+    <link rel="stylesheet" href="styles.css?v=3.3">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -47,37 +47,142 @@
     <main class="page-main">
         <section class="hero-section">
             <div class="hero-content">
-                <div class="badge">Official Academic Portal</div>
+                <div class="hero-eyebrow">
+                    <span class="eyebrow-dot"></span>
+                    <span>Official Academic Portal · Rasashastra &amp; Bhaishajya Kalpana</span>
+                </div>
+
                 <h1 class="hero-title"><span class="text-gradient">RSBK Online</span></h1>
-                <p class="hero-subtitle">Advancing Ayurvedic Knowledge — Explore comprehensive textbooks, study notes, and academic resources on Rasashastra &amp; Bhaishajya Kalpana authored by Dr. Milind Chatrabhuji.</p>
+                <p class="hero-lead">Advancing Ayurvedic Pharmaceutical Sciences, Competency Frameworks &amp; Research</p>
+                <p class="hero-subtitle">Comprehensive digital gateway for BAMS &amp; MD/MS scholars, faculty members, and researchers. Explore curriculum-aligned textbooks, Bloom's &amp; Miller's pedagogical blueprints, and cloud-synchronized reference treatises authored and curated by <strong>Dr. Milind Chatrabhuji</strong>.</p>
 
-                <div class="portal-cards">
-                    <a href="students.html" class="portal-card">
-                        <div class="portal-icon student-icon">
-                            <ion-icon name="school-outline"></ion-icon>
+                <!-- Academic Trust / Pillars Strip -->
+                <div class="hero-pillars">
+                    <div class="pillar-item">
+                        <ion-icon name="ribbon-outline"></ion-icon>
+                        <span>NCISM Curriculum Aligned</span>
+                    </div>
+                    <div class="pillar-divider"></div>
+                    <div class="pillar-item">
+                        <ion-icon name="layers-outline"></ion-icon>
+                        <span>Bloom's &amp; Miller's Frameworks</span>
+                    </div>
+                    <div class="pillar-divider"></div>
+                    <div class="pillar-item">
+                        <ion-icon name="cloud-done-outline"></ion-icon>
+                        <span>Live Google Drive Sync</span>
+                    </div>
+                </div>
+
+                <!-- Modern Interactive Showcase Grid -->
+                <div class="showcase-grid">
+                    <!-- Student Gateway Card -->
+                    <a href="students.html" class="showcase-card card-students">
+                        <div class="showcase-header">
+                            <span class="showcase-badge-tag student-tag">
+                                <ion-icon name="school-outline"></ion-icon> For Students
+                            </span>
+                            <span class="showcase-status">BAMS &amp; MD/MS</span>
                         </div>
-                        <h2 class="portal-title">For Students</h2>
-                        <p class="portal-desc">Curriculum-aligned textbooks, module-wise study notes, and complete question banks for PG scholars.</p>
-                        <span class="portal-link">Explore Student Section <ion-icon name="arrow-forward-outline"></ion-icon></span>
+
+                        <div class="showcase-visual">
+                            <div class="visual-glow student-glow"></div>
+                            <div class="book-fan-stack">
+                                <img src="assets/covers/cover-abq-question-bank.png" alt="ABQ Question Bank" class="fan-book fan-book-back" loading="lazy">
+                                <img src="assets/covers/Front-Cover-300dpi.png" alt="Applied Basics of RSBK Textbook" class="fan-book fan-book-front" loading="lazy">
+                            </div>
+                        </div>
+
+                        <div class="showcase-body">
+                            <h2 class="showcase-title">Student Academic Hub</h2>
+                            <p class="showcase-desc">Curriculum-aligned textbooks, high-yield study notes, module-wise ABQ question banks, and practical training proformas for Ayurvedic scholars.</p>
+                            
+                            <ul class="showcase-features">
+                                <li><ion-icon name="checkmark-circle"></ion-icon> Applied Basics of RSBK Textbook</li>
+                                <li><ion-icon name="checkmark-circle"></ion-icon> ABQ Question Bank</li>
+                                <li><ion-icon name="checkmark-circle"></ion-icon> Practical Training Proformas</li>
+                            </ul>
+
+                            <div class="showcase-action student-action">
+                                <span>Explore Student Hub</span>
+                                <ion-icon name="arrow-forward-outline"></ion-icon>
+                            </div>
+                        </div>
                     </a>
 
-                    <a href="teachers.html" class="portal-card">
-                        <div class="portal-icon teacher-icon">
-                            <ion-icon name="easel-outline"></ion-icon>
+                    <!-- Teacher Gateway Card -->
+                    <a href="teachers.html" class="showcase-card card-teachers">
+                        <div class="showcase-header">
+                            <span class="showcase-badge-tag teacher-tag">
+                                <ion-icon name="easel-outline"></ion-icon> For Teachers
+                            </span>
+                            <span class="showcase-status">6-Volume Series</span>
                         </div>
-                        <h2 class="portal-title">For Teachers</h2>
-                        <p class="portal-desc">Reference guides on Bloom's Taxonomy, Miller's Pyramid, and educational frameworks for faculty.</p>
-                        <span class="portal-link">Explore Teacher Section <ion-icon name="arrow-forward-outline"></ion-icon></span>
+
+                        <div class="showcase-visual">
+                            <div class="visual-glow teacher-glow"></div>
+                            <div class="book-fan-stack">
+                                <img src="assets/covers/cover-millers-aypg-ab-rb.png" alt="Miller's Pyramid Handbook" class="fan-book fan-book-back" loading="lazy">
+                                <img src="assets/covers/cover-blooms-aypg-ab-rb.png" alt="Bloom's Taxonomy Handbook" class="fan-book fan-book-front" loading="lazy">
+                            </div>
+                        </div>
+
+                        <div class="showcase-body">
+                            <h2 class="showcase-title">Teachers &amp; Pedagogy Hub</h2>
+                            <p class="showcase-desc">Systematic cognitive domain mapping and clinical competency blueprints based on Bloom's Taxonomy and Miller's Pyramid across UG &amp; PG curricula.</p>
+                            
+                            <ul class="showcase-features">
+                                <li><ion-icon name="checkmark-circle"></ion-icon> Bloom's Taxonomy Series</li>
+                                <li><ion-icon name="checkmark-circle"></ion-icon> Miller's Competency Pyramid</li>
+                                <li><ion-icon name="checkmark-circle"></ion-icon> UG &amp; PG Semester Blueprints</li>
+                            </ul>
+
+                            <div class="showcase-action teacher-action">
+                                <span>Explore Teacher Hub</span>
+                                <ion-icon name="arrow-forward-outline"></ion-icon>
+                            </div>
+                        </div>
                     </a>
 
-                    <a href="books.html" class="portal-card">
-                        <div class="portal-icon books-icon">
-                            <ion-icon name="library-outline"></ion-icon>
+                    <!-- Books Cloud Archive Card -->
+                    <a href="books.html" class="showcase-card card-books">
+                        <div class="showcase-header">
+                            <span class="showcase-badge-tag books-tag">
+                                <ion-icon name="library-outline"></ion-icon> Books Archive
+                            </span>
+                            <span class="showcase-status pulse-status">
+                                <span class="pulse-dot"></span> Auto-Sync
+                            </span>
                         </div>
-                        <div class="portal-meta">Live Drive Archive</div>
-                        <h2 class="portal-title">Books</h2>
-                        <p class="portal-desc">Live cloud archive of classical Rasashastra and Ayurvedic reference treatises auto-synced with Google Drive.</p>
-                        <span class="portal-link">Explore Books Library <ion-icon name="arrow-forward-outline"></ion-icon></span>
+
+                        <div class="showcase-visual">
+                            <div class="visual-glow books-glow"></div>
+                            <div class="drive-cloud-preview">
+                                <div class="cloud-icon-circle">
+                                    <ion-icon name="cloud-done-outline"></ion-icon>
+                                </div>
+                                <div class="drive-sync-badge">
+                                    <ion-icon name="logo-google"></ion-icon>
+                                    <span>Google Drive Live Grid</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="showcase-body">
+                            <h2 class="showcase-title">Reference Books Archive</h2>
+                            <p class="showcase-desc">Live cloud repository of classical Rasashastra and Ayurvedic treatises, research monographs, and clinical reference texts auto-synced with Google Drive.</p>
+                            
+                            <ul class="showcase-features">
+                                <li><ion-icon name="checkmark-circle"></ion-icon> Real-Time Cloud Auto-Sync</li>
+                                <li><ion-icon name="checkmark-circle"></ion-icon> Direct In-Browser Reader</li>
+                                <li><ion-icon name="checkmark-circle"></ion-icon> Classical Treatises &amp; References</li>
+                            </ul>
+
+                            <div class="showcase-action books-action">
+                                <span>Browse Books Library</span>
+                                <ion-icon name="arrow-forward-outline"></ion-icon>
+                            </div>
+                        </div>
                     </a>
                 </div>
 
