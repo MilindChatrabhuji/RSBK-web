@@ -7275,12 +7275,19 @@ body.page-confirmation .auth-gate {
 }
 
 .role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
     font-size: 0.65rem;
     font-weight: 700;
     padding: 0.12rem 0.45rem;
     border-radius: 9999px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
+}
+
+.role-badge ion-icon {
+    font-size: 0.8rem;
 }
 
 .role-badge.admin {
@@ -7307,6 +7314,9 @@ body.page-confirmation .auth-gate {
 }
 
 .topic-cat-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
     font-size: 0.72rem;
     font-weight: 700;
     color: #059669;
@@ -7403,6 +7413,10 @@ body.page-confirmation .auth-gate {
     font-size: 0.75rem;
     color: var(--text-muted);
     font-weight: 600;
+}
+
+.reaction-pill ion-icon {
+    font-size: 0.85rem;
 }
 
 /* Single Topic Detail View */
@@ -7533,9 +7547,8 @@ body.page-confirmation .auth-gate {
     box-shadow: 0 2px 8px rgba(5, 150, 105, 0.2);
 }
 
-.reaction-btn .emoji {
+.reaction-btn ion-icon {
     font-size: 1.15rem;
-    line-height: 1;
 }
 
 .topic-admin-actions {

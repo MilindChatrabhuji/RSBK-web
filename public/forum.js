@@ -96,18 +96,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Helper: Category Label & Icon
     const CATEGORIES = {
-        'all': { label: 'All Topics', icon: '🌿' },
-        'rasa-shastra': { label: 'Rasa Shastra', icon: '🧪' },
-        'bhaishajya-kalpana': { label: 'Bhaishajya Kalpana', icon: '💊' },
-        'clinical': { label: 'Clinical Cases', icon: '🏥' },
-        'pharmacology': { label: 'Pharmacology & Research', icon: '🔬' },
-        'books': { label: 'Textbook Q&A', icon: '📚' },
-        'curriculum': { label: 'UG / PG Curriculum', icon: '🎓' },
-        'general': { label: 'General Discourse', icon: '💬' }
+        'all': { label: 'All Topics', icon: '<ion-icon name="layers-outline"></ion-icon>' },
+        'rasa-shastra': { label: 'Rasa Shastra', icon: '<ion-icon name="flask-outline"></ion-icon>' },
+        'bhaishajya-kalpana': { label: 'Bhaishajya Kalpana', icon: '<ion-icon name="medkit-outline"></ion-icon>' },
+        'clinical': { label: 'Clinical Cases', icon: '<ion-icon name="fitness-outline"></ion-icon>' },
+        'pharmacology': { label: 'Pharmacology & Research', icon: '<ion-icon name="color-filter-outline"></ion-icon>' },
+        'books': { label: 'Textbook Q&A', icon: '<ion-icon name="book-outline"></ion-icon>' },
+        'curriculum': { label: 'UG / PG Curriculum', icon: '<ion-icon name="school-outline"></ion-icon>' },
+        'general': { label: 'General Discourse', icon: '<ion-icon name="chatbubbles-outline"></ion-icon>' }
     };
 
     const getCategoryDisplay = (catKey) => {
-        return CATEGORIES[catKey] || { label: 'Ayurveda', icon: '🌿' };
+        return CATEGORIES[catKey] || { label: 'Ayurveda', icon: '<ion-icon name="leaf-outline"></ion-icon>' };
     };
 
     // Helper: Sanitize Rich HTML content
@@ -191,153 +191,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             btnCommentSignIn.addEventListener('click', promptGoogleSignIn);
         }
 
-        // =========================================================================
-        // Seed Initial Scholarly Topics if Database is Empty
-        // =========================================================================
-        const seedInitialTopicsIfEmpty = async () => {
-            const topicsRef = ref(db, 'forum/topics');
-            onValue(topicsRef, async (snapshot) => {
-                if (!snapshot.exists()) {
-                    const now = Date.now();
-                    const seeds = {
-                        "topic_parpati_standardization": {
-                            id: "topic_parpati_standardization",
-                            title: "Standardization of Rasa Parpati: Temperature Curves and Shodhana Nuances",
-                            category: "rasa-shastra",
-                            tags: ["Rasa Parpati", "Kajjali", "Shodhana", "Gomaya Patra", "Temperature Control"],
-                            content: `
-                                <h2>Practical Insights on Rasa Parpati Nirmana</h2>
-                                <p>In classical treatises, <em>Rasa Parpati</em> is prepared using equal parts of <strong>Shuddha Parada</strong> and <strong>Shuddha Gandhaka</strong> ground thoroughly until <em>Nischandrika</em> Kajjali is achieved.</p>
-                                <div class="shloka-quote">
-                                    ॥ कज्जली लोहपात्रस्था द्राविता गोमये न्यसेत् ।<br>कदलीपत्रसंयुक्ते पर्पटी सा विधीयते ॥<br>
-                                    <small style="color: #9a3412;">— भैषज्य रत्नावली / ग्रहणी रोगाधिकार</small>
-                                </div>
-                                <h3>Critical Observations in Laboratory Practice:</h3>
-                                <ul>
-                                    <li><strong>Mridu Agni Control:</strong> Melting must occur between 115°C and 125°C. Excessive heat causes sulfur sublimation (Gandhaka Jvalana), leading to loss of therapeutic potency.</li>
-                                    <li><strong>Pressing Technique:</strong> Fresh cow-dung bed (Gomaya) wrapped with tender banana leaf (Kadali Patra) provides the exact cooling rate to generate thin, crisp, non-sticky flakes.</li>
-                                </ul>
-                                <p>I invite scholarly observations from PG scholars and practitioners on testing yield variance with induction heating vs traditional charcoal stove.</p>
-                            `,
-                            authorName: "Dr. Milind Chatrabhuji",
-                            authorEmail: "dr.milindchatrabhuji@gmail.com",
-                            authorRole: "Faculty / Admin",
-                            authorAvatar: "https://lh3.googleusercontent.com/a/default-user",
-                            createdAt: now - 86400000 * 3,
-                            lastActivityAt: now - 3600000 * 4,
-                            views: 142,
-                            replyCount: 2,
-                            isPinned: true,
-                            isLocked: false,
-                            reactions: {
-                                thumbsUp: { "admin_1": true, "scholar_2": true, "student_3": true },
-                                heart: { "admin_1": true, "scholar_4": true },
-                                insightful: { "admin_1": true, "scholar_2": true, "scholar_5": true }
-                            }
-                        },
-                        "topic_asava_arishta_stability": {
-                            id: "topic_asava_arishta_stability",
-                            title: "Shelf Life and Stability of Asava-Arishta Preparations under Modern Storage",
-                            category: "bhaishajya-kalpana",
-                            tags: ["Asava", "Arishta", "Sandhana Kalpana", "Self-Generated Alcohol", "Stability"],
-                            content: `
-                                <h2>Evaluating Classical "Purana" Status in Fermented Formulations</h2>
-                                <p>Classical texts famously state that <em>Asava and Arishta</em> improve with age (<em>"गुणा अधिकाः स्युः पुराणानाम्"</em>). However, with modern borosilicate glass vs glazed porcelain jars (Mrit Patra), how does the microbial consortium behave over 3–5 years?</p>
-                                <p>Self-generated alcohol (typically 5% to 11% v/v) acts as a natural preservative and extracting solvent for hydro-alcoholic phytoconstituents.</p>
-                                <h3>Points for Discussion:</h3>
-                                <ul>
-                                    <li>Effect of seasonal ambient temperature spikes (>40°C in Indian summers) on esterification.</li>
-                                    <li>Standardizing residual reducing sugars to prevent secondary unpalatable acetic fermentation.</li>
-                                </ul>
-                            `,
-                            authorName: "Dr. Milind Chatrabhuji",
-                            authorEmail: "dr.milindchatrabhuji@gmail.com",
-                            authorRole: "Faculty / Admin",
-                            authorAvatar: "https://lh3.googleusercontent.com/a/default-user",
-                            createdAt: now - 86400000 * 2,
-                            lastActivityAt: now - 3600000 * 8,
-                            views: 98,
-                            replyCount: 1,
-                            isPinned: false,
-                            isLocked: false,
-                            reactions: {
-                                thumbsUp: { "scholar_1": true, "student_2": true },
-                                insightful: { "scholar_3": true }
-                            }
-                        },
-                        "topic_swarna_bhasma_clinical": {
-                            id: "topic_swarna_bhasma_clinical",
-                            title: "Clinical Observations on Swarna Bhasma in Chronic Autoimmune Conditions",
-                            category: "clinical",
-                            tags: ["Swarna Bhasma", "Rasayana", "Immunomodulation", "Amavata", "Safety"],
-                            content: `
-                                <h2>Nanoparticle Characterization &amp; Therapeutic Response</h2>
-                                <p>In complex autoimmune conditions (such as refractory <em>Amavata</em> and chronic debilitation), micro-dosing of genuine <strong>Swarna Bhasma (Varitar, Apunarbhava)</strong> combined with Guduchi Satva and Ashwagandha yields profound results.</p>
-                                <blockquote>
-                                    "सुवर्णं दीपनं शीतं विषघ्नं रसायनम् । बृंहणं वृष्यमायुष्यं मेधास्मृतिकरं परम् ॥"
-                                </blockquote>
-                                <p>Case observations over 6 months show notable reduction in ESR and CRP levels without adverse renal or hepatic parameters. Let us discuss dosage regimens and vehicle (Anupana) preferences.</p>
-                            `,
-                            authorName: "Dr. Milind Chatrabhuji",
-                            authorEmail: "dr.milindchatrabhuji@gmail.com",
-                            authorRole: "Faculty / Admin",
-                            authorAvatar: "https://lh3.googleusercontent.com/a/default-user",
-                            createdAt: now - 86400000 * 1,
-                            lastActivityAt: now - 3600000 * 2,
-                            views: 185,
-                            replyCount: 1,
-                            isPinned: true,
-                            isLocked: false,
-                            reactions: {
-                                thumbsUp: { "scholar_1": true, "scholar_2": true, "doctor_3": true },
-                                heart: { "scholar_4": true, "doctor_5": true },
-                                insightful: { "doctor_3": true }
-                            }
-                        }
-                    };
 
-                    // Seed initial comments for topic 1
-                    const seedComments = {
-                        "topic_parpati_standardization": {
-                            "comment_seed_1": {
-                                id: "comment_seed_1",
-                                topicId: "topic_parpati_standardization",
-                                parentId: null,
-                                content: "<p>Respected Sir, we observed that using a non-stick or teflon surface alters the surface cooling tension compared to traditional fresh cow-dung bed. The cow-dung retains moisture underneath the leaf, creating a microscopic steam buffer that gives the Parpati its characteristic luster.</p>",
-                                authorName: "Dr. Rajesh Sharma (PG Scholar)",
-                                authorEmail: "rajesh.ayur.pg@gmail.com",
-                                authorRole: "PG Scholar",
-                                authorAvatar: "",
-                                createdAt: now - 86400000 * 2,
-                                reactions: {
-                                    thumbsUp: { "admin_1": true, "scholar_1": true },
-                                    insightful: { "admin_1": true }
-                                }
-                            },
-                            "comment_seed_2": {
-                                id: "comment_seed_2",
-                                topicId: "topic_parpati_standardization",
-                                parentId: "comment_seed_1",
-                                content: "<p>Excellent observation, Dr. Rajesh. The moisture buffer is indeed pivotal; dry pressing leads to brittle crumbling rather than malleable thin sheets.</p>",
-                                authorName: "Dr. Milind Chatrabhuji",
-                                authorEmail: "dr.milindchatrabhuji@gmail.com",
-                                authorRole: "Faculty / Admin",
-                                authorAvatar: "",
-                                createdAt: now - 3600000 * 4,
-                                reactions: {
-                                    thumbsUp: { "scholar_1": true, "student_2": true }
-                                }
-                            }
-                        }
-                    };
-
-                    await set(ref(db, 'forum/topics'), seeds);
-                    await set(ref(db, 'forum/comments'), seedComments);
-                }
-            }, { onlyOnce: true });
-        };
-
-        seedInitialTopicsIfEmpty();
 
         // =========================================================================
         // Real-Time Listener for All Topics
@@ -456,7 +310,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="topic-author-details">
                             <div class="topic-author-name">
                                 <span>${escapeHtml(topic.authorName || 'Ayurveda Scholar')}</span>
-                                ${isAdminAuthor ? `<span class="role-badge admin">👑 Admin</span>` : `<span class="role-badge scholar">${authorRole}</span>`}
+                                ${isAdminAuthor ? `<span class="role-badge admin"><ion-icon name="ribbon-outline"></ion-icon> Admin</span>` : `<span class="role-badge scholar">${authorRole}</span>`}
                             </div>
                             <span class="topic-time-ago">${formatTimeAgo(topic.lastActivityAt || topic.createdAt)}</span>
                         </div>
@@ -489,9 +343,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
 
                     <div class="topic-reactions-preview">
-                        ${renderReactionPill('👍', topic.reactions?.thumbsUp)}
-                        ${renderReactionPill('❤️', topic.reactions?.heart)}
-                        ${renderReactionPill('💡', topic.reactions?.insightful)}
+                        ${renderReactionPill('thumbs-up-outline', topic.reactions?.thumbsUp)}
+                        ${renderReactionPill('heart-outline', topic.reactions?.heart)}
+                        ${renderReactionPill('bulb-outline', topic.reactions?.insightful)}
                     </div>
                 </div>
             `;
@@ -518,11 +372,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     // Helper: Render quick preview pill of reaction
-    const renderReactionPill = (emoji, userMap) => {
+    const renderReactionPill = (iconName, userMap) => {
         if (!userMap) return '';
         const count = Object.keys(userMap).length;
         if (count === 0) return '';
-        return `<span class="reaction-pill">${emoji} ${count}</span>`;
+        return `<span class="reaction-pill"><ion-icon name="${iconName}"></ion-icon> ${count}</span>`;
     };
 
     // =========================================================================
@@ -570,7 +424,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="topic-author-details">
                         <div class="topic-author-name" style="font-size: 1.05rem;">
                             <span>${escapeHtml(topic.authorName || 'Ayurveda Scholar')}</span>
-                            ${isAdminAuthor ? `<span class="role-badge admin">👑 Admin / Author</span>` : `<span class="role-badge scholar">${topic.authorRole || 'Scholar'}</span>`}
+                            ${isAdminAuthor ? `<span class="role-badge admin"><ion-icon name="ribbon-outline"></ion-icon> Admin / Author</span>` : `<span class="role-badge scholar">${topic.authorRole || 'Scholar'}</span>`}
                         </div>
                         <span class="topic-time-ago">${new Date(topic.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}</span>
                     </div>
@@ -598,23 +452,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             <!-- Reactions & Actions Bar -->
             <div class="reactions-bar">
                 <button type="button" class="reaction-btn ${hasUserReacted(topic.reactions?.thumbsUp, userEmailKey) ? 'active' : ''}" data-type="thumbsUp" title="Thumbs Up">
-                    <span class="emoji">👍</span>
+                    <ion-icon name="thumbs-up-outline"></ion-icon>
                     <span class="reaction-count">${getReactionCount(topic.reactions?.thumbsUp)}</span>
                 </button>
                 <button type="button" class="reaction-btn ${hasUserReacted(topic.reactions?.heart, userEmailKey) ? 'active' : ''}" data-type="heart" title="Helpful / Love">
-                    <span class="emoji">❤️</span>
+                    <ion-icon name="heart-outline"></ion-icon>
                     <span class="reaction-count">${getReactionCount(topic.reactions?.heart)}</span>
                 </button>
                 <button type="button" class="reaction-btn ${hasUserReacted(topic.reactions?.insightful, userEmailKey) ? 'active' : ''}" data-type="insightful" title="Insightful Analysis">
-                    <span class="emoji">💡</span>
+                    <ion-icon name="bulb-outline"></ion-icon>
                     <span class="reaction-count">${getReactionCount(topic.reactions?.insightful)}</span>
                 </button>
                 <button type="button" class="reaction-btn ${hasUserReacted(topic.reactions?.clap, userEmailKey) ? 'active' : ''}" data-type="clap" title="Applause">
-                    <span class="emoji">👏</span>
+                    <ion-icon name="hand-right-outline"></ion-icon>
                     <span class="reaction-count">${getReactionCount(topic.reactions?.clap)}</span>
                 </button>
                 <button type="button" class="reaction-btn ${hasUserReacted(topic.reactions?.solved, userEmailKey) ? 'active' : ''}" data-type="solved" title="Clinically Solved">
-                    <span class="emoji">🎯</span>
+                    <ion-icon name="checkmark-done-circle-outline"></ion-icon>
                     <span class="reaction-count">${getReactionCount(topic.reactions?.solved)}</span>
                 </button>
 
@@ -834,7 +688,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="topic-author-details">
                         <div class="topic-author-name" style="font-size: 0.88rem;">
                             <span>${escapeHtml(comment.authorName || 'Ayurveda Scholar')}</span>
-                            ${isAdminAuthor ? `<span class="role-badge admin">👑 Admin</span>` : `<span class="role-badge scholar">${comment.authorRole || 'Scholar'}</span>`}
+                            ${isAdminAuthor ? `<span class="role-badge admin"><ion-icon name="ribbon-outline"></ion-icon> Admin</span>` : `<span class="role-badge scholar">${comment.authorRole || 'Scholar'}</span>`}
                         </div>
                         <span class="topic-time-ago">${formatTimeAgo(comment.createdAt)}</span>
                     </div>
@@ -854,11 +708,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             <div class="comment-footer">
                 <button type="button" class="reaction-btn ${hasUserReacted(comment.reactions?.thumbsUp, userEmailKey) ? 'active' : ''}" data-comment-reaction="thumbsUp" style="padding: 0.25rem 0.6rem; font-size: 0.78rem;">
-                    <span class="emoji">👍</span>
+                    <ion-icon name="thumbs-up-outline"></ion-icon>
                     <span>${getReactionCount(comment.reactions?.thumbsUp)}</span>
                 </button>
                 <button type="button" class="reaction-btn ${hasUserReacted(comment.reactions?.heart, userEmailKey) ? 'active' : ''}" data-comment-reaction="heart" style="padding: 0.25rem 0.6rem; font-size: 0.78rem;">
-                    <span class="emoji">❤️</span>
+                    <ion-icon name="heart-outline"></ion-icon>
                     <span>${getReactionCount(comment.reactions?.heart)}</span>
                 </button>
 

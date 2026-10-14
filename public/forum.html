@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=4.6">
+    <link rel="stylesheet" href="styles.css?v=4.7">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -98,37 +98,45 @@
                             <input type="text" id="forumSearchInput" class="forum-search-input" placeholder="Search topics, authors, drugs, or keywords...">
                         </div>
                         <select id="forumSortSelect" class="forum-sort-select" aria-label="Sort topics">
-                            <option value="active">ðŸ”¥ Most Active</option>
-                            <option value="latest" selected>ðŸ•’ Latest Activity</option>
-                            <option value="views">ðŸ‘ï¸ Most Viewed</option>
-                            <option value="unanswered">â“ Unanswered</option>
+                            <option value="latest" selected>Latest Activity</option>
+                            <option value="active">Most Active</option>
+                            <option value="views">Most Viewed</option>
+                            <option value="unanswered">Unanswered</option>
                         </select>
                     </div>
 
                     <div class="forum-categories-row" id="forumCategoryPills" role="tablist">
                         <button class="category-pill active" data-category="all" role="tab" aria-selected="true">
-                            <span>ðŸŒ¿ All Topics</span>
+                            <ion-icon name="layers-outline"></ion-icon>
+                            <span>All Topics</span>
                         </button>
                         <button class="category-pill" data-category="rasa-shastra" role="tab" aria-selected="false">
-                            <span>ðŸ§ª Rasa Shastra</span>
+                            <ion-icon name="flask-outline"></ion-icon>
+                            <span>Rasa Shastra</span>
                         </button>
                         <button class="category-pill" data-category="bhaishajya-kalpana" role="tab" aria-selected="false">
-                            <span>ðŸ’Š Bhaishajya Kalpana</span>
+                            <ion-icon name="medkit-outline"></ion-icon>
+                            <span>Bhaishajya Kalpana</span>
                         </button>
                         <button class="category-pill" data-category="clinical" role="tab" aria-selected="false">
-                            <span>ðŸ¥ Clinical Cases</span>
+                            <ion-icon name="fitness-outline"></ion-icon>
+                            <span>Clinical Cases</span>
                         </button>
                         <button class="category-pill" data-category="pharmacology" role="tab" aria-selected="false">
-                            <span>ðŸ”¬ Pharmacology &amp; Research</span>
+                            <ion-icon name="color-filter-outline"></ion-icon>
+                            <span>Pharmacology &amp; Research</span>
                         </button>
                         <button class="category-pill" data-category="books" role="tab" aria-selected="false">
-                            <span>ðŸ“š Textbook Q&amp;A</span>
+                            <ion-icon name="book-outline"></ion-icon>
+                            <span>Textbook Q&amp;A</span>
                         </button>
                         <button class="category-pill" data-category="curriculum" role="tab" aria-selected="false">
-                            <span>ðŸŽ“ UG / PG Curriculum</span>
+                            <ion-icon name="school-outline"></ion-icon>
+                            <span>UG / PG Curriculum</span>
                         </button>
                         <button class="category-pill" data-category="general" role="tab" aria-selected="false">
-                            <span>ðŸ’¬ General Discourse</span>
+                            <ion-icon name="chatbubbles-outline"></ion-icon>
+                            <span>General Discourse</span>
                         </button>
                     </div>
                 </div>
@@ -141,8 +149,8 @@
                 <!-- Empty State -->
                 <div class="forum-empty-state" id="forumEmptyState" style="display: none;">
                     <ion-icon name="chatbubbles-outline" class="forum-empty-icon"></ion-icon>
-                    <h3>No Topics Found</h3>
-                    <p>There are no discussions matching your selected filter or search keyword.</p>
+                    <h3>No Discussions Yet</h3>
+                    <p>The academic discussion forum is currently empty. Click below to start the very first topic!</p>
                     <button class="btn-new-topic" id="btnEmptyNewTopic" type="button" style="margin-top: 0.5rem;">
                         <ion-icon name="add-circle-outline"></ion-icon>
                         <span>Start First Discussion</span>
@@ -201,7 +209,7 @@
                             <button type="button" class="editor-tool-btn" data-command="insertUnorderedList" title="Bullet List"><ion-icon name="list-outline"></ion-icon></button>
                             <button type="button" class="editor-tool-btn" data-command="insertOrderedList" title="Numbered List"><ion-icon name="reorder-four-outline"></ion-icon></button>
                             <button type="button" class="editor-tool-btn" data-command="formatBlock" data-value="blockquote" title="Quote Block"><ion-icon name="chatbox-ellipses-outline"></ion-icon></button>
-                            <button type="button" class="editor-tool-btn" id="btnInsertShlokaComment" title="Insert Sanskrit Shloka Box">ðŸ•‰ï¸</button>
+                            <button type="button" class="editor-tool-btn" id="btnInsertShlokaComment" title="Insert Classical Quote Box"><ion-icon name="bookmark-outline"></ion-icon></button>
                             <button type="button" class="editor-tool-btn" data-command="removeFormat" title="Clear Formatting"><ion-icon name="close-circle-outline"></ion-icon></button>
                         </div>
 
@@ -210,14 +218,7 @@
 
                         <!-- Composer Footer Actions -->
                         <div class="composer-footer">
-                            <div class="composer-emojis">
-                                <button type="button" class="emoji-quick-btn" data-emoji="ðŸ‘" title="Thumbs Up">ðŸ‘</button>
-                                <button type="button" class="emoji-quick-btn" data-emoji="â¤ï¸" title="Love">â¤ï¸</button>
-                                <button type="button" class="emoji-quick-btn" data-emoji="ðŸ’¡" title="Insight">ðŸ’¡</button>
-                                <button type="button" class="emoji-quick-btn" data-emoji="ðŸŒ¿" title="Ayurveda">ðŸŒ¿</button>
-                                <button type="button" class="emoji-quick-btn" data-emoji="ðŸ§ª" title="Chemistry">ðŸ§ª</button>
-                                <button type="button" class="emoji-quick-btn" data-emoji="ðŸŽ¯" title="Target">ðŸŽ¯</button>
-                            </div>
+                            <div></div>
                             <button class="btn-post-comment" id="btnSubmitComment" type="button">
                                 <ion-icon name="paper-plane-outline"></ion-icon>
                                 <span>Post Comment</span>
@@ -258,13 +259,13 @@
                 <div class="modal-form-group">
                     <label class="modal-label" for="topicCategorySelect">Academic Discipline / Category *</label>
                     <select id="topicCategorySelect" class="modal-select" required>
-                        <option value="rasa-shastra">ðŸ§ª Rasa Shastra (Metals, Minerals, Bhasmas, Mercurials)</option>
-                        <option value="bhaishajya-kalpana">ðŸ’Š Bhaishajya Kalpana (Formulations, Asava-Arishta, Taila/Ghrita)</option>
-                        <option value="clinical">ðŸ¥ Clinical Cases &amp; Practice Experiences</option>
-                        <option value="pharmacology">ðŸ”¬ Modern Pharmacology &amp; Drug Standardization</option>
-                        <option value="books">ðŸ“š Textbook &amp; Monograph Q&amp;A</option>
-                        <option value="curriculum">ðŸŽ“ UG / PG Curriculum &amp; Exam Discussion</option>
-                        <option value="general">ðŸ’¬ General Scholarly Discussion</option>
+                        <option value="rasa-shastra">Rasa Shastra (Metals, Minerals, Bhasmas, Mercurials)</option>
+                        <option value="bhaishajya-kalpana">Bhaishajya Kalpana (Formulations, Asava-Arishta, Taila/Ghrita)</option>
+                        <option value="clinical">Clinical Cases &amp; Practice Experiences</option>
+                        <option value="pharmacology">Modern Pharmacology &amp; Drug Standardization</option>
+                        <option value="books">Textbook &amp; Monograph Q&amp;A</option>
+                        <option value="curriculum">UG / PG Curriculum &amp; Exam Discussion</option>
+                        <option value="general">General Scholarly Discussion</option>
                     </select>
                 </div>
 
@@ -286,7 +287,7 @@
                         <button type="button" class="editor-tool-btn" data-command="insertUnorderedList" title="Bullet List"><ion-icon name="list-outline"></ion-icon></button>
                         <button type="button" class="editor-tool-btn" data-command="insertOrderedList" title="Numbered List"><ion-icon name="reorder-four-outline"></ion-icon></button>
                         <button type="button" class="editor-tool-btn" data-command="formatBlock" data-value="blockquote" title="Quote Block"><ion-icon name="chatbox-ellipses-outline"></ion-icon></button>
-                        <button type="button" class="editor-tool-btn" id="btnInsertShlokaTopic" title="Insert Sanskrit Shloka Box">ðŸ•‰ï¸</button>
+                        <button type="button" class="editor-tool-btn" id="btnInsertShlokaTopic" title="Insert Classical Quote Box"><ion-icon name="bookmark-outline"></ion-icon></button>
                         <button type="button" class="editor-tool-btn" data-command="removeFormat" title="Clear Formatting"><ion-icon name="close-circle-outline"></ion-icon></button>
                     </div>
 
@@ -296,7 +297,7 @@
                 <div class="drive-info-banner">
                     <ion-icon name="information-circle-outline"></ion-icon>
                     <div>
-                        <strong>Formatting &amp; Storage Notice:</strong> Full rich text formatting, bullet points, and classical shlokas are supported. Large PDF monographs and specimen photo attachments will connect directly to Dr. Milind Chatrabhuji's 5 TB Google Drive storage in the upcoming attachments update.
+                        <strong>Formatting &amp; Storage Notice:</strong> Full rich text formatting, bullet points, and classical quotes are supported. Large PDF monographs and specimen photo attachments will connect directly to Dr. Milind Chatrabhuji's 5 TB Google Drive storage in the upcoming attachments update.
                     </div>
                 </div>
 
@@ -386,7 +387,7 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="script.js?v=4.6"></script>
-    <script src="forum.js?v=4.6"></script>
+    <script src="script.js?v=4.7"></script>
+    <script src="forum.js?v=4.7"></script>
 </body>
 </html>
