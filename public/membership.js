@@ -407,6 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
             key: RAZORPAY_KEY_ID,
             amount: amount * 100, // paise
             currency: 'INR',
+            payment_capture: 1, // Auto-capture payment immediately upon authorization
             name: 'RSBK Online',
             description: `Wallet Top-Up: ₹${amount} (${amount} Days Access)`,
             image: 'https://rsbk-online.web.app/assets/books/dr_milind_photo.png',
