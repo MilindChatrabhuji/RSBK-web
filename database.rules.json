@@ -12,6 +12,10 @@
       "$sessionId": {
         ".write": true
       }
+    },
+    "forum": {
+      ".read": true,
+      ".write": true
     }
   }
 }

@@ -1,0 +1,392 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('rsbk_auth_cached')==='true'){document.documentElement.classList.add('auth-verified');if(localStorage.getItem('rsbk_access_valid')==='true'){document.documentElement.classList.add('access-granted');}}</script>
+    <title>Academic Discussion Forum | RSBK Online</title>
+    <meta name="description" content="Public academic discussion forum on Rasashastra, Bhaishajya Kalpana, clinical observations, and Ayurvedic drug research curated by Dr. Milind Chatrabhuji.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=4.6">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body>
+    <div class="background-effects">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <span class="logo-text">RSBK Online</span><span class="logo-dot">.</span>
+            </a>
+
+            <div class="nav-overlay" id="navOverlay"></div>
+
+            <nav class="nav-links" id="navLinks">
+                <a href="students.html"><ion-icon name="school-outline"></ion-icon><span>For Students</span></a>
+                <a href="teachers.html"><ion-icon name="easel-outline"></ion-icon><span>For Teachers</span></a>
+                <a href="forum.html" class="active"><ion-icon name="chatbubbles-outline"></ion-icon><span>Forum</span></a>
+                <a href="books.html"><ion-icon name="library-outline"></ion-icon><span>Books</span></a>
+            </nav>
+
+            <div class="nav-actions">
+                <div class="auth-widget" id="authWidget"></div>
+                <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false">
+                    <span class="bar bar-1"></span>
+                    <span class="bar bar-2"></span>
+                    <span class="bar bar-3"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="page-main">
+        <div class="forum-page-container">
+            
+            <!-- Hero Banner -->
+            <section class="forum-hero-banner" id="forumHeroBanner">
+                <div class="forum-hero-content">
+                    <div class="forum-hero-badge">
+                        <ion-icon name="chatbubbles-outline"></ion-icon>
+                        <span>Scholarly Community</span>
+                    </div>
+                    <h1 class="forum-hero-title">Academic Discussion Forum</h1>
+                    <p class="forum-hero-subtitle">
+                        An open academic space for teachers, PG scholars, practitioners, and researchers to discuss Rasashastra &amp; Bhaishajya Kalpana formulations, clinical observations, and classical shloka interpretations.
+                    </p>
+                    <div class="forum-hero-stats">
+                        <div class="forum-stat-item">
+                            <ion-icon name="newspaper-outline"></ion-icon>
+                            <span>Topics: <strong id="statTotalTopics">0</strong></span>
+                        </div>
+                        <div class="forum-stat-item">
+                            <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+                            <span>Insights &amp; Replies: <strong id="statTotalReplies">0</strong></span>
+                        </div>
+                        <div class="forum-stat-item">
+                            <ion-icon name="cloud-done-outline"></ion-icon>
+                            <span>Storage: <strong>Realtime + Google Drive</strong></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="forum-hero-actions">
+                    <button class="btn-new-topic" id="btnOpenNewTopicModal" type="button">
+                        <ion-icon name="add-circle-outline"></ion-icon>
+                        <span>Start New Topic</span>
+                    </button>
+                    <button class="btn-drive-backup" id="btnOpenDriveModal" type="button" title="View Google Drive storage archive info">
+                        <ion-icon name="logo-google"></ion-icon>
+                        <span>Google Drive Archive</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Feed View (Topics List) -->
+            <div id="forumFeedView">
+                <!-- Search & Filter Toolbar -->
+                <div class="forum-toolbar">
+                    <div class="forum-search-row">
+                        <div class="forum-search-box">
+                            <ion-icon name="search-outline"></ion-icon>
+                            <input type="text" id="forumSearchInput" class="forum-search-input" placeholder="Search topics, authors, drugs, or keywords...">
+                        </div>
+                        <select id="forumSortSelect" class="forum-sort-select" aria-label="Sort topics">
+                            <option value="active">ðŸ”¥ Most Active</option>
+                            <option value="latest" selected>ðŸ•’ Latest Activity</option>
+                            <option value="views">ðŸ‘ï¸ Most Viewed</option>
+                            <option value="unanswered">â“ Unanswered</option>
+                        </select>
+                    </div>
+
+                    <div class="forum-categories-row" id="forumCategoryPills" role="tablist">
+                        <button class="category-pill active" data-category="all" role="tab" aria-selected="true">
+                            <span>ðŸŒ¿ All Topics</span>
+                        </button>
+                        <button class="category-pill" data-category="rasa-shastra" role="tab" aria-selected="false">
+                            <span>ðŸ§ª Rasa Shastra</span>
+                        </button>
+                        <button class="category-pill" data-category="bhaishajya-kalpana" role="tab" aria-selected="false">
+                            <span>ðŸ’Š Bhaishajya Kalpana</span>
+                        </button>
+                        <button class="category-pill" data-category="clinical" role="tab" aria-selected="false">
+                            <span>ðŸ¥ Clinical Cases</span>
+                        </button>
+                        <button class="category-pill" data-category="pharmacology" role="tab" aria-selected="false">
+                            <span>ðŸ”¬ Pharmacology &amp; Research</span>
+                        </button>
+                        <button class="category-pill" data-category="books" role="tab" aria-selected="false">
+                            <span>ðŸ“š Textbook Q&amp;A</span>
+                        </button>
+                        <button class="category-pill" data-category="curriculum" role="tab" aria-selected="false">
+                            <span>ðŸŽ“ UG / PG Curriculum</span>
+                        </button>
+                        <button class="category-pill" data-category="general" role="tab" aria-selected="false">
+                            <span>ðŸ’¬ General Discourse</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Topics List Feed -->
+                <div class="forum-topics-list" id="forumTopicsList">
+                    <!-- Dynamic topic cards rendered here -->
+                </div>
+
+                <!-- Empty State -->
+                <div class="forum-empty-state" id="forumEmptyState" style="display: none;">
+                    <ion-icon name="chatbubbles-outline" class="forum-empty-icon"></ion-icon>
+                    <h3>No Topics Found</h3>
+                    <p>There are no discussions matching your selected filter or search keyword.</p>
+                    <button class="btn-new-topic" id="btnEmptyNewTopic" type="button" style="margin-top: 0.5rem;">
+                        <ion-icon name="add-circle-outline"></ion-icon>
+                        <span>Start First Discussion</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Single Topic Detail & Discussion Thread View -->
+            <div id="topicDetailView" class="topic-detail-view">
+                <a href="#" class="forum-breadcrumb" id="btnBackToFeed">
+                    <ion-icon name="arrow-back-outline"></ion-icon>
+                    <span>Back to All Discussions</span>
+                </a>
+
+                <!-- Topic Hero Post Card -->
+                <article class="topic-hero-card" id="topicHeroCard">
+                    <!-- Dynamic topic details populated here -->
+                </article>
+
+                <!-- Discussion & Comments Section -->
+                <section class="discussion-thread-section">
+                    <h2 class="thread-heading">
+                        <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+                        <span>Scholarly Comments &amp; Replies</span>
+                        <span id="topicRepliesBadge" class="category-pill" style="margin-left: 0.5rem; cursor: default;">0 replies</span>
+                    </h2>
+
+                    <!-- Threaded Comments List -->
+                    <div class="comments-list" id="topicCommentsList">
+                        <!-- Dynamic comments rendered here -->
+                    </div>
+
+                    <!-- Locked Notice (Shown if Topic Locked by Admin) -->
+                    <div id="topicLockedNotice" class="drive-info-banner" style="display: none; background: #fef2f2; border-color: #fecaca; color: #991b1b;">
+                        <ion-icon name="lock-closed-outline" style="color: #dc2626;"></ion-icon>
+                        <div>
+                            <strong>Discussion Locked:</strong> This topic has been closed for further replies by the administrator. All previous insights remain publicly archived.
+                        </div>
+                    </div>
+
+                    <!-- Post Comment Composer Card -->
+                    <div class="comment-composer-card" id="commentComposerCard">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-color);">
+                                <ion-icon name="create-outline"></ion-icon> Add Your Insight or Query
+                            </span>
+                            <span style="font-size: 0.78rem; color: #94a3b8;">Rich text enabled</span>
+                        </div>
+
+                        <!-- Rich Text Toolbar -->
+                        <div class="rich-editor-toolbar" id="commentToolbar">
+                            <button type="button" class="editor-tool-btn" data-command="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+                            <button type="button" class="editor-tool-btn" data-command="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+                            <button type="button" class="editor-tool-btn" data-command="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+                            <button type="button" class="editor-tool-btn" data-command="strikeThrough" title="Strikethrough"><s>S</s></button>
+                            <button type="button" class="editor-tool-btn" data-command="insertUnorderedList" title="Bullet List"><ion-icon name="list-outline"></ion-icon></button>
+                            <button type="button" class="editor-tool-btn" data-command="insertOrderedList" title="Numbered List"><ion-icon name="reorder-four-outline"></ion-icon></button>
+                            <button type="button" class="editor-tool-btn" data-command="formatBlock" data-value="blockquote" title="Quote Block"><ion-icon name="chatbox-ellipses-outline"></ion-icon></button>
+                            <button type="button" class="editor-tool-btn" id="btnInsertShlokaComment" title="Insert Sanskrit Shloka Box">ðŸ•‰ï¸</button>
+                            <button type="button" class="editor-tool-btn" data-command="removeFormat" title="Clear Formatting"><ion-icon name="close-circle-outline"></ion-icon></button>
+                        </div>
+
+                        <!-- Editable Content Area -->
+                        <div class="editor-content-area" id="commentContentArea" contenteditable="true" placeholder="Write your clinical perspective, question, or reply here... Classical references and practical observations are encouraged."></div>
+
+                        <!-- Composer Footer Actions -->
+                        <div class="composer-footer">
+                            <div class="composer-emojis">
+                                <button type="button" class="emoji-quick-btn" data-emoji="ðŸ‘" title="Thumbs Up">ðŸ‘</button>
+                                <button type="button" class="emoji-quick-btn" data-emoji="â¤ï¸" title="Love">â¤ï¸</button>
+                                <button type="button" class="emoji-quick-btn" data-emoji="ðŸ’¡" title="Insight">ðŸ’¡</button>
+                                <button type="button" class="emoji-quick-btn" data-emoji="ðŸŒ¿" title="Ayurveda">ðŸŒ¿</button>
+                                <button type="button" class="emoji-quick-btn" data-emoji="ðŸ§ª" title="Chemistry">ðŸ§ª</button>
+                                <button type="button" class="emoji-quick-btn" data-emoji="ðŸŽ¯" title="Target">ðŸŽ¯</button>
+                            </div>
+                            <button class="btn-post-comment" id="btnSubmitComment" type="button">
+                                <ion-icon name="paper-plane-outline"></ion-icon>
+                                <span>Post Comment</span>
+                            </button>
+                        </div>
+
+                        <!-- Sign In Prompt for Guests -->
+                        <div id="commentSignInPrompt" style="display: none; background: #f8fafc; border: 1px dashed rgba(15,23,42,0.15); border-radius: 12px; padding: 1rem; text-align: center;">
+                            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.65rem;">
+                                Please sign in with your Google account to contribute to this discussion.
+                            </p>
+                            <button class="btn-new-topic" id="btnCommentSignIn" type="button" style="padding: 0.6rem 1.25rem; font-size: 0.85rem;">
+                                <ion-icon name="logo-google"></ion-icon>
+                                <span>Sign In with Google</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal: Create New Topic -->
+    <div class="forum-modal-backdrop" id="newTopicModal" role="dialog" aria-modal="true" aria-labelledby="newTopicModalTitle">
+        <div class="forum-modal-window">
+            <div class="modal-header">
+                <h3 class="modal-title" id="newTopicModalTitle">Start an Academic Topic</h3>
+                <button type="button" class="modal-close-btn" id="btnCloseNewTopicModal" aria-label="Close Modal">&times;</button>
+            </div>
+
+            <form id="newTopicForm">
+                <div class="modal-form-group">
+                    <label class="modal-label" for="topicTitleInput">Topic Title *</label>
+                    <input type="text" id="topicTitleInput" class="modal-input" placeholder="e.g., Temperature Curves and Shodhana Nuances in Rasa Parpati" required maxlength="150">
+                </div>
+
+                <div class="modal-form-group">
+                    <label class="modal-label" for="topicCategorySelect">Academic Discipline / Category *</label>
+                    <select id="topicCategorySelect" class="modal-select" required>
+                        <option value="rasa-shastra">ðŸ§ª Rasa Shastra (Metals, Minerals, Bhasmas, Mercurials)</option>
+                        <option value="bhaishajya-kalpana">ðŸ’Š Bhaishajya Kalpana (Formulations, Asava-Arishta, Taila/Ghrita)</option>
+                        <option value="clinical">ðŸ¥ Clinical Cases &amp; Practice Experiences</option>
+                        <option value="pharmacology">ðŸ”¬ Modern Pharmacology &amp; Drug Standardization</option>
+                        <option value="books">ðŸ“š Textbook &amp; Monograph Q&amp;A</option>
+                        <option value="curriculum">ðŸŽ“ UG / PG Curriculum &amp; Exam Discussion</option>
+                        <option value="general">ðŸ’¬ General Scholarly Discussion</option>
+                    </select>
+                </div>
+
+                <div class="modal-form-group">
+                    <label class="modal-label" for="topicTagsInput">Keywords / Tags (Optional)</label>
+                    <input type="text" id="topicTagsInput" class="modal-input" placeholder="e.g., Parada, Kajjali, Shodhana, Temperature, Rasatarangini">
+                </div>
+
+                <div class="modal-form-group">
+                    <label class="modal-label">Detailed Content &amp; Formulation Observations *</label>
+                    
+                    <!-- Modal Rich Text Toolbar -->
+                    <div class="rich-editor-toolbar" id="modalTopicToolbar">
+                        <button type="button" class="editor-tool-btn" data-command="bold" title="Bold"><b>B</b></button>
+                        <button type="button" class="editor-tool-btn" data-command="italic" title="Italic"><i>I</i></button>
+                        <button type="button" class="editor-tool-btn" data-command="underline" title="Underline"><u>U</u></button>
+                        <button type="button" class="editor-tool-btn" data-command="formatBlock" data-value="h2" title="Heading 2"><b>H2</b></button>
+                        <button type="button" class="editor-tool-btn" data-command="formatBlock" data-value="h3" title="Heading 3"><b>H3</b></button>
+                        <button type="button" class="editor-tool-btn" data-command="insertUnorderedList" title="Bullet List"><ion-icon name="list-outline"></ion-icon></button>
+                        <button type="button" class="editor-tool-btn" data-command="insertOrderedList" title="Numbered List"><ion-icon name="reorder-four-outline"></ion-icon></button>
+                        <button type="button" class="editor-tool-btn" data-command="formatBlock" data-value="blockquote" title="Quote Block"><ion-icon name="chatbox-ellipses-outline"></ion-icon></button>
+                        <button type="button" class="editor-tool-btn" id="btnInsertShlokaTopic" title="Insert Sanskrit Shloka Box">ðŸ•‰ï¸</button>
+                        <button type="button" class="editor-tool-btn" data-command="removeFormat" title="Clear Formatting"><ion-icon name="close-circle-outline"></ion-icon></button>
+                    </div>
+
+                    <div class="editor-content-area" id="topicContentArea" contenteditable="true" style="min-height: 150px;" placeholder="Provide complete formulation context, classical references, observations, or clinical questions..."></div>
+                </div>
+
+                <div class="drive-info-banner">
+                    <ion-icon name="information-circle-outline"></ion-icon>
+                    <div>
+                        <strong>Formatting &amp; Storage Notice:</strong> Full rich text formatting, bullet points, and classical shlokas are supported. Large PDF monographs and specimen photo attachments will connect directly to Dr. Milind Chatrabhuji's 5 TB Google Drive storage in the upcoming attachments update.
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+                    <button type="button" class="btn-drive-backup" id="btnCancelNewTopic">Cancel</button>
+                    <button type="submit" class="btn-new-topic" id="btnPublishTopic">
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <span>Publish Topic</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Google Drive Storage & Archive Info -->
+    <div class="forum-modal-backdrop" id="driveArchiveModal" role="dialog" aria-modal="true" aria-labelledby="driveArchiveModalTitle">
+        <div class="forum-modal-window">
+            <div class="modal-header">
+                <h3 class="modal-title" id="driveArchiveModalTitle" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <ion-icon name="logo-google" style="color: #2563eb;"></ion-icon>
+                    <span>Google Drive 5 TB Storage Architecture</span>
+                </h3>
+                <button type="button" class="modal-close-btn" id="btnCloseDriveModal" aria-label="Close Modal">&times;</button>
+            </div>
+
+            <div class="drive-info-banner" style="background: #ecfdf5; border-color: #a7f3d0; color: #065f46;">
+                <ion-icon name="shield-checkmark-outline" style="color: #059669;"></ion-icon>
+                <div>
+                    <strong>Cost-Saving Architecture:</strong>
+                    Discussion text, comments, and real-time reactions are managed in your Firebase Realtime Database (100% free under the Spark tier with instant WebSocket synchronization).
+                </div>
+            </div>
+
+            <div style="font-size: 0.94rem; color: #334155; line-height: 1.6; display: flex; flex-direction: column; gap: 0.85rem;">
+                <p>
+                    <strong>Why 5 TB Google Drive Storage?</strong><br>
+                    Dr. Milind Chatrabhuji's Google Workspace account includes <strong>5 TB of cloud storage</strong>. To keep the website completely free from Firebase Cloud Storage billing, heavy files (such as high-resolution Ayurvedic drug photos, raw herb scans, and full PDF dissertations) will be hosted directly on Google Drive when file attachment uploads are enabled.
+                </p>
+                <p>
+                    <strong>Forum Archive &amp; Offline Backup:</strong><br>
+                    You can export the entire discussion archive into structured JSON or CSV format anytime to preserve a complete historical backup in your Google Drive.
+                </p>
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.5rem;">
+                <button type="button" class="btn-new-topic" id="btnExportForumJson" style="font-size: 0.85rem; padding: 0.7rem 1.25rem;">
+                    <ion-icon name="download-outline"></ion-icon>
+                    <span>Export Full Archive (JSON)</span>
+                </button>
+                <button type="button" class="btn-drive-backup" id="btnExportForumCsv" style="font-size: 0.85rem; padding: 0.7rem 1.25rem;">
+                    <ion-icon name="document-text-outline"></ion-icon>
+                    <span>Export Topics Table (CSV)</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="mobile-menu-bar" aria-label="Mobile Navigation">
+        <a href="index.html">
+            <ion-icon name="home-outline"></ion-icon>
+            <span>Home</span>
+        </a>
+        <a href="books.html">
+            <ion-icon name="library-outline"></ion-icon>
+            <span>Books</span>
+        </a>
+        <a href="forum.html" class="active">
+            <ion-icon name="chatbubbles-outline"></ion-icon>
+            <span>Forum</span>
+        </a>
+        <a href="membership.html">
+            <ion-icon name="ribbon-outline"></ion-icon>
+            <span>Membership</span>
+        </a>
+        <a href="profile.html">
+            <ion-icon name="person-outline"></ion-icon>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2026 Dr. Milind Chatrabhuji. All rights reserved. | Official RSBK Online Academic Portal</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="script.js?v=4.6"></script>
+    <script src="forum.js?v=4.6"></script>
+</body>
+</html>
