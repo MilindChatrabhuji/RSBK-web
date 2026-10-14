@@ -604,7 +604,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
         const { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
-        const { getDatabase, ref, onValue, set, onDisconnect, runTransaction } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
+        const { getDatabase, ref, onValue, set, onDisconnect, runTransaction, push, update } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
 
         const firebaseConfig = {
             apiKey: "AIzaSyCZQqKCURGqMQ2LUl_XHOgscBmjs7Vj7ps",
@@ -619,6 +619,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
+
+        // Expose Firebase Globally
+        window.firebaseApp = app;
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.firebaseRef = ref;
+        window.firebaseOnValue = onValue;
+        window.firebaseSet = set;
+        window.firebasePush = push;
+        window.firebaseUpdate = update;
+        window.firebaseRunTransaction = runTransaction;
 
         // Realtime Presence (Live Online Active Users) & Cumulative Total Visits
         try {
@@ -816,6 +827,29 @@ document.addEventListener('DOMContentLoaded', async () => {
                     console.error('Error synchronizing user registry:', e);
                 }
 
+                // Check Doctor / Faculty Verification Status in Realtime Database
+                try {
+                    const docVerifRef = ref(db, 'doctor_verifications/' + user.uid);
+                    onValue(docVerifRef, (snapshot) => {
+                        const val = snapshot.val();
+                        if (val) {
+                            if (val.status === 'approved') {
+                                localStorage.setItem('rsbk_doctor_verified', 'true');
+                                localStorage.setItem('rsbk_verification_status', 'approved');
+                            } else if (val.status === 'pending') {
+                                localStorage.setItem('rsbk_doctor_verified', 'false');
+                                localStorage.setItem('rsbk_verification_status', 'pending');
+                            } else if (val.status === 'rejected') {
+                                localStorage.setItem('rsbk_doctor_verified', 'false');
+                                localStorage.setItem('rsbk_verification_status', 'rejected');
+                            }
+                            window.dispatchEvent(new CustomEvent('rsbk-verification-status-updated', { detail: val }));
+                        }
+                    });
+                } catch (dvErr) {
+                    console.log('Doctor verification RTDB sync:', dvErr);
+                }
+
                 // Broadcast authentication and access detail
                 window.dispatchEvent(new CustomEvent('rsbk-user-authenticated', { detail: { ...user, accessInfo } }));
             } else {
@@ -823,9 +857,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 localStorage.removeItem('rsbk_user_name');
                 localStorage.removeItem('rsbk_user_avatar');
                 localStorage.removeItem('rsbk_user_email');
+                localStorage.removeItem('rsbk_user_uid');
                 localStorage.removeItem('rsbk_access_valid');
                 localStorage.removeItem('rsbk_access_type');
                 localStorage.removeItem('rsbk_is_admin');
+                localStorage.removeItem('rsbk_doctor_verified');
+                localStorage.removeItem('rsbk_verification_status');
 
                 document.documentElement.classList.remove('auth-verified', 'access-granted', 'admin-authorized');
                 document.documentElement.classList.add('auth-unverified');
@@ -852,9 +889,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     localStorage.removeItem('rsbk_user_name');
                     localStorage.removeItem('rsbk_user_avatar');
                     localStorage.removeItem('rsbk_user_email');
+                    localStorage.removeItem('rsbk_user_uid');
                     localStorage.removeItem('rsbk_access_valid');
                     localStorage.removeItem('rsbk_access_type');
                     localStorage.removeItem('rsbk_is_admin');
+                    localStorage.removeItem('rsbk_doctor_verified');
+                    localStorage.removeItem('rsbk_verification_status');
                     document.documentElement.classList.remove('auth-verified', 'access-granted', 'admin-authorized');
                     document.documentElement.classList.add('auth-unverified');
                     document.body.classList.remove('auth-verified', 'access-granted');

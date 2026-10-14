@@ -853,6 +853,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // -------------------------------------------------------------
     let allVerifications = [];
     let activeVerifFilter = 'all';
+    let currentCertUid = null;
 
     const loadVerifications = () => {
         try {
@@ -862,6 +863,113 @@ document.addEventListener('DOMContentLoaded', async () => {
             allVerifications = [];
         }
     };
+
+    // Realtime Database synchronization for verifications
+    const syncFirebaseVerifications = () => {
+        if (window.firebaseDb && window.firebaseRef && window.firebaseOnValue) {
+            try {
+                const vRef = window.firebaseRef(window.firebaseDb, 'doctor_verifications');
+                window.firebaseOnValue(vRef, (snapshot) => {
+                    const data = snapshot.val();
+                    if (data && typeof data === 'object') {
+                        const fbList = Object.keys(data).map(k => ({
+                            uid: k,
+                            ...data[k]
+                        }));
+
+                        // Merge with local storage
+                        const localRaw = localStorage.getItem('rsbk_pending_verifications');
+                        const localList = localRaw ? JSON.parse(localRaw) : [];
+
+                        const map = new Map();
+                        localList.forEach(item => { if (item && item.uid) map.set(item.uid, item); });
+                        fbList.forEach(item => { if (item && item.uid) map.set(item.uid, item); });
+
+                        allVerifications = Array.from(map.values());
+                        localStorage.setItem('rsbk_pending_verifications', JSON.stringify(allVerifications));
+                        renderVerificationsTable();
+                    }
+                });
+            } catch (err) {
+                console.warn('Firebase verifications listener notice:', err);
+            }
+        }
+    };
+
+    // Open Doctor Certificate Audit Modal
+    const openDocCertModal = (uid) => {
+        currentCertUid = uid;
+        const rec = allVerifications.find(v => v.uid === uid);
+        if (!rec) return;
+
+        const modal = document.getElementById('modalDocCertificate');
+        if (!modal) return;
+
+        const applicantEl = document.getElementById('docCertModalApplicant');
+        const nameEl = document.getElementById('modalDocName');
+        const emailEl = document.getElementById('modalDocEmail');
+        const degreeEl = document.getElementById('modalDocDegree');
+        const regNoEl = document.getElementById('modalDocRegNo');
+        const instEl = document.getElementById('modalDocInst');
+        const paymentEl = document.getElementById('modalDocPaymentId');
+        const fileContainer = document.getElementById('modalDocFileContainer');
+        const downloadBtn = document.getElementById('modalDocDownloadBtn');
+
+        if (applicantEl) applicantEl.textContent = `Applicant: ${rec.name || 'Scholar'} (${rec.email || '—'})`;
+        if (nameEl) nameEl.textContent = rec.name || 'Scholar';
+        if (emailEl) emailEl.textContent = rec.email || '—';
+        if (degreeEl) degreeEl.textContent = rec.degree || 'BAMS';
+        if (regNoEl) regNoEl.textContent = rec.regNo || '—';
+        if (instEl) instEl.textContent = rec.institution || '—';
+        if (paymentEl) paymentEl.textContent = `₹100 Paid (${rec.paymentId || 'rzp_paid'})`;
+
+        if (downloadBtn) {
+            downloadBtn.href = rec.fileData || '#';
+            downloadBtn.download = rec.fileName || `${(rec.name || 'doctor').replace(/\s+/g, '_')}_certificate`;
+        }
+
+        if (fileContainer) {
+            fileContainer.innerHTML = '';
+            if (!rec.fileData) {
+                fileContainer.innerHTML = `<div style="color: #94a3b8; text-align: center;"><ion-icon name="document-outline" style="font-size: 3rem; margin-bottom: 0.5rem;"></ion-icon><p>No certificate file data attached.</p></div>`;
+            } else if (rec.fileType === 'application/pdf' || (rec.fileData && rec.fileData.startsWith('data:application/pdf')) || (rec.fileName && rec.fileName.toLowerCase().endsWith('.pdf'))) {
+                fileContainer.innerHTML = `<iframe src="${rec.fileData}" style="width: 100%; height: 480px; border: none; border-radius: 8px; background: #ffffff;"></iframe>`;
+            } else {
+                fileContainer.innerHTML = `<img src="${rec.fileData}" alt="${rec.name || 'Certificate'}" style="max-width: 100%; max-height: 480px; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.6);">`;
+            }
+        }
+
+        modal.style.display = 'flex';
+    };
+
+    const closeDocCertModal = () => {
+        const modal = document.getElementById('modalDocCertificate');
+        if (modal) modal.style.display = 'none';
+        currentCertUid = null;
+    };
+
+    const modalDocCertEl = document.getElementById('modalDocCertificate');
+    if (modalDocCertEl) {
+        const closeBtn = document.getElementById('btnCloseDocCertModal');
+        if (closeBtn) closeBtn.addEventListener('click', closeDocCertModal);
+        modalDocCertEl.addEventListener('click', (e) => {
+            if (e.target === modalDocCertEl) closeDocCertModal();
+        });
+
+        const approveModalBtn = document.getElementById('btnApproveFromModal');
+        if (approveModalBtn) {
+            approveModalBtn.addEventListener('click', () => {
+                if (currentCertUid) approveDoctorVerification(currentCertUid);
+            });
+        }
+
+        const rejectModalBtn = document.getElementById('btnRejectFromModal');
+        if (rejectModalBtn) {
+            rejectModalBtn.addEventListener('click', () => {
+                if (currentCertUid) rejectDoctorVerification(currentCertUid);
+            });
+        }
+    }
 
     const renderVerificationsTable = () => {
         loadVerifications();
@@ -940,9 +1048,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div style="font-size: 0.72rem; font-family: monospace; color: var(--text-muted);">${v.paymentId || 'rzp_paid'}</div>
                     </td>
                     <td>
-                        ${v.fileName ? `
-                            <button type="button" class="btn-admin-table-action btn-view-cert" data-uid="${v.uid}" style="font-size: 0.78rem; padding: 0.3rem 0.6rem; background: rgba(37, 99, 235, 0.1); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.2); border-radius: 6px; cursor: pointer;">
-                                <ion-icon name="document-attach-outline"></ion-icon> ${v.fileName.substring(0, 18)}...
+                        ${v.fileData ? `
+                            <button type="button" class="btn-admin-table-action btn-view-cert" data-uid="${v.uid}" style="font-size: 0.78rem; padding: 0.35rem 0.75rem; background: rgba(5, 150, 105, 0.1); color: #059669; border: 1px solid rgba(5, 150, 105, 0.25); border-radius: 6px; cursor: pointer; font-weight: 700;">
+                                <ion-icon name="eye-outline"></ion-icon> Audit Certificate
                             </button>
                         ` : '<span style="color: var(--text-muted);">No file</span>'}
                     </td>
@@ -983,18 +1091,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         tbody.querySelectorAll('.btn-view-cert').forEach(btn => {
             btn.addEventListener('click', () => {
                 const uid = btn.dataset.uid;
-                const rec = allVerifications.find(v => v.uid === uid);
-                if (rec && rec.fileData) {
-                    const w = window.open('');
-                    w.document.write(`<title>Certificate — ${rec.name}</title><body style="margin:0; background:#0f172a; display:flex; align-items:center; justify-content:center; min-height:100vh;"><img src="${rec.fileData}" style="max-width:95%; max-height:95vh; border-radius:8px; box-shadow:0 10px 40px rgba(0,0,0,0.5);"></body>`);
-                } else {
-                    alert('Certificate file preview is not available.');
-                }
+                openDocCertModal(uid);
             });
         });
     };
 
-    const approveDoctorVerification = (uid) => {
+    const approveDoctorVerification = async (uid) => {
         const item = allVerifications.find(v => v.uid === uid);
         if (!item) return;
 
@@ -1004,7 +1106,38 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         item.status = 'approved';
         item.approvedAt = new Date().toISOString();
+        item.approvedBy = 'Dr. Milind Chatrabhuji';
         localStorage.setItem('rsbk_pending_verifications', JSON.stringify(allVerifications));
+
+        // Update in Firebase Realtime Database
+        try {
+            if (window.firebaseDb && window.firebaseRef && window.firebaseUpdate) {
+                const vRef = window.firebaseRef(window.firebaseDb, 'doctor_verifications/' + uid);
+                await window.firebaseUpdate(vRef, {
+                    status: 'approved',
+                    approvedAt: new Date().toISOString(),
+                    approvedBy: 'Dr. Milind Chatrabhuji'
+                });
+
+                const uRef = window.firebaseRef(window.firebaseDb, 'users/' + uid);
+                await window.firebaseUpdate(uRef, {
+                    isDoctorVerified: true,
+                    verificationStatus: 'approved'
+                });
+            }
+        } catch (fbErr) {
+            console.warn('Firebase update warning:', fbErr);
+        }
+
+        // Update in local user registry
+        try {
+            let registry = JSON.parse(localStorage.getItem('rsbk_users_registry') || '[]');
+            let regUser = registry.find(u => u.uid === uid || (u.email && u.email.toLowerCase() === item.email.toLowerCase()));
+            if (regUser) {
+                regUser.isDoctorVerified = true;
+                localStorage.setItem('rsbk_users_registry', JSON.stringify(registry));
+            }
+        } catch (e) {}
 
         // If user is currently stored in local user cache
         if (localStorage.getItem('rsbk_user_uid') === uid || (localStorage.getItem('rsbk_user_email') || '').toLowerCase() === item.email.toLowerCase()) {
@@ -1012,23 +1145,70 @@ document.addEventListener('DOMContentLoaded', async () => {
             localStorage.setItem('rsbk_verification_status', 'approved');
         }
 
+        // Dispatch email notification
+        if (item.email && window.RSBK && window.RSBK.EmailService) {
+            window.RSBK.EmailService.sendNotification('doctor_verification_approved', {
+                recipientName: item.name,
+                recipientEmail: item.email,
+                details: {
+                    degree: item.degree,
+                    regNo: item.regNo,
+                    approvedAt: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+                }
+            });
+        }
+
         alert(`Credentials Verified!\n\n${item.name} has been granted the Verified Doctor Badge.`);
         renderVerificationsTable();
+        closeDocCertModal();
     };
 
-    const rejectDoctorVerification = (uid) => {
+    const rejectDoctorVerification = async (uid) => {
         const item = allVerifications.find(v => v.uid === uid);
         if (!item) return;
 
-        const reason = prompt('Please enter reason for rejection (e.g. illegible council registration scan):', 'Registration proof could not be validated');
+        const reason = prompt('Please enter reason for rejection (e.g. illegible council registration scan, registration number not found on NCISM portal):', 'Registration proof could not be validated');
         if (!reason) return;
 
         item.status = 'rejected';
         item.rejectionReason = reason;
+        item.rejectedAt = new Date().toISOString();
         localStorage.setItem('rsbk_pending_verifications', JSON.stringify(allVerifications));
+
+        // Update in Firebase Realtime Database
+        try {
+            if (window.firebaseDb && window.firebaseRef && window.firebaseUpdate) {
+                const vRef = window.firebaseRef(window.firebaseDb, 'doctor_verifications/' + uid);
+                await window.firebaseUpdate(vRef, {
+                    status: 'rejected',
+                    rejectionReason: reason,
+                    rejectedAt: new Date().toISOString()
+                });
+
+                const uRef = window.firebaseRef(window.firebaseDb, 'users/' + uid);
+                await window.firebaseUpdate(uRef, {
+                    isDoctorVerified: false,
+                    verificationStatus: 'rejected'
+                });
+            }
+        } catch (fbErr) {
+            console.warn('Firebase rejection update warning:', fbErr);
+        }
+
+        // Dispatch email notification
+        if (item.email && window.RSBK && window.RSBK.EmailService) {
+            window.RSBK.EmailService.sendNotification('doctor_verification_rejected', {
+                recipientName: item.name,
+                recipientEmail: item.email,
+                details: {
+                    reason: reason
+                }
+            });
+        }
 
         alert(`Application for ${item.name} has been rejected.`);
         renderVerificationsTable();
+        closeDocCertModal();
     };
 
     // Filters for Verifications Table
@@ -1056,8 +1236,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Initial render
-    setTimeout(renderVerificationsTable, 500);
+    // Initial render & Realtime sync
+    setTimeout(() => {
+        renderVerificationsTable();
+        syncFirebaseVerifications();
+    }, 600);
 
     // -------------------------------------------------------------
     // Modal 1: Adjust Balance

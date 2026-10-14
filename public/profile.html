@@ -17,6 +17,7 @@ lang="en">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="features.css?v=5.2">
     <link rel="stylesheet" href="styles.css?v=5.2">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -366,15 +367,84 @@ lang="en">
         </a>
     </nav>
 
+    <!-- Doctor & Faculty Verification Application Modal -->
+    <div class="verification-modal-overlay" id="doctorVerificationModal" role="dialog" aria-modal="true" aria-labelledby="docModalTitle">
+        <div class="verification-modal-box">
+            <div class="vmb-header">
+                <div class="vmb-title-wrap">
+                    <ion-icon name="shield-checkmark" class="vmb-icon"></ion-icon>
+                    <div>
+                        <h3 id="docModalTitle">Apply for Verified Doctor / Faculty Badge</h3>
+                        <p style="font-size: 0.84rem; color: var(--text-muted); margin: 0;">Official credential verification for RSBK Online scholars &amp; faculty</p>
+                    </div>
+                </div>
+                <button type="button" class="vmb-close-btn" id="btnCloseDocModal" aria-label="Close modal">&times;</button>
+            </div>
+
+            <div class="vmb-fee-banner">
+                <div>
+                    <strong>One-Time Verification Fee:</strong>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Includes manual council certificate audit &amp; permanent badge</div>
+                </div>
+                <strong>₹100</strong>
+            </div>
+
+            <form id="docVerificationForm" onsubmit="return false;">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-color);">Full Name as on Medical Registration *</label>
+                    <input type="text" id="docFullNameInput" class="admin-form-input" placeholder="e.g. Dr. Milind Chatrabhuji" required style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--card-border); border-radius: 10px; background: var(--bg-color); color: var(--text-color);">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-color);">Registered Email Address *</label>
+                    <input type="email" id="docEmailInput" class="admin-form-input" readonly required style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--card-border); border-radius: 10px; background: rgba(0,0,0,0.05); color: var(--text-muted);">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-color);">Highest Medical Degree / Academic Qualification *</label>
+                    <input type="text" id="docDegreeInput" class="admin-form-input" placeholder="e.g. BAMS, MD (Ayu) Rasa Shastra &amp; BK, PhD" required style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--card-border); border-radius: 10px; background: var(--bg-color); color: var(--text-color);">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-color);">State / Central Medical Council Registration Number *</label>
+                    <input type="text" id="docRegNoInput" class="admin-form-input" placeholder="e.g. GAU-12345 or NCISM-Reg-98765" required style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--card-border); border-radius: 10px; background: var(--bg-color); color: var(--text-color);">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-color);">Affiliated College, University, Hospital or Clinic *</label>
+                    <input type="text" id="docInstInput" class="admin-form-input" placeholder="e.g. Parul Institute of Ayurved, Vadodara" required style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--card-border); border-radius: 10px; background: var(--bg-color); color: var(--text-color);">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-color);">Upload Degree Certificate or Registration Proof (PDF, JPG, PNG &le; 10MB) *</label>
+                    <input type="file" id="docFileInput" accept="application/pdf,image/png,image/jpeg,image/webp" required style="width: 100%; padding: 0.65rem; border: 1px dashed var(--card-border); border-radius: 10px; background: var(--bg-color); color: var(--text-color);">
+                    <div id="docFilePreview" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <ion-icon name="document-attach-outline"></ion-icon> Accepted formats: PDF, JPG, PNG (Max 10MB)
+                    </div>
+                </div>
+
+                <div style="background: rgba(5, 150, 105, 0.06); border: 1px solid rgba(5, 150, 105, 0.2); border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 1.5rem; font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">
+                    <strong style="color: var(--primary);">Manual Verification Process:</strong> Dr. Milind Chatrabhuji manually verifies the council registry and certificate scan within 24–48 hours. Upon approval, your green <strong>Verified Doctor / Faculty</strong> checkmark activates across your profile and discussion forum posts.
+                </div>
+
+                <button type="submit" id="btnSubmitDocVerification" class="btn-proceed-pay" style="width: 100%; max-width: 100%; justify-content: center; font-size: 1rem; padding: 0.95rem 1.5rem;">
+                    <ion-icon name="lock-closed"></ion-icon>
+                    <span>Pay ₹100 via Razorpay &amp; Submit</span>
+                    <ion-icon name="arrow-forward-outline"></ion-icon>
+                </button>
+            </form>
+        </div>
+    </div>
+
     <footer>
         <div class="footer-content">
             <p>&copy; 2026 Dr. Milind Chatrabhuji. All rights reserved.</p>
         </div>
     </footer>
 
-    <script src="features.js?v=5.2"></script>
-    <script src="email-service.js?v=5.2"></script>
-    <script src="script.js?v=5.2"></script>
+    <script src="features.js?v=5.3"></script>
+    <script src="email-service.js?v=5.3"></script>
+    <script src="script.js?v=5.3"></script>
     <script>
         // Profile form auto-save and pre-populate script
         document.addEventListener('DOMContentLoaded', () => {

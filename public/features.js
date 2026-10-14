@@ -440,34 +440,66 @@
         // Render Doctor Badge on Profile Page if relevant
         if (isProfilePage) {
             setupProfileVerificationUI(isDoctorVerified, verificationStatus);
+
+            // Listen for Realtime Database updates
+            window.addEventListener('rsbk-verification-status-updated', (e) => {
+                const val = e.detail;
+                if (val) {
+                    const isDoc = val.status === 'approved';
+                    setupProfileVerificationUI(isDoc, val.status);
+                }
+            });
+
+            window.addEventListener('rsbk-user-authenticated', (e) => {
+                const isDoc = localStorage.getItem('rsbk_doctor_verified') === 'true';
+                const status = localStorage.getItem('rsbk_verification_status') || 'none';
+                setupProfileVerificationUI(isDoc, status);
+            });
         }
 
         // Render Verification Management on Admin Page if relevant
         if (isAdminPage) {
             setupAdminVerificationQueue();
         }
+
+        // Global delegated click listener for "Apply for Badge" button
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('#btnOpenDoctorVerificationModal') || e.target.closest('.btn-apply-doctor-badge');
+            if (btn) {
+                e.preventDefault();
+                openVerificationModal();
+            }
+        });
     }
 
     function setupProfileVerificationUI(isDoctorVerified, verificationStatus) {
         const badgeRow = document.querySelector('.profile-badge-row');
-        if (badgeRow && isDoctorVerified) {
+        if (badgeRow) {
             let docBadge = document.getElementById('doctorVerifiedBadge');
-            if (!docBadge) {
-                docBadge = document.createElement('span');
-                docBadge.id = 'doctorVerifiedBadge';
-                docBadge.className = 'badge-doctor-verified';
-                docBadge.innerHTML = `<ion-icon name="checkmark-done-circle"></ion-icon> Verified Doctor / Faculty`;
-                badgeRow.appendChild(docBadge);
+            if (isDoctorVerified) {
+                if (!docBadge) {
+                    docBadge = document.createElement('span');
+                    docBadge.id = 'doctorVerifiedBadge';
+                    docBadge.className = 'badge-doctor-verified';
+                    docBadge.innerHTML = `<ion-icon name="checkmark-done-circle"></ion-icon> Verified Doctor / Faculty`;
+                    badgeRow.appendChild(docBadge);
+                }
+            } else if (docBadge) {
+                docBadge.remove();
             }
         }
 
-        // Mount Application Card in Profile if not verified
+        let card = document.getElementById('doctorVerificationCard');
         const formNotice = document.querySelector('.profile-notice');
-        if (formNotice && !document.getElementById('doctorVerificationCard')) {
-            const card = document.createElement('div');
+
+        if (!card && formNotice) {
+            card = document.createElement('div');
             card.id = 'doctorVerificationCard';
             card.className = 'doctor-verification-card';
+            formNotice.parentNode.insertBefore(card, formNotice.nextSibling);
+        }
 
+        if (card) {
             if (isDoctorVerified) {
                 card.innerHTML = `
                     <div class="dvc-content">
@@ -476,7 +508,7 @@
                         </div>
                         <div class="dvc-text">
                             <h3>Verified Doctor / Faculty Status Active</h3>
-                            <p>Your degree credentials have been verified by Dr. Milind Chatrabhuji. The <strong>Verified Doctor</strong> badge is displayed on your profile and across your academic forum discussions.</p>
+                            <p>Your degree credentials and medical council registration have been officially verified by Dr. Milind Chatrabhuji. The <strong>Verified Doctor / Faculty</strong> checkmark is active on your profile and discussions.</p>
                         </div>
                     </div>
                     <span class="badge-doctor-verified" style="font-size: 0.95rem; padding: 0.6rem 1.25rem;">
@@ -490,12 +522,12 @@
                             <ion-icon name="hourglass-outline"></ion-icon>
                         </div>
                         <div class="dvc-text">
-                            <h3>Verification Application Under Review</h3>
-                            <p>Your degree certificate and ₹100 verification fee have been received. Dr. Milind Chatrabhuji will review your certificate credentials within 24–48 hours to grant your badge.</p>
+                            <h3>Verification Application Under Review (₹100 Paid)</h3>
+                            <p>Your degree certificate scan and registration details have been received. Dr. Milind Chatrabhuji will verify your council records within 24–48 hours to activate your official badge.</p>
                         </div>
                     </div>
                     <span class="badge-verification-pending" style="font-size: 0.92rem; padding: 0.6rem 1.25rem;">
-                        <ion-icon name="time-outline"></ion-icon> Pending Admin Approval
+                        <ion-icon name="time-outline"></ion-icon> Pending Admin Audit
                     </span>
                 `;
             } else {
@@ -516,111 +548,139 @@
                 `;
             }
 
-            formNotice.parentNode.insertBefore(card, formNotice.nextSibling);
-
-            const openBtn = document.getElementById('btnOpenDoctorVerificationModal');
+            const openBtn = card.querySelector('#btnOpenDoctorVerificationModal');
             if (openBtn) {
-                openBtn.addEventListener('click', openVerificationModal);
+                openBtn.onclick = (e) => {
+                    e.preventDefault();
+                    openVerificationModal();
+                };
             }
         }
     }
 
     function openVerificationModal() {
+        const userEmail = localStorage.getItem('rsbk_user_email') || '';
+        const userName = localStorage.getItem('rsbk_user_name') || '';
+
+        if (!userEmail) {
+            alert('Please sign in with your Google account first before applying for the Doctor / Faculty badge.');
+            const signInBtn = document.getElementById('googleSignInBtn');
+            if (signInBtn) signInBtn.click();
+            return;
+        }
+
         let modal = document.getElementById('doctorVerificationModal');
         if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'doctorVerificationModal';
-            modal.className = 'verification-modal-overlay';
-            modal.setAttribute('role', 'dialog');
-            modal.innerHTML = `
-                <div class="verification-modal-box">
-                    <div class="vmb-header">
-                        <div class="vmb-title-wrap">
-                            <ion-icon name="shield-checkmark" class="vmb-icon"></ion-icon>
-                            <div>
-                                <h3>Apply for Doctor / Faculty Badge</h3>
-                                <p style="font-size: 0.84rem; color: var(--text-muted); margin: 0;">Verified credentials for RSBK Online scholars &amp; faculty</p>
-                            </div>
-                        </div>
-                        <button type="button" class="vmb-close-btn" id="btnCloseDocModal">&times;</button>
-                    </div>
+            console.error('doctorVerificationModal not found in DOM');
+            return;
+        }
 
-                    <div class="vmb-fee-banner">
-                        <div>
-                            <strong>One-Time Verification Fee:</strong>
-                            <div style="font-size: 0.8rem; color: var(--text-muted);">Includes manual council certificate audit</div>
-                        </div>
-                        <strong>₹100</strong>
-                    </div>
+        // Pre-fill inputs
+        const nameInput = document.getElementById('docFullNameInput');
+        const emailInput = document.getElementById('docEmailInput');
+        if (nameInput && !nameInput.value) {
+            nameInput.value = userName;
+        }
+        if (emailInput) {
+            emailInput.value = userEmail;
+        }
 
-                    <form id="docVerificationForm" onsubmit="return false;">
-                        <div class="form-group" style="margin-bottom: 1rem;">
-                            <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.35rem;">Highest Medical Degree / Qualification *</label>
-                            <input type="text" id="docDegreeInput" class="admin-form-input" placeholder="e.g. BAMS, MD (Ayu) Rasa Shastra, PhD" required style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--card-border); border-radius: 10px;">
-                        </div>
+        // Wire file input change for live name & size feedback
+        const fileInput = document.getElementById('docFileInput');
+        const previewEl = document.getElementById('docFilePreview');
+        if (fileInput && !fileInput.dataset.wired) {
+            fileInput.dataset.wired = 'true';
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files && fileInput.files[0]) {
+                    const f = fileInput.files[0];
+                    const sizeMB = (f.size / (1024 * 1024)).toFixed(2);
+                    const sizeKB = (f.size / 1024).toFixed(1);
+                    const displaySize = f.size > 1024 * 1024 ? `${sizeMB} MB` : `${sizeKB} KB`;
+                    if (previewEl) {
+                        previewEl.innerHTML = `<span style="color: #059669; font-weight: 700;"><ion-icon name="checkmark-circle"></ion-icon> Selected: ${f.name} (${displaySize})</span>`;
+                    }
+                } else if (previewEl) {
+                    previewEl.innerHTML = `<ion-icon name="document-attach-outline"></ion-icon> Accepted formats: PDF, JPG, PNG (Max 10MB)`;
+                }
+            });
+        }
 
-                        <div class="form-group" style="margin-bottom: 1rem;">
-                            <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.35rem;">State / Central Registration Number *</label>
-                            <input type="text" id="docRegNoInput" class="admin-form-input" placeholder="e.g. GAU-12345 or NCISM-Reg-98765" required style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--card-border); border-radius: 10px;">
-                        </div>
+        // Wire close button and overlay
+        const closeBtn = document.getElementById('btnCloseDocModal');
+        if (closeBtn && !closeBtn.dataset.wired) {
+            closeBtn.dataset.wired = 'true';
+            closeBtn.addEventListener('click', () => modal.classList.remove('open'));
+        }
 
-                        <div class="form-group" style="margin-bottom: 1rem;">
-                            <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.35rem;">Affiliated College, University or Hospital *</label>
-                            <input type="text" id="docInstInput" class="admin-form-input" placeholder="e.g. Parul Institute of Ayurved, Vadodara" required style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--card-border); border-radius: 10px;">
-                        </div>
-
-                        <div class="form-group" style="margin-bottom: 1.5rem;">
-                            <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.35rem;">Upload Degree Certificate or Registration Proof (PDF or Image, Max 10MB) *</label>
-                            <input type="file" id="docFileInput" accept="image/*,application/pdf" required style="width: 100%; padding: 0.65rem; border: 1px dashed var(--card-border); border-radius: 10px;">
-                            <div id="docFilePreview" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">Accepted: PDF, JPG, PNG</div>
-                        </div>
-
-                        <button type="submit" id="btnSubmitDocVerification" class="btn-proceed-pay" style="width: 100%; max-width: 100%;">
-                            <ion-icon name="lock-closed"></ion-icon>
-                            <span>Pay ₹100 via Razorpay &amp; Submit</span>
-                            <ion-icon name="arrow-forward-outline"></ion-icon>
-                        </button>
-                    </form>
-                </div>
-            `;
-            document.body.appendChild(modal);
-
-            document.getElementById('btnCloseDocModal').addEventListener('click', () => modal.classList.remove('open'));
+        if (!modal.dataset.overlayWired) {
+            modal.dataset.overlayWired = 'true';
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) modal.classList.remove('open');
             });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal.classList.contains('open')) {
+                    modal.classList.remove('open');
+                }
+            });
+        }
 
-            const form = document.getElementById('docVerificationForm');
+        const form = document.getElementById('docVerificationForm');
+        if (form && !form.dataset.wired) {
+            form.dataset.wired = 'true';
             form.addEventListener('submit', handleVerificationSubmission);
         }
+
         modal.classList.add('open');
     }
 
     async function handleVerificationSubmission(e) {
-        e.preventDefault();
+        if (e) e.preventDefault();
+
         const userEmail = localStorage.getItem('rsbk_user_email') || '';
         const userName = localStorage.getItem('rsbk_user_name') || 'Ayurveda Scholar';
-        const uid = localStorage.getItem('rsbk_user_uid') || ('user_' + Math.random().toString(36).substring(2, 8));
+        let uid = localStorage.getItem('rsbk_user_uid');
 
         if (!userEmail) {
             alert('Please sign in with your Google account first to apply for the Verified Doctor badge.');
             return;
         }
 
-        const degree = document.getElementById('docDegreeInput').value.trim();
-        const regNo = document.getElementById('docRegNoInput').value.trim();
-        const inst = document.getElementById('docInstInput').value.trim();
+        if (!uid) {
+            if (window.firebaseAuth && window.firebaseAuth.currentUser) {
+                uid = window.firebaseAuth.currentUser.uid;
+                localStorage.setItem('rsbk_user_uid', uid);
+            } else {
+                uid = 'doc_' + Math.random().toString(36).substring(2, 9);
+            }
+        }
+
+        const nameInput = document.getElementById('docFullNameInput');
+        const degreeInput = document.getElementById('docDegreeInput');
+        const regNoInput = document.getElementById('docRegNoInput');
+        const instInput = document.getElementById('docInstInput');
         const fileInput = document.getElementById('docFileInput');
 
-        if (!degree || !regNo || !inst || !fileInput.files[0]) {
-            alert('Please fill out all fields and select your certificate file.');
+        const fullName = nameInput ? nameInput.value.trim() : userName;
+        const degree = degreeInput ? degreeInput.value.trim() : '';
+        const regNo = regNoInput ? regNoInput.value.trim() : '';
+        const inst = instInput ? instInput.value.trim() : '';
+
+        if (!degree || !regNo || !inst || !fileInput || !fileInput.files[0]) {
+            alert('Please fill out all credentials (Degree, Council Reg No, Affiliation) and select your Certificate file.');
             return;
         }
 
         const file = fileInput.files[0];
+        if (file.size > 10 * 1024 * 1024) {
+            alert('Certificate file size exceeds 10MB limit. Please upload a smaller image or PDF.');
+            return;
+        }
+
         const submitBtn = document.getElementById('btnSubmitDocVerification');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = `<span>Opening Razorpay Secure Checkout (₹100)...</span>`;
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<span>Opening Razorpay Secure Checkout (₹100)...</span>`;
+        }
 
         // Razorpay Checkout for ₹100
         const options = {
@@ -629,62 +689,93 @@
             currency: "INR",
             name: "RSBK Online",
             description: "Doctor & Faculty Credential Verification Fee (₹100)",
-            image: "/assets/icons/icon-192.png",
+            image: "favicon.png",
             prefill: {
-                name: userName,
+                name: fullName || userName,
                 email: userEmail
             },
             theme: {
                 color: "#059669"
             },
             handler: async function (response) {
-                submitBtn.innerHTML = `<span>Saving application credentials...</span>`;
-                
-                // Read certificate as base64 or upload
+                if (submitBtn) {
+                    submitBtn.innerHTML = `<span>Saving application credentials...</span>`;
+                }
+
+                // Read certificate as base64 Data URL
                 const reader = new FileReader();
                 reader.onload = async function(evt) {
                     const fileData = evt.target.result;
-                    
+
                     const verificationRecord = {
                         uid: uid,
                         email: userEmail,
-                        name: userName,
+                        name: fullName || userName,
                         degree: degree,
                         regNo: regNo,
                         institution: inst,
                         fileName: file.name,
-                        fileType: file.type,
-                        fileData: fileData.substring(0, 150000), // Preview snapshot
+                        fileType: file.type || 'application/octet-stream',
+                        fileSize: file.size,
+                        fileData: fileData, // Data URL for instant admin preview/download
                         paymentId: response.razorpay_payment_id,
                         status: 'pending',
                         submittedAt: new Date().toISOString()
                     };
 
-                    // Save locally & to remote storage
-                    let pendingList = JSON.parse(localStorage.getItem('rsbk_pending_verifications') || '[]');
-                    pendingList.push(verificationRecord);
-                    localStorage.setItem('rsbk_pending_verifications', JSON.stringify(pendingList));
-                    localStorage.setItem('rsbk_verification_status', 'pending');
-
-                    // If Firebase Realtime Database is accessible
+                    // Save locally
                     try {
-                        if (window.firebaseDb && window.firebasePush) {
+                        let pendingList = JSON.parse(localStorage.getItem('rsbk_pending_verifications') || '[]');
+                        pendingList = pendingList.filter(item => item.uid !== uid);
+                        pendingList.push(verificationRecord);
+                        localStorage.setItem('rsbk_pending_verifications', JSON.stringify(pendingList));
+                        localStorage.setItem('rsbk_verification_status', 'pending');
+                        localStorage.setItem('rsbk_doctor_verified', 'false');
+                    } catch (lsErr) {
+                        console.warn('Local storage error:', lsErr);
+                    }
+
+                    // Save to Firebase Realtime Database
+                    try {
+                        if (window.firebaseDb && window.firebaseRef && window.firebaseSet) {
                             const refPath = window.firebaseRef(window.firebaseDb, 'doctor_verifications/' + uid);
                             await window.firebaseSet(refPath, verificationRecord);
                         }
                     } catch (fbErr) {
-                        console.log('Firebase verification save:', fbErr);
+                        console.warn('Firebase verification save warning:', fbErr);
                     }
 
-                    alert(`Payment of ₹100 Successful!\n\nYour application (Payment ID: ${response.razorpay_payment_id}) has been submitted for verification. Dr. Milind Chatrabhuji will review your certificate and grant your badge.`);
-                    window.location.reload();
+                    // Send Automated Email Confirmation
+                    if (window.RSBK && window.RSBK.EmailService) {
+                        window.RSBK.EmailService.sendNotification('doctor_verification_submitted', {
+                            recipientName: fullName || userName,
+                            recipientEmail: userEmail,
+                            details: {
+                                degree: degree,
+                                regNo: regNo,
+                                institution: inst,
+                                paymentId: response.razorpay_payment_id,
+                                submittedAt: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                            }
+                        });
+                    }
+
+                    // Close modal and update UI card
+                    const modal = document.getElementById('doctorVerificationModal');
+                    if (modal) modal.classList.remove('open');
+
+                    setupProfileVerificationUI(false, 'pending');
+
+                    alert(`🎉 Payment of ₹100 Successful!\n\nPayment ID: ${response.razorpay_payment_id}\n\nYour Doctor / Faculty verification application has been submitted for review. Dr. Milind Chatrabhuji will audit your degree certificate credentials within 24–48 hours.`);
                 };
                 reader.readAsDataURL(file);
             },
             modal: {
                 ondismiss: function () {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = `<ion-icon name="lock-closed"></ion-icon> <span>Pay ₹100 via Razorpay &amp; Submit</span>`;
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = `<ion-icon name="lock-closed"></ion-icon> <span>Pay ₹100 via Razorpay &amp; Submit</span> <ion-icon name="arrow-forward-outline"></ion-icon>`;
+                    }
                 }
             }
         };
@@ -693,8 +784,8 @@
             const rzp = new window.Razorpay(options);
             rzp.open();
         } else {
-            alert('Razorpay payment gateway is loading. Please try again in 3 seconds.');
-            submitBtn.disabled = false;
+            alert('Razorpay payment gateway is loading. Please try again in a few seconds.');
+            if (submitBtn) submitBtn.disabled = false;
         }
     }
 

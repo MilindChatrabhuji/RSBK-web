@@ -175,6 +175,104 @@ window.RSBK.EmailService = (function () {
             `);
         }
 
+        if (type === 'doctor_verification_submitted') {
+            const { degree, regNo, institution, paymentId, submittedAt } = details;
+            return baseWrapper('Doctor / Faculty Badge Application Received (₹100 Paid)', `
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <span style="display: inline-block; background-color: #ecfdf5; color: #059669; font-weight: 700; font-size: 12px; padding: 6px 14px; border-radius: 50px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid #a7f3d0;">
+                        Application Under Review · ₹100 Paid
+                    </span>
+                    <h2 style="color: #0f172a; margin: 15px 0 8px; font-size: 22px; font-weight: 800;">Doctor Verification Received</h2>
+                    <p style="color: #475569; margin: 0; font-size: 15px;">
+                        Dear <strong>${recipientName}</strong>, thank you for submitting your academic and medical credentials for official verification on RSBK Online.
+                    </p>
+                </div>
+
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-bottom: 25px;">
+                    <tr>
+                        <td style="padding: 12px 18px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 13px; font-weight: 600;">Highest Degree</td>
+                        <td align="right" style="padding: 12px 18px; border-bottom: 1px solid #e2e8f0; color: #059669; font-size: 14px; font-weight: 800;">${degree}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px 18px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 13px; font-weight: 600;">Council Registration No.</td>
+                        <td align="right" style="padding: 12px 18px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-size: 13px; font-family: monospace; font-weight: 700;">${regNo}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px 18px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 13px; font-weight: 600;">Affiliated Institution</td>
+                        <td align="right" style="padding: 12px 18px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-size: 13px;">${institution}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px 18px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 13px; font-weight: 600;">Verification Fee Paid</td>
+                        <td align="right" style="padding: 12px 18px; border-bottom: 1px solid #e2e8f0; color: #059669; font-size: 15px; font-weight: 800;">₹100 (Non-refundable)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px 18px; color: #64748b; font-size: 13px; font-weight: 600;">Razorpay Reference ID</td>
+                        <td align="right" style="padding: 12px 18px; color: #64748b; font-size: 12px; font-family: monospace;">${paymentId}</td>
+                    </tr>
+                </table>
+
+                <div style="background-color: #f1f5f9; border-radius: 10px; padding: 14px 18px; margin-bottom: 25px; font-size: 13px; color: #334155; line-height: 1.6;">
+                    <strong>Next Steps:</strong> Dr. Milind Chatrabhuji will verify your certificate scan against the official State / NCISM council records within 24–48 hours. Once approved, your official <strong>Verified Doctor / Faculty</strong> checkmark badge will be permanently activated.
+                </div>
+            `);
+        }
+
+        if (type === 'doctor_verification_approved') {
+            const { degree, regNo, approvedAt } = details;
+            return baseWrapper('Congratulations! Verified Doctor Badge Approved — RSBK Online', `
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <span style="display: inline-block; background-color: #ecfdf5; color: #059669; font-weight: 700; font-size: 12px; padding: 6px 14px; border-radius: 50px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid #a7f3d0;">
+                        Credentials Verified · Badge Active
+                    </span>
+                    <h2 style="color: #0f172a; margin: 15px 0 8px; font-size: 22px; font-weight: 800;">Congratulations, Dr. ${recipientName}!</h2>
+                    <p style="color: #475569; margin: 0; font-size: 15px;">
+                        Your medical and academic credentials (<strong>${degree}</strong>, Reg: <strong>${regNo}</strong>) have been officially verified by Dr. Milind Chatrabhuji on ${approvedAt}.
+                    </p>
+                </div>
+
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+                    <h3 style="color: #0f172a; margin: 0 0 10px; font-size: 15px; font-weight: 700;">Your Verified Status Privileges:</h3>
+                    <ul style="margin: 0; padding-left: 20px; color: #334155; font-size: 14px; line-height: 1.8;">
+                        <li><strong>Profile Checkmark:</strong> An emerald "Verified Doctor / Faculty" checkmark on your public academic profile.</li>
+                        <li><strong>Forum Credibility:</strong> Every question, clinical discussion, and reply you post displays your verified doctor badge.</li>
+                        <li><strong>Academic Network:</strong> Recognition among students, PG scholars, and peer faculties across India.</li>
+                    </ul>
+                </div>
+
+                <div style="text-align: center; margin: 30px 0 15px;">
+                    <a href="https://rsbk-online.web.app/profile.html" style="display: inline-block; background: linear-gradient(135deg, #059669 0%, #047857 100%); color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 700; padding: 14px 32px; border-radius: 10px; box-shadow: 0 4px 14px rgba(5, 150, 105, 0.3);">
+                        View Verified Profile &rarr;
+                    </a>
+                </div>
+            `);
+        }
+
+        if (type === 'doctor_verification_rejected') {
+            const { reason } = details;
+            return baseWrapper('Update on your Doctor / Faculty Verification Application', `
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <span style="display: inline-block; background-color: #fef2f2; color: #dc2626; font-weight: 700; font-size: 12px; padding: 6px 14px; border-radius: 50px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid #fecaca;">
+                        Verification Update
+                    </span>
+                    <h2 style="color: #0f172a; margin: 15px 0 8px; font-size: 22px; font-weight: 800;">Application Status Update</h2>
+                    <p style="color: #475569; margin: 0; font-size: 15px;">
+                        Dear <strong>${recipientName}</strong>, your verification application could not be approved at this time.
+                    </p>
+                </div>
+
+                <div style="background-color: #fff1f2; border: 1px solid #ffe4e6; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+                    <h3 style="color: #9f1239; margin: 0 0 8px; font-size: 14px; font-weight: 700;">Reason Provided by Administration:</h3>
+                    <p style="color: #881337; margin: 0; font-size: 14px; line-height: 1.6;">
+                        ${reason || 'The uploaded certificate scan or council registration details could not be validated.'}
+                    </p>
+                </div>
+
+                <p style="color: #64748b; font-size: 13px; line-height: 1.6; text-align: center;">
+                    If you believe this was an error or would like to submit clearer documentation, please reply directly or contact <a href="mailto:dr.milindchatrabhuji@gmail.com" style="color: #059669; font-weight: 600;">dr.milindchatrabhuji@gmail.com</a>.
+                </p>
+            `);
+        }
+
         return '';
     }
 
@@ -188,6 +286,9 @@ window.RSBK.EmailService = (function () {
             if (type === 'welcome') subject = 'Welcome to RSBK Online — 30-Day Free Trial Activated';
             if (type === 'recharge_receipt') subject = `Payment Confirmation: ₹${payload.details.amount} Added to Wallet (RSBK Online)`;
             if (type === 'low_balance') subject = 'Notice: 3 Days Remaining on your RSBK Online Access';
+            if (type === 'doctor_verification_submitted') subject = 'Application Received: Doctor / Faculty Verification (₹100 Paid)';
+            if (type === 'doctor_verification_approved') subject = 'Congratulations! Verified Doctor / Faculty Badge Granted (RSBK Online)';
+            if (type === 'doctor_verification_rejected') subject = 'Notice: Doctor / Faculty Verification Application Update (RSBK Online)';
 
             const requestBody = {
                 action: 'send_email',
