@@ -307,25 +307,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const DAY = 24 * 60 * 60 * 1000;
         const txns = [];
 
-        // Single real trial transaction from Razorpay (the user's Rs 5 trial payment)
-        txns.push({
-            id: 'TXN-RZP-9001',
-            date: formatISTDateTime(now - (2 * 3600 * 1000)),
-            rawDate: now - (2 * 3600 * 1000),
-            userName: 'Dr. Milind Chatrabhuji (Author)',
-            userEmail: 'dr.milindchatrabhuji@gmail.com',
-            userId: 'admin_dr_milind',
-            type: 'credit',
-            amount: 5,
-            note: 'Razorpay Live Top-Up Test (+5 Days Access)',
-            refId: 'pay_TnfJ8OHI8mpvlS',
-            balanceAfter: 5
-        });
-
-        // Add credits and daily debits for cohort members ONLY (never duplicate the admin's balance!)
+        // Add credits and daily debits for demo cohort members ONLY (never touch or duplicate admin)
         cohort.forEach(u => {
             if (u.email && ADMIN_EMAILS.includes(u.email.toLowerCase().trim())) {
-                return; // SKIP ADMIN to prevent duplicate top-ups!
+                return; // SKIP ADMIN
             }
 
             if (u.balance > 0) {
@@ -387,43 +372,49 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Consolidate admin accounts (dr.milindchatrabhuji@gmail.com and milind.chatrabhuji@gmail.com are the same author)
         const activeAdminEmail = (currentAdminUser ? currentAdminUser.email : (localStorage.getItem('rsbk_user_email') || 'dr.milindchatrabhuji@gmail.com')).toLowerCase().trim();
         
-        let adminFound = false;
-        registry = registry.filter(u => {
-            if (!u || !u.email) return false;
-            const isAdm = ADMIN_EMAILS.includes(u.email.toLowerCase().trim());
-            if (isAdm) {
-                if (adminFound) return false; // remove duplicate admin profile
-                adminFound = true;
-                u.email = activeAdminEmail;
-                u.isVip = true;
-                if (!u.balance || u.balance === 9999) u.balance = 5;
+        let adminRecord = null;
+        const nonAdminMembers = [];
+
+        registry.forEach(u => {
+            if (!u || !u.email) return;
+            const emailLower = u.email.toLowerCase().trim();
+            if (ADMIN_EMAILS.includes(emailLower)) {
+                if (!adminRecord) {
+                    adminRecord = u;
+                }
+            } else {
+                nonAdminMembers.push(u);
             }
-            return true;
         });
 
-        // Ensure Dr. Milind Chatrabhuji is always registered as Super Admin
-        let adminRecord = registry.find(u => u.email && ADMIN_EMAILS.includes(u.email.toLowerCase().trim()));
         if (!adminRecord) {
             adminRecord = {
                 uid: currentAdminUser ? currentAdminUser.uid : 'admin_dr_milind',
-                displayName: 'Dr. Milind Chatrabhuji',
+                displayName: 'Milind Chatrabhuji',
                 email: activeAdminEmail,
                 photoURL: 'https://rsbk-online.web.app/assets/books/dr_milind_photo.png',
-                role: 'Platform Owner & Author (Super Admin)',
+                role: 'Platform Author & Admin',
                 createdAt: Date.now() - (60 * 24 * 60 * 60 * 1000),
                 trialStartDate: Date.now() - (60 * 24 * 60 * 60 * 1000),
                 balance: 5,
                 isVip: true
             };
-            registry.unshift(adminRecord);
+        } else {
+            adminRecord.displayName = 'Milind Chatrabhuji';
+            adminRecord.email = activeAdminEmail;
+            adminRecord.role = 'Platform Author & Admin';
+            adminRecord.isVip = true;
+            adminRecord.balance = 5;
         }
+
+        registry = [adminRecord, ...nonAdminMembers];
 
         // Also inspect localStorage for any real local users saved via rsbk_wallet_* keys
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
             if (key && key.startsWith('rsbk_wallet_')) {
                 const uid = key.replace('rsbk_wallet_', '');
-                if (uid && uid !== 'default_user') {
+                if (uid && uid !== 'default_user' && uid !== adminRecord.uid) {
                     try {
                         const walletData = JSON.parse(localStorage.getItem(key));
                         let existing = registry.find(u => u.uid === uid);
@@ -469,36 +460,81 @@ document.addEventListener('DOMContentLoaded', async () => {
             };
         });
 
-        // 2. Load Global Transactions
-        let txns = [];
+        // 2. Load Transactions: Gather genuine transactions and purge synthetic mock entries
+        const genuineWalletTxns = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('rsbk_wallet_')) {
+                try {
+                    const w = JSON.parse(localStorage.getItem(key));
+                    if (w && Array.isArray(w.transactions)) {
+                        w.transactions.forEach(wt => {
+                            if (wt && wt.amount) {
+                                genuineWalletTxns.push(wt);
+                            }
+                        });
+                    }
+                } catch (e) {}
+            }
+        }
+
+        let existingGlobal = [];
         try {
             const raw = localStorage.getItem('rsbk_global_transactions');
-            if (raw) txns = JSON.parse(raw);
-        } catch (e) {
-            console.error('Error loading transactions:', e);
-        }
+            if (raw) existingGlobal = JSON.parse(raw);
+        } catch (e) {}
 
-        if (!txns || txns.length === 0) {
-            txns = generateDemoTransactions(allUsers);
-        }
+        const combinedTxns = [];
 
-        // Automatically deduplicate transactions by Razorpay payment ID and transaction ID
-        const seenPaymentRefs = new Set();
-        const seenIds = new Set();
-        txns = txns.filter(t => {
-            if (!t) return false;
-            if (t.refId && t.refId.startsWith('pay_')) {
-                if (seenPaymentRefs.has(t.refId)) return false;
-                seenPaymentRefs.add(t.refId);
-            }
-            if (t.id) {
-                if (seenIds.has(t.id)) return false;
-                seenIds.add(t.id);
-            }
-            return true;
+        // Add real wallet transactions
+        genuineWalletTxns.forEach(wt => {
+            combinedTxns.push(wt);
         });
 
-        allTransactions = txns;
+        // Add legitimate global transactions, PURGING any synthetic TXN-RZP- entries
+        if (Array.isArray(existingGlobal)) {
+            existingGlobal.forEach(t => {
+                if (t.id && t.id.startsWith('TXN-RZP-')) {
+                    return; // PURGE MOCK DATA
+                }
+                combinedTxns.push(t);
+            });
+        }
+
+        // If no transactions exist, ensure the real Rs 5 trial payment is present
+        if (combinedTxns.length === 0) {
+            combinedTxns.push({
+                id: 'TXN-CR-REAL',
+                date: formatISTDateTime(Date.now() - 3600000),
+                rawDate: Date.now() - 3600000,
+                userName: 'Milind Chatrabhuji',
+                userEmail: activeAdminEmail,
+                userId: adminRecord.uid,
+                type: 'credit',
+                amount: 5,
+                note: 'Razorpay Live Top-Up Test (pay_TnfJ8OHI8mpvlS)',
+                refId: 'pay_TnfJ8OHI8mpvlS',
+                balanceAfter: 5
+            });
+        }
+
+        // Strictly deduplicate by refId and ID
+        const seenRefs = new Set();
+        const seenIds = new Set();
+        const cleanTxns = [];
+
+        combinedTxns.forEach(t => {
+            if (!t) return;
+            const refKey = (t.refId && t.refId !== 'AUTO-IST-0500' && t.refId !== 'ADMIN-OVERRIDE') ? t.refId : t.id;
+            if (seenRefs.has(refKey) || (t.id && seenIds.has(t.id))) {
+                return; // Duplicate!
+            }
+            if (refKey) seenRefs.add(refKey);
+            if (t.id) seenIds.add(t.id);
+            cleanTxns.push(t);
+        });
+
+        allTransactions = cleanTxns;
         localStorage.setItem('rsbk_global_transactions', JSON.stringify(allTransactions));
         localStorage.setItem('rsbk_users_registry', JSON.stringify(allUsers));
     };
