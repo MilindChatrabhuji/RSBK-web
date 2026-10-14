@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>if(localStorage.getItem('rsbk_auth_cached')==='true'){document.documentElement.classList.add('auth-verified');if(localStorage.getItem('rsbk_access_valid')==='true'){document.documentElement.classList.add('access-granted');}else if(localStorage.getItem('rsbk_access_valid')==='false'){document.documentElement.classList.add('paywall-expired');}}</script>
-    <title>Payment Confirmation &amp; Receipt | Dr. Milind Chatrabhuji â€” RSBK Online</title>
+    <title>Payment Confirmation &amp; Receipt | Dr. Milind Chatrabhuji — RSBK Online</title>
     <meta name="description" content="Cryptographic verification and confirmation waiting page for RSBK Online Membership top-ups via Razorpay.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -137,15 +137,15 @@
                         <div class="receipt-grid">
                             <div class="receipt-item">
                                 <span class="r-label">Member Name</span>
-                                <strong class="r-val" id="receiptMemberName">â€”</strong>
+                                <strong class="r-val" id="receiptMemberName">—</strong>
                             </div>
                             <div class="receipt-item">
                                 <span class="r-label">Member Email</span>
-                                <strong class="r-val" id="receiptMemberEmail">â€”</strong>
+                                <strong class="r-val" id="receiptMemberEmail">—</strong>
                             </div>
                             <div class="receipt-item">
                                 <span class="r-label">Amount Paid</span>
-                                <strong class="r-val highlight" id="receiptAmountPaid">â‚¹0.00</strong>
+                                <strong class="r-val highlight" id="receiptAmountPaid">₹0.00</strong>
                             </div>
                             <div class="receipt-item">
                                 <span class="r-label">Days Added</span>
@@ -153,26 +153,26 @@
                             </div>
                             <div class="receipt-item">
                                 <span class="r-label">Payment ID (Razorpay)</span>
-                                <strong class="r-val mono" id="receiptPaymentId">â€”</strong>
+                                <strong class="r-val mono" id="receiptPaymentId">—</strong>
                             </div>
                             <div class="receipt-item">
                                 <span class="r-label">Transaction Date</span>
-                                <strong class="r-val" id="receiptDate">â€”</strong>
+                                <strong class="r-val" id="receiptDate">—</strong>
                             </div>
                             <div class="receipt-item">
                                 <span class="r-label">New Wallet Balance</span>
-                                <strong class="r-val success" id="receiptNewBalance">â‚¹0.00</strong>
+                                <strong class="r-val success" id="receiptNewBalance">₹0.00</strong>
                             </div>
                             <div class="receipt-item">
                                 <span class="r-label">Access Valid Until</span>
-                                <strong class="r-val" id="receiptValidUntil">â€”</strong>
+                                <strong class="r-val" id="receiptValidUntil">—</strong>
                             </div>
                         </div>
 
                         <div class="receipt-footer">
                             <div class="receipt-rate-info">
                                 <ion-icon name="information-circle-outline"></ion-icon>
-                                <span>Rate: â‚¹1.00 / Day deducted daily at 5:00 AM IST. Any payment done is not at all refundable under any circumstances.</span>
+                                <span>Rate: ₹1.00 / Day deducted daily at 5:00 AM IST. Any payment done is not at all refundable under any circumstances.</span>
                             </div>
                         </div>
                     </div>
@@ -364,11 +364,11 @@
                 document.getElementById('receiptNum').textContent = receiptId;
                 document.getElementById('receiptMemberName').textContent = (pending && pending.userName) ? pending.userName : 'Verified Member';
                 document.getElementById('receiptMemberEmail').textContent = (pending && pending.userEmail) ? pending.userEmail : 'Linked Google Account';
-                document.getElementById('receiptAmountPaid').textContent = `â‚¹${amount.toFixed(2)}`;
+                document.getElementById('receiptAmountPaid').textContent = `₹${amount.toFixed(2)}`;
                 document.getElementById('receiptDaysAdded').textContent = `+${amount} Days Access`;
                 document.getElementById('receiptPaymentId').textContent = paymentId;
                 document.getElementById('receiptDate').textContent = formatIST(new Date());
-                document.getElementById('receiptNewBalance').textContent = `â‚¹${wallet.balance.toFixed(2)}`;
+                document.getElementById('receiptNewBalance').textContent = `₹${wallet.balance.toFixed(2)}`;
 
                 const totalDays = Math.floor(wallet.balance / 1);
                 const expiry = new Date(getLatest5AM().getTime() + (totalDays * 24 * 60 * 60 * 1000));
