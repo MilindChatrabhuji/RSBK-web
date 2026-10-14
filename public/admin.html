@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // Synchronous fast-check for admin status to minimize flash
+        if (localStorage.getItem('rsbk_auth_cached') === 'true') {
+            document.documentElement.classList.add('auth-verified');
+            const cachedEmail = (localStorage.getItem('rsbk_user_email') || '').toLowerCase();
+            if (cachedEmail === 'dr.milindchatrabhuji@gmail.com' || cachedEmail === 'milind.chatrabhuji@gmail.com') {
+                document.documentElement.classList.add('admin-authorized');
+            }
+        }
+    </script>
+    <title>Admin Dashboard &amp; Governance | Dr. Milind Chatrabhuji — RSBK Online</title>
+    <meta name="description" content="Administrative control center for RSBK Online. Manage members, monitor 30-day free trials, inspect Razorpay financial ledgers, and govern curriculum handbooks.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=4.2">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body class="page-admin">
+    <div class="background-effects">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+    </div>
+
+    <!-- Main Navigation Header -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <span class="logo-text">RSBK Online</span><span class="logo-dot">.</span>
+                <span class="admin-portal-badge"><ion-icon name="shield-checkmark"></ion-icon> Admin Panel</span>
+            </a>
+
+            <div class="nav-overlay" id="navOverlay"></div>
+
+            <nav class="nav-links" id="navLinks">
+                <a href="index.html"><ion-icon name="home-outline"></ion-icon><span>Home</span></a>
+                <a href="books.html"><ion-icon name="library-outline"></ion-icon><span>Books</span></a>
+                <a href="membership.html"><ion-icon name="ribbon-outline"></ion-icon><span>Membership</span></a>
+                <a href="profile.html"><ion-icon name="person-outline"></ion-icon><span>Profile</span></a>
+            </nav>
+
+            <div class="nav-actions">
+                <div class="auth-widget" id="authWidget"></div>
+                <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false">
+                    <span class="bar bar-1"></span>
+                    <span class="bar bar-2"></span>
+                    <span class="bar bar-3"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Right-Side Vertical Menubar -->
+    <aside class="right-vertical-menubar" id="rightVerticalMenubar" aria-label="Right Navigation Menubar">
+        <div class="vmenu-header">
+            <span class="vmenu-badge">ADMIN</span>
+        </div>
+        <nav class="vmenu-nav">
+            <a href="index.html" class="vmenu-item" title="Home">
+                <ion-icon name="home-outline"></ion-icon>
+                <span class="vmenu-text">Home</span>
+            </a>
+            <a href="books.html" class="vmenu-item" title="Books Archive">
+                <ion-icon name="library-outline"></ion-icon>
+                <span class="vmenu-text">Books</span>
+            </a>
+            <a href="membership.html" class="vmenu-item" title="Membership &amp; Wallet">
+                <ion-icon name="ribbon-outline"></ion-icon>
+                <span class="vmenu-text">Membership</span>
+            </a>
+            <a href="profile.html" class="vmenu-item" title="User Profile">
+                <ion-icon name="person-outline"></ion-icon>
+                <span class="vmenu-text">Profile</span>
+            </a>
+            <a href="admin.html" class="vmenu-item active admin-link" title="Admin Panel">
+                <ion-icon name="shield-checkmark"></ion-icon>
+                <span class="vmenu-text">Admin</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="page-main admin-main-wrapper">
+        <div class="admin-container">
+
+            <!-- STATE 1: CHECKING / LOADING AUTH -->
+            <div id="adminLoadingState" class="admin-state-card" style="display: flex;">
+                <div class="admin-state-spinner">
+                    <div class="mini-spinner large"></div>
+                </div>
+                <h2>Verifying Administrative Credentials</h2>
+                <p>Connecting to Firebase Authentication and verifying access privileges...</p>
+            </div>
+
+            <!-- STATE 2: NOT SIGNED IN -->
+            <div id="adminSignInState" class="admin-state-card" style="display: none;">
+                <div class="admin-state-icon">
+                    <ion-icon name="lock-closed"></ion-icon>
+                </div>
+                <h2>Administrative Authentication Required</h2>
+                <p>This portal provides governance over RSBK Online memberships, financial ledger, and platform settings. Access is restricted strictly to <strong>dr.milindchatrabhuji@gmail.com</strong>.</p>
+                <button id="adminSignInPromptBtn" class="btn-admin-primary" type="button">
+                    <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+                        <path fill="#34A853" d="M12 24c3.3 0 6.08-1.09 8.1-2.96l-3.88-3.05c-1.08.72-2.45 1.16-4.22 1.16-3.24 0-5.98-2.18-6.96-5.11H1.05v3.14C3.06 21.2 7.22 24 12 24z"/>
+                        <path fill="#FBBC05" d="M5.04 14.04c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.32H1.05C.38 7.66 0 9.16 0 10.75s.38 3.09 1.05 4.43l3.99-3.14z"/>
+                        <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.22 0 3.06 2.8 1.05 6.82l3.99 3.14c.98-2.93 3.72-5.21 6.96-5.21z"/>
+                    </svg>
+                    <span>Sign In as Administrator</span>
+                </button>
+                <a href="index.html" class="admin-state-back-link">
+                    <ion-icon name="arrow-back-outline"></ion-icon> Return to Homepage
+                </a>
+            </div>
+
+            <!-- STATE 3: SIGNED IN BUT UNAUTHORIZED -->
+            <div id="adminDeniedState" class="admin-state-card" style="display: none;">
+                <div class="admin-state-icon denied">
+                    <ion-icon name="ban-outline"></ion-icon>
+                </div>
+                <h2>Access Restricted</h2>
+                <p>You are currently signed in as <strong id="deniedUserEmail">user@example.com</strong>. This account does not possess administrative privileges for RSBK Online.</p>
+                <div class="admin-state-notice">
+                    <ion-icon name="shield-outline"></ion-icon>
+                    <span>Authorized Administrator: <strong>dr.milindchatrabhuji@gmail.com</strong></span>
+                </div>
+                <div class="admin-state-actions">
+                    <a href="index.html" class="btn-admin-secondary">
+                        <ion-icon name="home-outline"></ion-icon> Return to Public Portal
+                    </a>
+                    <button id="adminSwitchAccountBtn" class="btn-admin-primary" type="button">
+                        <ion-icon name="log-out-outline"></ion-icon> Switch / Sign Out
+                    </button>
+                </div>
+            </div>
+
+            <!-- STATE 4: AUTHORIZED ADMIN DASHBOARD -->
+            <div id="adminDashboardContent" class="admin-dashboard-wrapper" style="display: none;">
+                
+                <!-- TOP ADMIN BANNER -->
+                <div class="admin-hero-banner">
+                    <div class="admin-hero-content">
+                        <div class="admin-hero-badge-row">
+                            <span class="badge-admin-super"><ion-icon name="shield-checkmark"></ion-icon> Super Administrator</span>
+                            <span class="badge-system-live"><span class="live-dot"></span> System Live</span>
+                            <span class="badge-ist-clock" id="adminClockIST"><ion-icon name="time-outline"></ion-icon> Loading IST...</span>
+                        </div>
+                        <h1 class="admin-hero-title">Platform Administration &amp; Governance</h1>
+                        <p class="admin-hero-desc">
+                            Welcome, <strong id="adminWelcomeName">Dr. Milind Chatrabhuji</strong>. Oversee user accounts, 30-day complimentary trials, live Razorpay transactions, curriculum handbooks, and platform health.
+                        </p>
+                    </div>
+                    <div class="admin-hero-actions">
+                        <button id="btnExportAllData" class="btn-admin-action" title="Export all members &amp; transactions as JSON">
+                            <ion-icon name="cloud-download-outline"></ion-icon>
+                            <span>Export Backup</span>
+                        </button>
+                        <button id="btnRefreshData" class="btn-admin-action primary" title="Refresh all live data">
+                            <ion-icon name="refresh-outline"></ion-icon>
+                            <span>Sync Data</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KEY METRIC CARDS RIBBON (6 TILES) -->
+                <div class="admin-metrics-grid">
+                    <!-- Metric 1: Total Users -->
+                    <div class="admin-metric-card" id="cardTotalUsers">
+                        <div class="metric-card-top">
+                            <span class="metric-label">Total Registered Members</span>
+                            <div class="metric-icon-wrap users">
+                                <ion-icon name="people"></ion-icon>
+                            </div>
+                        </div>
+                        <div class="metric-main-value" id="statTotalUsers">0</div>
+                        <div class="metric-subtext">
+                            <span class="sub-highlight" id="statNewTodayCount">+0</span> active this week
+                        </div>
+                    </div>
+
+                    <!-- Metric 2: Active Free Trials -->
+                    <div class="admin-metric-card" id="cardActiveTrials">
+                        <div class="metric-card-top">
+                            <span class="metric-label">Active 30-Day Trials</span>
+                            <div class="metric-icon-wrap trial">
+                                <ion-icon name="sparkles"></ion-icon>
+                            </div>
+                        </div>
+                        <div class="metric-main-value text-emerald" id="statActiveTrials">0</div>
+                        <div class="metric-subtext">
+                            Complimentary access in progress
+                        </div>
+                    </div>
+
+                    <!-- Metric 3: Active Paid Members -->
+                    <div class="admin-metric-card" id="cardPaidMembers">
+                        <div class="metric-card-top">
+                            <span class="metric-label">Active Paid Members</span>
+                            <div class="metric-icon-wrap paid">
+                                <ion-icon name="checkmark-done-circle"></ion-icon>
+                            </div>
+                        </div>
+                        <div class="metric-main-value text-blue" id="statPaidMembers">0</div>
+                        <div class="metric-subtext">
+                            Wallet balance &ge; &#8377;1 (Daily access)
+                        </div>
+                    </div>
+
+                    <!-- Metric 4: Expired Paywalls -->
+                    <div class="admin-metric-card" id="cardExpiredUsers">
+                        <div class="metric-card-top">
+                            <span class="metric-label">Trial Expired / Needs Top-Up</span>
+                            <div class="metric-icon-wrap expired">
+                                <ion-icon name="alert-circle"></ion-icon>
+                            </div>
+                        </div>
+                        <div class="metric-main-value text-amber" id="statExpiredUsers">0</div>
+                        <div class="metric-subtext">
+                            Awaiting wallet recharge (&#8377;1/day)
+                        </div>
+                    </div>
+
+                    <!-- Metric 5: Gross Revenue -->
+                    <div class="admin-metric-card" id="cardTotalRevenue">
+                        <div class="metric-card-top">
+                            <span class="metric-label">Gross Revenue Collected</span>
+                            <div class="metric-icon-wrap revenue">
+                                <ion-icon name="cash"></ion-icon>
+                            </div>
+                        </div>
+                        <div class="metric-main-value text-emerald" id="statTotalRevenue">&#8377;0</div>
+                        <div class="metric-subtext" id="statTopupCountSubtext">
+                            0 Razorpay Top-ups recorded
+                        </div>
+                    </div>
+
+                    <!-- Metric 6: Gateway & System Health -->
+                    <div class="admin-metric-card" id="cardGatewayHealth">
+                        <div class="metric-card-top">
+                            <span class="metric-label">Payment Gateway Status</span>
+                            <div class="metric-icon-wrap gateway">
+                                <ion-icon name="card"></ion-icon>
+                            </div>
+                        </div>
+                        <div class="metric-gateway-status">
+                            <span class="status-pill-online"><span class="live-dot pulse"></span> Razorpay Live</span>
+                            <div class="gateway-details">
+                                <code>rzp_live_...5lMxJ3</code>
+                                <span class="capture-badge"><ion-icon name="flash"></ion-icon> Auto-Capture ON</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NAVIGATION TABS -->
+                <div class="admin-tabs-nav" role="tablist">
+                    <button class="admin-tab-btn active" data-tab="tabMembers" type="button" role="tab">
+                        <ion-icon name="people-outline"></ion-icon>
+                        <span>Member Management</span>
+                        <span class="tab-badge" id="tabBadgeMembers">0</span>
+                    </button>
+                    <button class="admin-tab-btn" data-tab="tabFinancials" type="button" role="tab">
+                        <ion-icon name="receipt-outline"></ion-icon>
+                        <span>Transactions &amp; Ledger</span>
+                        <span class="tab-badge" id="tabBadgeTxns">0</span>
+                    </button>
+                    <button class="admin-tab-btn" data-tab="tabCatalog" type="button" role="tab">
+                        <ion-icon name="book-outline"></ion-icon>
+                        <span>Curriculum Handbooks</span>
+                    </button>
+                    <button class="admin-tab-btn" data-tab="tabSettings" type="button" role="tab">
+                        <ion-icon name="settings-outline"></ion-icon>
+                        <span>Gateway &amp; Settings</span>
+                    </button>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- TAB 1: MEMBERS MANAGEMENT                    -->
+                <!-- ============================================ -->
+                <div id="tabMembers" class="admin-tab-content active" role="tabpanel">
+                    <div class="admin-panel-card">
+                        <div class="panel-card-header">
+                            <div>
+                                <h2 class="panel-card-title">Registered Members &amp; Scholars Directory</h2>
+                                <p class="panel-card-desc">Inspect Google-authenticated users, monitor 30-day free trial expirations, adjust wallet balances, or extend access.</p>
+                            </div>
+                            <div class="panel-header-actions">
+                                <button id="btnOpenAddMemberModal" class="btn-admin-action primary" type="button">
+                                    <ion-icon name="person-add-outline"></ion-icon>
+                                    <span>Add / Register User</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Filters & Search Toolbar -->
+                        <div class="admin-toolbar">
+                            <div class="search-input-wrapper">
+                                <ion-icon name="search-outline"></ion-icon>
+                                <input type="text" id="memberSearchInput" placeholder="Search by name, email, or User ID..." autocomplete="off">
+                                <button id="clearMemberSearch" class="btn-clear-search" type="button" style="display: none;">
+                                    <ion-icon name="close-circle"></ion-icon>
+                                </button>
+                            </div>
+                            
+                            <div class="filter-pills-row" id="memberFilterGroup">
+                                <button class="filter-chip active" data-filter="all" type="button">All Members (<span id="countFilterAll">0</span>)</button>
+                                <button class="filter-chip" data-filter="trial" type="button">Free Trial (<span id="countFilterTrial">0</span>)</button>
+                                <button class="filter-chip" data-filter="paid" type="button">Paid Members (<span id="countFilterPaid">0</span>)</button>
+                                <button class="filter-chip" data-filter="expired" type="button">Expired (<span id="countFilterExpired">0</span>)</button>
+                            </div>
+                        </div>
+
+                        <!-- Members Table -->
+                        <div class="admin-table-responsive">
+                            <table class="admin-table" id="membersTable">
+                                <thead>
+                                    <tr>
+                                        <th>Member Profile</th>
+                                        <th>Joined On</th>
+                                        <th>Status / Tier</th>
+                                        <th>Wallet Balance</th>
+                                        <th>Trial Expiry</th>
+                                        <th style="text-align: right;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="membersTableBody">
+                                    <!-- Populated dynamically via admin.js -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Table Footer / Pagination Info -->
+                        <div class="admin-table-footer">
+                            <span id="memberCountSummary">Showing 0 of 0 members</span>
+                            <div class="table-legend">
+                                <span class="legend-item"><span class="status-indicator trial"></span> Free Trial</span>
+                                <span class="legend-item"><span class="status-indicator paid"></span> Paid Active</span>
+                                <span class="legend-item"><span class="status-indicator expired"></span> Expired</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- TAB 2: FINANCIALS & TRANSACTIONS             -->
+                <!-- ============================================ -->
+                <div id="tabFinancials" class="admin-tab-content" role="tabpanel">
+                    <div class="admin-panel-card">
+                        <div class="panel-card-header">
+                            <div>
+                                <h2 class="panel-card-title">Razorpay Financial Ledger &amp; Wallet Activity</h2>
+                                <p class="panel-card-desc">Comprehensive transaction audit log of all balance recharges and daily &#8377;1 membership maintenance deductions.</p>
+                            </div>
+                            <div class="panel-header-actions">
+                                <button id="btnExportLedgerCSV" class="btn-admin-action" type="button">
+                                    <ion-icon name="download-outline"></ion-icon>
+                                    <span>Export CSV Ledger</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Summary Mini Ribbon -->
+                        <div class="ledger-summary-strip">
+                            <div class="ledger-strip-item">
+                                <span class="strip-label">Total Inflow (Razorpay Top-Ups)</span>
+                                <strong class="strip-val text-emerald" id="ledgerTotalInflow">&#8377;0</strong>
+                            </div>
+                            <div class="ledger-strip-item">
+                                <span class="strip-label">Total Daily Debits (5:00 AM IST)</span>
+                                <strong class="strip-val text-muted" id="ledgerTotalDebits">&#8377;0</strong>
+                            </div>
+                            <div class="ledger-strip-item">
+                                <span class="strip-label">Active Wallet Escrow Pool</span>
+                                <strong class="strip-val text-blue" id="ledgerActivePool">&#8377;0</strong>
+                            </div>
+                        </div>
+
+                        <!-- Toolbar -->
+                        <div class="admin-toolbar">
+                            <div class="search-input-wrapper">
+                                <ion-icon name="search-outline"></ion-icon>
+                                <input type="text" id="txnSearchInput" placeholder="Search by Payment ID, Member, or Note..." autocomplete="off">
+                            </div>
+
+                            <div class="filter-pills-row" id="txnFilterGroup">
+                                <button class="filter-chip active" data-filter="all" type="button">All Transactions (<span id="countTxnAll">0</span>)</button>
+                                <button class="filter-chip" data-filter="credit" type="button">Razorpay Credits (<span id="countTxnCredit">0</span>)</button>
+                                <button class="filter-chip" data-filter="debit" type="button">Daily Debits (<span id="countTxnDebit">0</span>)</button>
+                            </div>
+                        </div>
+
+                        <!-- Transactions Table -->
+                        <div class="admin-table-responsive">
+                            <table class="admin-table" id="transactionsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Transaction ID</th>
+                                        <th>Date &amp; Time (IST)</th>
+                                        <th>Member</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Gateway Reference</th>
+                                        <th>Note / Purpose</th>
+                                        <th>Balance After</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactionsTableBody">
+                                    <!-- Populated dynamically via admin.js -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="admin-table-footer">
+                            <span id="txnCountSummary">Showing 0 transactions</span>
+                            <span class="text-muted"><ion-icon name="shield-checkmark-outline"></ion-icon> Razorpay Auto-Captured Ledger</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- TAB 3: CURRICULUM HANDBOOKS CATALOG          -->
+                <!-- ============================================ -->
+                <div id="tabCatalog" class="admin-tab-content" role="tabpanel">
+                    <div class="admin-panel-card">
+                        <div class="panel-card-header">
+                            <div>
+                                <h2 class="panel-card-title">Curriculum Handbooks &amp; Digital Treatises Catalog</h2>
+                                <p class="panel-card-desc">Official RSBK curriculum publications authored by Dr. Milind Chatrabhuji, protected under the 30-day trial and &#8377;1/day membership.</p>
+                            </div>
+                            <div class="panel-header-actions">
+                                <a href="teachers.html" class="btn-admin-action" target="_blank">
+                                    <ion-icon name="open-outline"></ion-icon>
+                                    <span>Preview Teachers Portal</span>
+                                </a>
+                                <a href="books.html" class="btn-admin-action" target="_blank">
+                                    <ion-icon name="library-outline"></ion-icon>
+                                    <span>Preview Books Archive</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Catalog Grid of 6 Handbooks + Archive -->
+                        <div class="catalog-cards-grid">
+                            <!-- Volume 1 -->
+                            <div class="catalog-card">
+                                <div class="catalog-card-icon ug">
+                                    <ion-icon name="school"></ion-icon>
+                                </div>
+                                <div class="catalog-card-body">
+                                    <div class="catalog-badge">UG Curriculum</div>
+                                    <h3 class="catalog-title">UG Practical Handbook — Volume 1</h3>
+                                    <p class="catalog-desc">Foundational Rasa Shastra laboratory practicals, raw herb identification, purification techniques (Shodhana), and classical apparatus taxonomy.</p>
+                                    <div class="catalog-meta">
+                                        <span class="meta-tag"><ion-icon name="document-text-outline"></ion-icon> 24 Experiments</span>
+                                        <span class="meta-tag protected"><ion-icon name="lock-closed"></ion-icon> Paywall Protected</span>
+                                    </div>
+                                    <div class="catalog-actions">
+                                        <a href="teachers-ug.html" class="btn-catalog-view" target="_blank">View Live Showcase</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Volume 2 -->
+                            <div class="catalog-card">
+                                <div class="catalog-card-icon ug">
+                                    <ion-icon name="flask"></ion-icon>
+                                </div>
+                                <div class="catalog-card-body">
+                                    <div class="catalog-badge">UG Curriculum</div>
+                                    <h3 class="catalog-title">UG Practical Handbook — Volume 2</h3>
+                                    <p class="catalog-desc">Bhaishajya Kalpana secondary pharmaceutical formulations: Kwatha, Vati, Avaleha, Asava-Arishta, Sneha Kalpana, and quality control.</p>
+                                    <div class="catalog-meta">
+                                        <span class="meta-tag"><ion-icon name="document-text-outline"></ion-icon> 28 Experiments</span>
+                                        <span class="meta-tag protected"><ion-icon name="lock-closed"></ion-icon> Paywall Protected</span>
+                                    </div>
+                                    <div class="catalog-actions">
+                                        <a href="teachers-ug.html" class="btn-catalog-view" target="_blank">View Live Showcase</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PG Sem 2 Vol 1 -->
+                            <div class="catalog-card">
+                                <div class="catalog-card-icon pg">
+                                    <ion-icon name="medal"></ion-icon>
+                                </div>
+                                <div class="catalog-card-body">
+                                    <div class="catalog-badge pg">PG Semester 2</div>
+                                    <h3 class="catalog-title">PG Practical Handbook — Sem 2 (Vol 1)</h3>
+                                    <p class="catalog-desc">Advanced postgraduate metal-mineral calcination (Marana), Bhasma pariksha, organoleptic indices, and standard operative procedures (SOPs).</p>
+                                    <div class="catalog-meta">
+                                        <span class="meta-tag"><ion-icon name="document-text-outline"></ion-icon> Advanced Protocols</span>
+                                        <span class="meta-tag protected"><ion-icon name="lock-closed"></ion-icon> Paywall Protected</span>
+                                    </div>
+                                    <div class="catalog-actions">
+                                        <a href="teachers-pg-sem2.html" class="btn-catalog-view" target="_blank">View Live Showcase</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PG Sem 2 Vol 2 -->
+                            <div class="catalog-card">
+                                <div class="catalog-card-icon pg">
+                                    <ion-icon name="layers"></ion-icon>
+                                </div>
+                                <div class="catalog-card-body">
+                                    <div class="catalog-badge pg">PG Semester 2</div>
+                                    <h3 class="catalog-title">PG Practical Handbook — Sem 2 (Vol 2)</h3>
+                                    <p class="catalog-desc">Specialized pharmaceutical technology for Ayurvedic formulations, Kupipakwa Rasayana, stability testing protocols, and regulatory validation.</p>
+                                    <div class="catalog-meta">
+                                        <span class="meta-tag"><ion-icon name="document-text-outline"></ion-icon> SOPs &amp; Monograms</span>
+                                        <span class="meta-tag protected"><ion-icon name="lock-closed"></ion-icon> Paywall Protected</span>
+                                    </div>
+                                    <div class="catalog-actions">
+                                        <a href="teachers-pg-sem2.html" class="btn-catalog-view" target="_blank">View Live Showcase</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PG Sem 3-6 Vol 1 -->
+                            <div class="catalog-card">
+                                <div class="catalog-card-icon research">
+                                    <ion-icon name="analytics"></ion-icon>
+                                </div>
+                                <div class="catalog-card-body">
+                                    <div class="catalog-badge research">PG Semesters 3 to 6</div>
+                                    <h3 class="catalog-title">PG Practical Handbook — Sem 3-6 (Vol 1)</h3>
+                                    <p class="catalog-desc">Doctoral &amp; post-graduate research methodologies, instrumental analysis (XRD, SEM-EDX, FTIR, ICP-MS), and heavy metal limit quantification.</p>
+                                    <div class="catalog-meta">
+                                        <span class="meta-tag"><ion-icon name="document-text-outline"></ion-icon> Analytical Framework</span>
+                                        <span class="meta-tag protected"><ion-icon name="lock-closed"></ion-icon> Paywall Protected</span>
+                                    </div>
+                                    <div class="catalog-actions">
+                                        <a href="teachers-pg-sem3-6.html" class="btn-catalog-view" target="_blank">View Live Showcase</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PG Sem 3-6 Vol 2 -->
+                            <div class="catalog-card">
+                                <div class="catalog-card-icon research">
+                                    <ion-icon name="ribbon"></ion-icon>
+                                </div>
+                                <div class="catalog-card-body">
+                                    <div class="catalog-badge research">PG Semesters 3 to 6</div>
+                                    <h3 class="catalog-title">PG Practical Handbook — Sem 3-6 (Vol 2)</h3>
+                                    <p class="catalog-desc">Preclinical pharmacological testing, safety profiles, toxicity studies (OECD guidelines), and clinical trial design in Rasa Shastra.</p>
+                                    <div class="catalog-meta">
+                                        <span class="meta-tag"><ion-icon name="document-text-outline"></ion-icon> Preclinical Research</span>
+                                        <span class="meta-tag protected"><ion-icon name="lock-closed"></ion-icon> Paywall Protected</span>
+                                    </div>
+                                    <div class="catalog-actions">
+                                        <a href="teachers-pg-sem3-6.html" class="btn-catalog-view" target="_blank">View Live Showcase</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Digital Books Archive -->
+                            <div class="catalog-card highlight-card">
+                                <div class="catalog-card-icon library">
+                                    <ion-icon name="library"></ion-icon>
+                                </div>
+                                <div class="catalog-card-body">
+                                    <div class="catalog-badge archive">Rare Archives</div>
+                                    <h3 class="catalog-title">Classical Digital Treatises Archive</h3>
+                                    <p class="catalog-desc">Over 40 full-text classical digitized manuscripts, Charak Samhita, Ayurved Prakash, Bhaishajya Ratnavali, Bharat Bhaishajya Ratnakar, and statutory Acts.</p>
+                                    <div class="catalog-meta">
+                                        <span class="meta-tag"><ion-icon name="albums-outline"></ion-icon> 40+ Rare Manuscripts</span>
+                                        <span class="meta-tag protected"><ion-icon name="lock-closed"></ion-icon> Paywall Protected</span>
+                                    </div>
+                                    <div class="catalog-actions">
+                                        <a href="books.html" class="btn-catalog-view" target="_blank">Browse Archive</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- TAB 4: SYSTEM SETTINGS & TOOLS               -->
+                <!-- ============================================ -->
+                <div id="tabSettings" class="admin-tab-content" role="tabpanel">
+                    <div class="admin-settings-grid">
+                        
+                        <!-- Card 1: Payment Gateway Settings -->
+                        <div class="admin-panel-card">
+                            <div class="panel-card-header">
+                                <div>
+                                    <h3 class="panel-card-title">Razorpay Payment Gateway</h3>
+                                    <p class="panel-card-desc">Active credentials and payment capture policy for Indian currency (INR).</p>
+                                </div>
+                                <span class="badge badge-verified"><ion-icon name="checkmark-circle"></ion-icon> Live Approved</span>
+                            </div>
+
+                            <div class="settings-list">
+                                <div class="settings-item">
+                                    <span class="setting-title">Razorpay Key ID</span>
+                                    <code class="setting-code">rzp_live_SScE9buh5lMxJ3</code>
+                                </div>
+                                <div class="settings-item">
+                                    <span class="setting-title">Payment Auto-Capture Mode</span>
+                                    <span class="badge-capture-on"><ion-icon name="checkmark-outline"></ion-icon> Enabled (payment_capture: 1)</span>
+                                </div>
+                                <div class="settings-item">
+                                    <span class="setting-title">Currency &amp; Denomination</span>
+                                    <span>INR (Indian Rupee, charged as paise &#215; 100)</span>
+                                </div>
+                                <div class="settings-item">
+                                    <span class="setting-title">Daily Deduction Rate</span>
+                                    <span><strong>&#8377;1.00 / day</strong> at 5:00 AM IST (post 30-day free trial)</span>
+                                </div>
+                            </div>
+
+                            <div class="settings-actions">
+                                <a href="https://dashboard.razorpay.com" class="btn-admin-secondary" target="_blank" rel="noopener">
+                                    <ion-icon name="open-outline"></ion-icon> Open Razorpay Dashboard
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Firebase Infrastructure -->
+                        <div class="admin-panel-card">
+                            <div class="panel-card-header">
+                                <div>
+                                    <h3 class="panel-card-title">Firebase Hosting &amp; Auth</h3>
+                                    <p class="panel-card-desc">Cloud hosting infrastructure, project configuration, and authentication rules.</p>
+                                </div>
+                                <span class="badge badge-verified"><ion-icon name="checkmark-circle"></ion-icon> Operational</span>
+                            </div>
+
+                            <div class="settings-list">
+                                <div class="settings-item">
+                                    <span class="setting-title">Firebase Project ID</span>
+                                    <code class="setting-code">rsbk-online</code>
+                                </div>
+                                <div class="settings-item">
+                                    <span class="setting-title">Live Production Domain</span>
+                                    <a href="https://rsbk-online.web.app" target="_blank" class="setting-link">https://rsbk-online.web.app</a>
+                                </div>
+                                <div class="settings-item">
+                                    <span class="setting-title">Authentication Provider</span>
+                                    <span>Google Sign-In OAuth 2.0 (Verified Support Email)</span>
+                                </div>
+                                <div class="settings-item">
+                                    <span class="setting-title">Release Version Retention</span>
+                                    <span>Set to 1 (Latest deployment preserved, auto-prunes old builds)</span>
+                                </div>
+                            </div>
+
+                            <div class="settings-actions">
+                                <a href="https://console.firebase.google.com/project/rsbk-online" class="btn-admin-secondary" target="_blank" rel="noopener">
+                                    <ion-icon name="open-outline"></ion-icon> Open Firebase Console
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Platform Data Management -->
+                        <div class="admin-panel-card full-col">
+                            <div class="panel-card-header">
+                                <div>
+                                    <h3 class="panel-card-title">Platform Data Management &amp; Seed Tools</h3>
+                                    <p class="panel-card-desc">Export backups, seed realistic student/scholar cohorts for testing, or maintain local registry storage.</p>
+                                </div>
+                            </div>
+
+                            <div class="data-tools-grid">
+                                <div class="data-tool-box">
+                                    <h4><ion-icon name="cloud-download-outline"></ion-icon> Export Full Platform Snapshot</h4>
+                                    <p>Download a complete JSON export of all registered members, wallet balances, trial timelines, and financial transactions.</p>
+                                    <button id="btnExportFullJSON" class="btn-admin-action" type="button">
+                                        <ion-icon name="download-outline"></ion-icon> Download System JSON
+                                    </button>
+                                </div>
+
+                                <div class="data-tool-box">
+                                    <h4><ion-icon name="people-circle-outline"></ion-icon> Seed Academic Cohort (Demo Data)</h4>
+                                    <p>Populate 12 realistic Ayurvedic PG scholars, faculty members, and UG students across diverse states for demonstration.</p>
+                                    <button id="btnSeedDemoCohort" class="btn-admin-action" type="button">
+                                        <ion-icon name="sparkles-outline"></ion-icon> Seed Demo Scholars
+                                    </button>
+                                </div>
+
+                                <div class="data-tool-box danger">
+                                    <h4><ion-icon name="trash-outline"></ion-icon> Reset Registry to Clean State</h4>
+                                    <p>Clears cached test members and transactions, leaving only Dr. Milind Chatrabhuji's administrator profile.</p>
+                                    <button id="btnResetRegistry" class="btn-admin-danger" type="button">
+                                        <ion-icon name="refresh-circle-outline"></ion-icon> Reset Test Data
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <!-- END STATE 4 -->
+
+        </div>
+    </main>
+
+    <!-- ============================================ -->
+    <!-- ACTION MODALS                                -->
+    <!-- ============================================ -->
+
+    <!-- MODAL 1: ADJUST WALLET BALANCE -->
+    <div class="admin-modal-overlay" id="modalAdjustBalance" style="display: none;">
+        <div class="admin-modal-box">
+            <div class="admin-modal-header">
+                <div class="modal-header-icon"><ion-icon name="wallet"></ion-icon></div>
+                <div>
+                    <h3 class="modal-title">Adjust Member Wallet Balance</h3>
+                    <p class="modal-subtitle" id="adjustModalUserLabel">Member: —</p>
+                </div>
+                <button class="btn-modal-close" id="btnCloseAdjustModal" type="button">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <div class="modal-info-box">
+                    <span>Current Wallet Balance:</span>
+                    <strong id="adjustModalCurrentBalance">&#8377;0.00</strong>
+                </div>
+
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label>Adjustment Type</label>
+                    <div class="btn-group-toggle">
+                        <button type="button" class="btn-toggle active" id="btnToggleCredit">+ Add Balance (Credit)</button>
+                        <button type="button" class="btn-toggle" id="btnToggleDebit">- Deduct Balance (Debit)</button>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label for="adjustAmountInput">Amount in Rupees (&#8377;)</label>
+                    <input type="number" id="adjustAmountInput" min="1" max="10000" placeholder="e.g. 50" class="admin-form-input">
+                </div>
+
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label for="adjustReasonInput">Reason / Note (For Audit Log)</label>
+                    <input type="text" id="adjustReasonInput" placeholder="e.g. Institutional Research Grant / Manual Top-up" class="admin-form-input">
+                </div>
+            </div>
+            <div class="admin-modal-footer">
+                <button type="button" class="btn-admin-secondary" id="btnCancelAdjust">Cancel</button>
+                <button type="button" class="btn-admin-primary" id="btnConfirmAdjust">Apply Adjustment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: EXTEND FREE TRIAL -->
+    <div class="admin-modal-overlay" id="modalExtendTrial" style="display: none;">
+        <div class="admin-modal-box">
+            <div class="admin-modal-header">
+                <div class="modal-header-icon trial"><ion-icon name="sparkles"></ion-icon></div>
+                <div>
+                    <h3 class="modal-title">Extend 30-Day Free Trial</h3>
+                    <p class="modal-subtitle" id="extendModalUserLabel">Member: —</p>
+                </div>
+                <button class="btn-modal-close" id="btnCloseExtendModal" type="button">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <div class="modal-info-box">
+                    <span>Current Trial Status:</span>
+                    <strong id="extendModalCurrentStatus">—</strong>
+                </div>
+
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label>Quick Preset Additions</label>
+                    <div class="preset-days-row">
+                        <button type="button" class="preset-day-btn" data-days="7">+7 Days</button>
+                        <button type="button" class="preset-day-btn" data-days="15">+15 Days</button>
+                        <button type="button" class="preset-day-btn active" data-days="30">+30 Days</button>
+                        <button type="button" class="preset-day-btn" data-days="60">+60 Days</button>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label for="extendDaysInput">Custom Days to Add</label>
+                    <input type="number" id="extendDaysInput" min="1" max="365" value="30" class="admin-form-input">
+                </div>
+
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label for="extendReasonInput">Extension Note</label>
+                    <input type="text" id="extendReasonInput" placeholder="e.g. Postgraduate Scholar Complimentary Extension" class="admin-form-input">
+                </div>
+            </div>
+            <div class="admin-modal-footer">
+                <button type="button" class="btn-admin-secondary" id="btnCancelExtend">Cancel</button>
+                <button type="button" class="btn-admin-primary" id="btnConfirmExtend">Extend Free Trial</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: ADD / REGISTER NEW MEMBER -->
+    <div class="admin-modal-overlay" id="modalAddMember" style="display: none;">
+        <div class="admin-modal-box">
+            <div class="admin-modal-header">
+                <div class="modal-header-icon"><ion-icon name="person-add"></ion-icon></div>
+                <div>
+                    <h3 class="modal-title">Register New Member / Scholar</h3>
+                    <p class="modal-subtitle">Manually add an academic account and grant trial or wallet credits.</p>
+                </div>
+                <button class="btn-modal-close" id="btnCloseAddMemberModal" type="button">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <div class="form-group">
+                    <label for="newMemberName">Full Name</label>
+                    <input type="text" id="newMemberName" placeholder="e.g. Dr. Ramesh Kulkarni" class="admin-form-input" required>
+                </div>
+
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label for="newMemberEmail">Email Address (Google Account)</label>
+                    <input type="email" id="newMemberEmail" placeholder="e.g. ramesh.kulkarni@gmail.com" class="admin-form-input" required>
+                </div>
+
+                <div class="form-grid-2" style="margin-top: 1rem;">
+                    <div class="form-group">
+                        <label for="newMemberTrialDays">Free Trial Days</label>
+                        <input type="number" id="newMemberTrialDays" value="30" min="0" max="365" class="admin-form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="newMemberBalance">Initial Wallet Balance (&#8377;)</label>
+                        <input type="number" id="newMemberBalance" value="0" min="0" max="5000" class="admin-form-input">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label for="newMemberRole">Academic Designation / Affiliation</label>
+                    <input type="text" id="newMemberRole" placeholder="e.g. PG Scholar (Rasa Shastra), NIA Jaipur" class="admin-form-input">
+                </div>
+            </div>
+            <div class="admin-modal-footer">
+                <button type="button" class="btn-admin-secondary" id="btnCancelAddMember">Cancel</button>
+                <button type="button" class="btn-admin-primary" id="btnConfirmAddMember">Register Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: VIEW INDIVIDUAL MEMBER PASSBOOK -->
+    <div class="admin-modal-overlay" id="modalUserPassbook" style="display: none;">
+        <div class="admin-modal-box large">
+            <div class="admin-modal-header">
+                <div class="modal-header-icon"><ion-icon name="receipt"></ion-icon></div>
+                <div>
+                    <h3 class="modal-title">Member Financial Passbook</h3>
+                    <p class="modal-subtitle" id="passbookModalUserLabel">Member: —</p>
+                </div>
+                <button class="btn-modal-close" id="btnClosePassbookModal" type="button">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <div class="passbook-stats-mini">
+                    <div class="pb-stat">
+                        <span>Current Balance</span>
+                        <strong id="pbModalBalance">&#8377;0.00</strong>
+                    </div>
+                    <div class="pb-stat">
+                        <span>Total Credited</span>
+                        <strong class="text-emerald" id="pbModalTotalCredited">&#8377;0</strong>
+                    </div>
+                    <div class="pb-stat">
+                        <span>Total Debited</span>
+                        <strong class="text-muted" id="pbModalTotalDebited">&#8377;0</strong>
+                    </div>
+                </div>
+
+                <div class="admin-table-responsive" style="max-height: 350px; margin-top: 1rem;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Date &amp; Time (IST)</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Reference</th>
+                                <th>Description</th>
+                                <th>Balance After</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userPassbookTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="admin-modal-footer">
+                <button type="button" class="btn-admin-secondary" id="btnClosePassbookModalBtn">Close Passbook</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="admin-footer">
+        <div class="footer-content">
+            <p>&copy; 2026 Dr. Milind Chatrabhuji. All rights reserved. &bull; RSBK Online Governance &amp; Administration</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="script.js?v=4.2"></script>
+    <script src="admin.js?v=4.2"></script>
+</body>
+</html>

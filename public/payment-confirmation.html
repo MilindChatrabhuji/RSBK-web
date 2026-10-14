@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=4.0">
+    <link rel="stylesheet" href="styles.css?v=4.2">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -218,7 +218,7 @@
         </div>
     </footer>
 
-    <script src="script.js?v=4.0"></script>
+    <script src="script.js?v=4.2"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -329,6 +329,29 @@
                 if (!wallet.transactions) wallet.transactions = [];
                 wallet.transactions.unshift(txnRecord);
                 localStorage.setItem(userKey, JSON.stringify(wallet));
+
+                // Append to rsbk_global_transactions for Admin Ledger
+                try {
+                    let gTxns = JSON.parse(localStorage.getItem('rsbk_global_transactions') || '[]');
+                    const globalTxn = {
+                        ...txnRecord,
+                        userName: (pending && pending.userName) ? pending.userName : 'RSBK Member',
+                        userEmail: (pending && pending.userEmail) ? pending.userEmail : '',
+                        userId: (pending && pending.userId) ? pending.userId : userKey.replace('rsbk_wallet_', '')
+                    };
+                    gTxns.unshift(globalTxn);
+                    localStorage.setItem('rsbk_global_transactions', JSON.stringify(gTxns));
+
+                    // Update user balance in registry
+                    let registry = JSON.parse(localStorage.getItem('rsbk_users_registry') || '[]');
+                    let uIdx = registry.findIndex(u => u.uid === globalTxn.userId || (u.email && globalTxn.userEmail && u.email.toLowerCase() === globalTxn.userEmail.toLowerCase()));
+                    if (uIdx >= 0) {
+                        registry[uIdx].balance = wallet.balance;
+                        localStorage.setItem('rsbk_users_registry', JSON.stringify(registry));
+                    }
+                } catch (e) {
+                    console.error('Error syncing global txn:', e);
+                }
 
                 // Grant immediate access validity cache
                 localStorage.setItem('rsbk_access_valid', 'true');

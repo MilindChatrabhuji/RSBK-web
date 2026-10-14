@@ -79,45 +79,70 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Mount Right-Side Vertical Menubar (Home, Books, Membership, Profile)
-    let vMenubar = document.getElementById('rightVerticalMenubar');
-    if (!vMenubar) {
-        vMenubar = document.createElement('aside');
-        vMenubar.id = 'rightVerticalMenubar';
-        vMenubar.className = 'right-vertical-menubar';
-        vMenubar.setAttribute('aria-label', 'Right Navigation Menubar');
-        document.body.appendChild(vMenubar);
-    }
+    // Admin Email Identification
+    const ADMIN_EMAILS = [
+        'dr.milindchatrabhuji@gmail.com',
+        'milind.chatrabhuji@gmail.com'
+    ];
 
-    const path = window.location.pathname.toLowerCase();
-    const isHome = path.endsWith('/') || path.endsWith('index.html') || path.endsWith('index') || (!path.includes('students') && !path.includes('teachers') && !path.includes('books') && !path.includes('membership') && !path.includes('profile') && !path.includes('payment'));
-    const isBooks = path.includes('books');
-    const isMembership = path.includes('membership');
-    const isProfile = path.includes('profile');
+    const checkIsAdmin = (email) => {
+        if (!email) return false;
+        return ADMIN_EMAILS.includes(email.toLowerCase().trim());
+    };
 
-    vMenubar.innerHTML = `
-        <div class="vmenu-header">
-            <span class="vmenu-badge">MENU</span>
-        </div>
-        <nav class="vmenu-nav">
-            <a href="index.html" class="vmenu-item ${isHome ? 'active' : ''}" title="Home">
-                <ion-icon name="home-outline"></ion-icon>
-                <span class="vmenu-text">Home</span>
-            </a>
-            <a href="books.html" class="vmenu-item ${isBooks ? 'active' : ''}" title="Books Archive">
-                <ion-icon name="library-outline"></ion-icon>
-                <span class="vmenu-text">Books</span>
-            </a>
-            <a href="membership.html" class="vmenu-item ${isMembership ? 'active' : ''}" title="Membership &amp; Wallet">
-                <ion-icon name="ribbon-outline"></ion-icon>
-                <span class="vmenu-text">Membership</span>
-            </a>
-            <a href="profile.html" class="vmenu-item ${isProfile ? 'active' : ''}" title="User Profile">
-                <ion-icon name="person-outline"></ion-icon>
-                <span class="vmenu-text">Profile</span>
-            </a>
-        </nav>
-    `;
+    const cachedUserEmail = (localStorage.getItem('rsbk_user_email') || '').toLowerCase();
+    const isCachedAdminUser = checkIsAdmin(cachedUserEmail) || localStorage.getItem('rsbk_is_admin') === 'true';
+
+    // Mount Right-Side Vertical Menubar (Home, Books, Membership, Profile, Admin)
+    const renderRightVerticalMenubar = (isAdmin = false) => {
+        let vMenubar = document.getElementById('rightVerticalMenubar');
+        if (!vMenubar) {
+            vMenubar = document.createElement('aside');
+            vMenubar.id = 'rightVerticalMenubar';
+            vMenubar.className = 'right-vertical-menubar';
+            vMenubar.setAttribute('aria-label', 'Right Navigation Menubar');
+            document.body.appendChild(vMenubar);
+        }
+
+        const path = window.location.pathname.toLowerCase();
+        const isHome = path.endsWith('/') || path.endsWith('index.html') || path.endsWith('index') || (!path.includes('students') && !path.includes('teachers') && !path.includes('books') && !path.includes('membership') && !path.includes('profile') && !path.includes('payment') && !path.includes('admin'));
+        const isBooks = path.includes('books');
+        const isMembership = path.includes('membership');
+        const isProfile = path.includes('profile');
+        const isAdminPage = path.includes('admin');
+
+        vMenubar.innerHTML = `
+            <div class="vmenu-header">
+                <span class="vmenu-badge">${isAdmin ? 'ADMIN' : 'MENU'}</span>
+            </div>
+            <nav class="vmenu-nav">
+                <a href="index.html" class="vmenu-item ${isHome ? 'active' : ''}" title="Home">
+                    <ion-icon name="home-outline"></ion-icon>
+                    <span class="vmenu-text">Home</span>
+                </a>
+                <a href="books.html" class="vmenu-item ${isBooks ? 'active' : ''}" title="Books Archive">
+                    <ion-icon name="library-outline"></ion-icon>
+                    <span class="vmenu-text">Books</span>
+                </a>
+                <a href="membership.html" class="vmenu-item ${isMembership ? 'active' : ''}" title="Membership &amp; Wallet">
+                    <ion-icon name="ribbon-outline"></ion-icon>
+                    <span class="vmenu-text">Membership</span>
+                </a>
+                <a href="profile.html" class="vmenu-item ${isProfile ? 'active' : ''}" title="User Profile">
+                    <ion-icon name="person-outline"></ion-icon>
+                    <span class="vmenu-text">Profile</span>
+                </a>
+                ${isAdmin ? `
+                <a href="admin.html" class="vmenu-item admin-link ${isAdminPage ? 'active' : ''}" title="Admin Panel">
+                    <ion-icon name="shield-checkmark-outline"></ion-icon>
+                    <span class="vmenu-text">Admin</span>
+                </a>` : ''}
+            </nav>
+        `;
+    };
+
+    // Initial render using cache
+    renderRightVerticalMenubar(isCachedAdminUser);
 
     // Helper: IST Time formatting & 5:00 AM Boundary
     const getISTTime = (d = new Date()) => {
@@ -287,16 +312,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (deduct > 0) {
                         wallet.balance = Math.max(0, wallet.balance - deduct);
                         if (!wallet.transactions) wallet.transactions = [];
-                        wallet.transactions.unshift({
+                        const dedRecord = {
                             id: 'TXN-DED-' + Date.now(),
                             date: formatISTDateShort(new Date()) + ' (05:00 AM IST)',
                             rawDate: Date.now(),
+                            userName: user.displayName || 'Member',
+                            userEmail: user.email || '',
+                            userId: user.uid,
                             type: 'debit',
                             amount: deduct,
                             note: `Daily Membership Charge (₹1/day × ${deduct} ${deduct === 1 ? 'day' : 'days'} at 5:00 AM IST)`,
                             refId: 'AUTO-IST-0500',
                             balanceAfter: wallet.balance
-                        });
+                        };
+                        wallet.transactions.unshift(dedRecord);
+
+                        try {
+                            let gTxns = JSON.parse(localStorage.getItem('rsbk_global_transactions') || '[]');
+                            gTxns.unshift(dedRecord);
+                            localStorage.setItem('rsbk_global_transactions', JSON.stringify(gTxns));
+                        } catch (e) {}
                     }
                     wallet.lastDeductedEpoch = latest5AM;
                 }
@@ -531,6 +566,49 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Render or dismiss Paywall
                 renderPaywall(accessInfo, handleGoogleSignIn);
 
+                // Check Admin Access
+                const userEmail = (user.email || '').toLowerCase().trim();
+                const isAdmin = checkIsAdmin(userEmail);
+                if (isAdmin) {
+                    localStorage.setItem('rsbk_is_admin', 'true');
+                    document.documentElement.classList.add('admin-authorized');
+                } else {
+                    localStorage.removeItem('rsbk_is_admin');
+                    document.documentElement.classList.remove('admin-authorized');
+                }
+                renderRightVerticalMenubar(isAdmin);
+
+                // Update / Register Member into rsbk_users_registry
+                try {
+                    let registry = JSON.parse(localStorage.getItem('rsbk_users_registry') || '[]');
+                    let existingUser = registry.find(u => u.uid === user.uid || (u.email && u.email.toLowerCase() === userEmail));
+                    const now = Date.now();
+                    if (existingUser) {
+                        existingUser.displayName = user.displayName || existingUser.displayName;
+                        existingUser.email = user.email || existingUser.email;
+                        existingUser.photoURL = photo || existingUser.photoURL;
+                        existingUser.balance = accessInfo.balance;
+                        existingUser.trialStartDate = accessInfo.trialStartDate;
+                        existingUser.lastActive = now;
+                    } else {
+                        registry.push({
+                            uid: user.uid,
+                            displayName: user.displayName || 'RSBK Member',
+                            email: user.email || '',
+                            photoURL: photo,
+                            role: isAdmin ? 'Platform Author & Admin' : 'Registered Member',
+                            createdAt: now,
+                            trialStartDate: accessInfo.trialStartDate || now,
+                            balance: accessInfo.balance,
+                            isVip: isAdmin,
+                            lastActive: now
+                        });
+                    }
+                    localStorage.setItem('rsbk_users_registry', JSON.stringify(registry));
+                } catch (e) {
+                    console.error('Error synchronizing user registry:', e);
+                }
+
                 // Broadcast authentication and access detail
                 window.dispatchEvent(new CustomEvent('rsbk-user-authenticated', { detail: { ...user, accessInfo } }));
             } else {
@@ -540,11 +618,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 localStorage.removeItem('rsbk_user_email');
                 localStorage.removeItem('rsbk_access_valid');
                 localStorage.removeItem('rsbk_access_type');
+                localStorage.removeItem('rsbk_is_admin');
 
-                document.documentElement.classList.remove('auth-verified', 'access-granted');
+                document.documentElement.classList.remove('auth-verified', 'access-granted', 'admin-authorized');
                 document.documentElement.classList.add('auth-unverified');
                 document.body.classList.remove('auth-verified', 'access-granted');
                 document.body.classList.add('auth-unverified');
+
+                renderRightVerticalMenubar(false);
 
                 if (signInBtn) signInBtn.style.display = 'inline-flex';
                 if (userProfileArea) userProfileArea.style.display = 'none';
@@ -566,10 +647,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     localStorage.removeItem('rsbk_user_email');
                     localStorage.removeItem('rsbk_access_valid');
                     localStorage.removeItem('rsbk_access_type');
-                    document.documentElement.classList.remove('auth-verified', 'access-granted');
+                    localStorage.removeItem('rsbk_is_admin');
+                    document.documentElement.classList.remove('auth-verified', 'access-granted', 'admin-authorized');
                     document.documentElement.classList.add('auth-unverified');
                     document.body.classList.remove('auth-verified', 'access-granted');
                     document.body.classList.add('auth-unverified');
+                    renderRightVerticalMenubar(false);
                     await signOut(auth);
                     window.location.href = 'index.html';
                 } catch (err) {
