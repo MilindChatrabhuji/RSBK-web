@@ -212,7 +212,7 @@ window.RSBK.EmailService = (function () {
                 </table>
 
                 <div style="background-color: #f1f5f9; border-radius: 10px; padding: 14px 18px; margin-bottom: 25px; font-size: 13px; color: #334155; line-height: 1.6;">
-                    <strong>Next Steps:</strong> Dr. Milind Chatrabhuji will verify your certificate scan against the official State / NCISM council records within 24–48 hours. Once approved, your official <strong>Verified Doctor / Faculty</strong> checkmark badge will be permanently activated.
+                    <strong>Next Steps:</strong> The uploaded certificate scan and state / NCISM council registration records are manually reviewed and verified within 24–48 hours. Once approved, the official <strong>Verified Doctor / Faculty</strong> checkmark badge will be permanently activated.
                 </div>
             `);
         }
@@ -226,7 +226,7 @@ window.RSBK.EmailService = (function () {
                     </span>
                     <h2 style="color: #0f172a; margin: 15px 0 8px; font-size: 22px; font-weight: 800;">Congratulations, Dr. ${recipientName}!</h2>
                     <p style="color: #475569; margin: 0; font-size: 15px;">
-                        Your medical and academic credentials (<strong>${degree}</strong>, Reg: <strong>${regNo}</strong>) have been officially verified by Dr. Milind Chatrabhuji on ${approvedAt}.
+                        Your medical and academic credentials (<strong>${degree}</strong>, Reg: <strong>${regNo}</strong>) have been officially audited and approved on ${approvedAt}.
                     </p>
                 </div>
 

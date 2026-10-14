@@ -1116,7 +1116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 await window.firebaseUpdate(vRef, {
                     status: 'approved',
                     approvedAt: new Date().toISOString(),
-                    approvedBy: 'Dr. Milind Chatrabhuji'
+                    approvedBy: 'Academic Administration'
                 });
 
                 const uRef = window.firebaseRef(window.firebaseDb, 'users/' + uid);

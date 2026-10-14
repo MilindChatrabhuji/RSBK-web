@@ -508,7 +508,7 @@
                         </div>
                         <div class="dvc-text">
                             <h3>Verified Doctor / Faculty Status Active</h3>
-                            <p>Your degree credentials and medical council registration have been officially verified by Dr. Milind Chatrabhuji. The <strong>Verified Doctor / Faculty</strong> checkmark is active on your profile and discussions.</p>
+                            <p>Your medical degree credentials and state/central council registration have been officially verified and approved. The <strong>Verified Doctor / Faculty</strong> checkmark is active on your profile and discussions.</p>
                         </div>
                     </div>
                     <span class="badge-doctor-verified" style="font-size: 0.95rem; padding: 0.6rem 1.25rem;">
@@ -523,7 +523,7 @@
                         </div>
                         <div class="dvc-text">
                             <h3>Verification Application Under Review (₹100 Paid)</h3>
-                            <p>Your degree certificate scan and registration details have been received. Dr. Milind Chatrabhuji will verify your council records within 24–48 hours to activate your official badge.</p>
+                            <p>Your degree certificate scan and council registration details have been received. Submitted credentials are manually audited against official council records within 24–48 hours to activate your verified badge.</p>
                         </div>
                     </div>
                     <span class="badge-verification-pending" style="font-size: 0.92rem; padding: 0.6rem 1.25rem;">
@@ -766,7 +766,7 @@
 
                     setupProfileVerificationUI(false, 'pending');
 
-                    alert(`🎉 Payment of ₹100 Successful!\n\nPayment ID: ${response.razorpay_payment_id}\n\nYour Doctor / Faculty verification application has been submitted for review. Dr. Milind Chatrabhuji will audit your degree certificate credentials within 24–48 hours.`);
+                    alert(`🎉 Payment of ₹100 Successful!\n\nPayment ID: ${response.razorpay_payment_id}\n\nYour Doctor / Faculty verification application has been submitted for review. Submitted credentials and certificate scans are manually audited and verified within 24–48 hours.`);
                 };
                 reader.readAsDataURL(file);
             },
