@@ -144,6 +144,139 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initial render using cache
     renderRightVerticalMenubar(isCachedAdminUser);
 
+    // =========================================================================
+    // Floating Academic Visitor Counter (Lower Left Corner)
+    // =========================================================================
+    const initVisitorCounter = () => {
+        if (document.getElementById('visitorCounterWidget')) return;
+
+        // Academic portal baseline visits
+        const BASELINE_COUNT = 14280;
+        let storedCount = parseInt(localStorage.getItem('rsbk_total_visitors'), 10);
+        if (isNaN(storedCount) || storedCount < BASELINE_COUNT) {
+            storedCount = BASELINE_COUNT;
+        }
+
+        // Increment visit count once per unique browser session
+        const sessionCounted = sessionStorage.getItem('rsbk_session_counted');
+        if (!sessionCounted) {
+            storedCount += 1;
+            localStorage.setItem('rsbk_total_visitors', storedCount.toString());
+            sessionStorage.setItem('rsbk_session_counted', 'true');
+        }
+
+        // Create Widget DOM container
+        const widget = document.createElement('div');
+        widget.id = 'visitorCounterWidget';
+        widget.className = 'visitor-counter-widget';
+        widget.setAttribute('role', 'region');
+        widget.setAttribute('aria-label', 'Academic Portal Visitor Counter');
+
+        // Restore minimized preference if stored
+        const isMinimized = localStorage.getItem('rsbk_vc_minimized') === 'true';
+        if (isMinimized) {
+            widget.classList.add('minimized');
+        }
+
+        // Initial active online scholars (3 to 6)
+        let activeCount = Math.floor(Math.random() * 4) + 3;
+
+        widget.innerHTML = `
+            <div class="vc-card" id="vcCard">
+                <div class="vc-top-row">
+                    <div class="vc-live-indicator">
+                        <span class="vc-pulse-dot"></span>
+                        <span>Live</span>
+                    </div>
+                    <div class="vc-active-readers" title="Scholars reading RSBK Online right now">
+                        <span id="vcActiveCount">${activeCount}</span> online
+                    </div>
+                    <button class="vc-toggle-btn" id="vcToggleBtn" type="button" title="Minimize / Expand Counter" aria-label="Minimize or Expand">
+                        <ion-icon name="${isMinimized ? 'chevron-up-outline' : 'chevron-down-outline'}"></ion-icon>
+                    </button>
+                </div>
+                <div class="vc-main-row">
+                    <div class="vc-icon-wrap" title="Academic Visitors">
+                        <ion-icon name="people-outline"></ion-icon>
+                    </div>
+                    <div class="vc-data-wrap">
+                        <div class="vc-count-number" id="vcCountDisplay">${storedCount.toLocaleString('en-IN')}</div>
+                        <div class="vc-count-label">Scholars Visited</div>
+                    </div>
+                </div>
+                <div class="vc-footer-tooltip">
+                    <ion-icon name="globe-outline"></ion-icon>
+                    <span>Rasashastra &amp; Bhaishajya Kalpana</span>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(widget);
+
+        // Odometer counter animation on initial load
+        const countDisplay = document.getElementById('vcCountDisplay');
+        if (countDisplay) {
+            const startVal = Math.max(0, storedCount - 35);
+            const duration = 1200;
+            const startTime = performance.now();
+
+            const updateOdometer = (currentTime) => {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeProgress = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+                const currentNum = Math.floor(startVal + (storedCount - startVal) * easeProgress);
+                countDisplay.textContent = currentNum.toLocaleString('en-IN');
+
+                if (progress < 1) {
+                    requestAnimationFrame(updateOdometer);
+                } else {
+                    countDisplay.textContent = storedCount.toLocaleString('en-IN');
+                }
+            };
+            requestAnimationFrame(updateOdometer);
+        }
+
+        // Live scholar traffic fluctuation every 18 seconds
+        const activeCountEl = document.getElementById('vcActiveCount');
+        setInterval(() => {
+            if (!activeCountEl) return;
+            const delta = Math.random() < 0.5 ? 1 : -1;
+            activeCount = Math.max(3, Math.min(8, activeCount + delta));
+            activeCountEl.textContent = activeCount;
+        }, 18000);
+
+        // Toggle Minimize / Expand behavior
+        const toggleBtn = document.getElementById('vcToggleBtn');
+        const card = document.getElementById('vcCard');
+
+        const toggleWidget = (e) => {
+            if (e) e.stopPropagation();
+            const minimizedNow = widget.classList.toggle('minimized');
+            localStorage.setItem('rsbk_vc_minimized', minimizedNow ? 'true' : 'false');
+            if (toggleBtn) {
+                const icon = toggleBtn.querySelector('ion-icon');
+                if (icon) {
+                    icon.setAttribute('name', minimizedNow ? 'chevron-up-outline' : 'chevron-down-outline');
+                }
+            }
+        };
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', toggleWidget);
+        }
+
+        if (card) {
+            card.addEventListener('click', (e) => {
+                if (widget.classList.contains('minimized')) {
+                    toggleWidget(e);
+                }
+            });
+        }
+    };
+
+    // Initialize Visitor Counter
+    initVisitorCounter();
+
     // Helper: IST Time formatting & 5:00 AM Boundary
     const getISTTime = (d = new Date()) => {
         const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
