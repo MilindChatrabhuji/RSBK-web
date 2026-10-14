@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderRightVerticalMenubar(isCachedAdminUser);
 
     // =========================================================================
-    // Floating Visitor Counter (Lower Left Corner - Real Actual Numbers Only)
+    // Floating Visitor Counter (Lower Left Corner - Live Online & Cumulative)
     // =========================================================================
     const initVisitorCounter = () => {
         if (document.getElementById('visitorCounterWidget')) return;
@@ -179,19 +179,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="vc-top-row">
                     <div class="vc-live-indicator">
                         <span class="vc-pulse-dot"></span>
-                        <span>Live Counter</span>
+                        <span>Live</span>
+                    </div>
+                    <div class="vc-active-readers" title="Actual live visitors reading RSBK Online right now">
+                        <span id="vcActiveCount">1</span> online
                     </div>
                     <button class="vc-toggle-btn" id="vcToggleBtn" type="button" title="Minimize / Expand Counter" aria-label="Minimize or Expand">
                         <ion-icon name="${isMinimized ? 'chevron-up-outline' : 'chevron-down-outline'}"></ion-icon>
                     </button>
                 </div>
                 <div class="vc-main-row">
-                    <div class="vc-icon-wrap" title="Real Website Visitors">
+                    <div class="vc-icon-wrap" title="Total Visits Till Now">
                         <ion-icon name="people-outline"></ion-icon>
                     </div>
                     <div class="vc-data-wrap">
                         <div class="vc-count-number" id="vcCountDisplay">${actualCount.toLocaleString('en-IN')}</div>
-                        <div class="vc-count-label">Total Visitors</div>
+                        <div class="vc-count-label">Total Visits</div>
                     </div>
                 </div>
                 <div class="vc-footer-tooltip">
@@ -202,61 +205,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
 
         document.body.appendChild(widget);
-
-        const countDisplay = document.getElementById('vcCountDisplay');
-
-        // Fetch / increment genuine visitor count from real counting API
-        const updateRealVisitorCount = async () => {
-            const sessionCounted = sessionStorage.getItem('rsbk_session_counted');
-            const endpoint = sessionCounted
-                ? 'https://abacus.jasoncameron.dev/get/rsbk-online.web.app/unique_visitors'
-                : 'https://abacus.jasoncameron.dev/hit/rsbk-online.web.app/unique_visitors';
-
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 4000);
-                const response = await fetch(endpoint, { signal: controller.signal });
-                clearTimeout(timeoutId);
-
-                if (response.ok) {
-                    const data = await response.json();
-                    if (typeof data.value === 'number') {
-                        actualCount = data.value;
-                        localStorage.setItem('rsbk_real_visitors', actualCount.toString());
-                        if (!sessionCounted) {
-                            sessionStorage.setItem('rsbk_session_counted', 'true');
-                        }
-                        if (countDisplay) {
-                            countDisplay.textContent = actualCount.toLocaleString('en-IN');
-                        }
-                    }
-                } else if (response.status === 404 && sessionCounted) {
-                    // First time initializing
-                    const initRes = await fetch('https://abacus.jasoncameron.dev/hit/rsbk-online.web.app/unique_visitors');
-                    if (initRes.ok) {
-                        const initData = await initRes.json();
-                        actualCount = initData.value || 1;
-                        localStorage.setItem('rsbk_real_visitors', actualCount.toString());
-                        sessionStorage.setItem('rsbk_session_counted', 'true');
-                        if (countDisplay) {
-                            countDisplay.textContent = actualCount.toLocaleString('en-IN');
-                        }
-                    }
-                }
-            } catch (err) {
-                // If offline or remote blocked, count locally without falsification
-                if (!sessionCounted) {
-                    actualCount += 1;
-                    localStorage.setItem('rsbk_real_visitors', actualCount.toString());
-                    sessionStorage.setItem('rsbk_session_counted', 'true');
-                    if (countDisplay) {
-                        countDisplay.textContent = actualCount.toLocaleString('en-IN');
-                    }
-                }
-            }
-        };
-
-        updateRealVisitorCount();
 
         // Toggle Minimize / Expand behavior
         const toggleBtn = document.getElementById('vcToggleBtn');
@@ -287,7 +235,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    // Initialize Visitor Counter
+    // Initialize Visitor Counter DOM
     initVisitorCounter();
 
     // Helper: IST Time formatting & 5:00 AM Boundary
@@ -641,10 +589,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    // Initialize Firebase Authentication
+    // Initialize Firebase Services (Auth & Realtime Database)
     try {
         const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
         const { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+        const { getDatabase, ref, onValue, set, onDisconnect, runTransaction } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
 
         const firebaseConfig = {
             apiKey: "AIzaSyCZQqKCURGqMQ2LUl_XHOgscBmjs7Vj7ps",
@@ -652,11 +601,76 @@ document.addEventListener('DOMContentLoaded', async () => {
             projectId: "rsbk-online",
             storageBucket: "rsbk-online.firebasestorage.app",
             messagingSenderId: "362985180438",
-            appId: "1:362985180438:web:9802e4253a5f6b329ad437"
+            appId: "1:362985180438:web:9802e4253a5f6b329ad437",
+            databaseURL: "https://rsbk-online-default-rtdb.firebaseio.com"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        // Realtime Presence (Live Online Active Users) & Cumulative Total Visits
+        try {
+            let liveSessionId = sessionStorage.getItem('rsbk_live_session_id');
+            if (!liveSessionId) {
+                liveSessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+                sessionStorage.setItem('rsbk_live_session_id', liveSessionId);
+            }
+
+            const myPresenceRef = ref(db, 'presence/' + liveSessionId);
+            const connectedRef = ref(db, '.info/connected');
+
+            onValue(connectedRef, (snap) => {
+                if (snap.val() === true) {
+                    onDisconnect(myPresenceRef).remove();
+                    set(myPresenceRef, {
+                        online: true,
+                        ts: Date.now()
+                    });
+                }
+            });
+
+            // Listen for all active online sessions across all visitors
+            const presenceGroupRef = ref(db, 'presence');
+            const activeCountEl = document.getElementById('vcActiveCount');
+
+            onValue(presenceGroupRef, (snapshot) => {
+                if (activeCountEl) {
+                    const data = snapshot.val();
+                    const liveCount = data ? Object.keys(data).length : 1;
+                    activeCountEl.textContent = Math.max(1, liveCount);
+                }
+            });
+
+            window.addEventListener('beforeunload', () => {
+                try {
+                    set(myPresenceRef, null);
+                } catch (e) {}
+            });
+
+            // Cumulative Total Visits Till Now
+            const totalVisitsRef = ref(db, 'stats/totalVisits');
+            const countDisplay = document.getElementById('vcCountDisplay');
+
+            onValue(totalVisitsRef, (snapshot) => {
+                if (countDisplay) {
+                    const total = snapshot.val();
+                    if (typeof total === 'number') {
+                        countDisplay.textContent = total.toLocaleString('en-IN');
+                        localStorage.setItem('rsbk_real_visitors', total.toString());
+                    }
+                }
+            });
+
+            // Count visit strictly once per unique browser session
+            const sessionCounted = sessionStorage.getItem('rsbk_session_counted');
+            if (!sessionCounted) {
+                sessionStorage.setItem('rsbk_session_counted', 'true');
+                runTransaction(totalVisitsRef, (current) => (current || 0) + 1);
+            }
+        } catch (dbErr) {
+            console.warn('Realtime Database tracking warning:', dbErr);
+        }
         const provider = new GoogleAuthProvider();
 
         const signInBtn = document.getElementById('googleSignInBtn');

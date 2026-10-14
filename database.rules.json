@@ -1,0 +1,17 @@
+{
+  "rules": {
+    "stats": {
+      ".read": true,
+      "totalVisits": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "presence": {
+      ".read": true,
+      "$sessionId": {
+        ".write": true
+      }
+    }
+  }
+}
