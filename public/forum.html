@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=4.7">
+    <link rel="stylesheet" href="styles.css?v=4.8">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -216,9 +216,19 @@
                         <!-- Editable Content Area -->
                         <div class="editor-content-area" id="commentContentArea" contenteditable="true" placeholder="Write your clinical perspective, question, or reply here... Classical references and practical observations are encouraged."></div>
 
+                        <!-- Attachment Preview Area -->
+                        <div class="composer-attachments-preview" id="commentAttachmentsPreview" style="display: none;"></div>
+
                         <!-- Composer Footer Actions -->
                         <div class="composer-footer">
-                            <div></div>
+                            <div class="composer-attach-tools">
+                                <input type="file" id="commentFileInput" accept="image/png,image/jpeg,image/webp,image/gif,.pdf" multiple style="display: none;">
+                                <label for="commentFileInput" class="btn-attach-chip" title="Attach Photos or PDF documents">
+                                    <ion-icon name="attach-outline"></ion-icon>
+                                    <span>Attach Photo / PDF</span>
+                                </label>
+                                <span class="attach-limit-hint">Saved to Google Drive</span>
+                            </div>
                             <button class="btn-post-comment" id="btnSubmitComment" type="button">
                                 <ion-icon name="paper-plane-outline"></ion-icon>
                                 <span>Post Comment</span>
@@ -294,10 +304,27 @@
                     <div class="editor-content-area" id="topicContentArea" contenteditable="true" style="min-height: 150px;" placeholder="Provide complete formulation context, classical references, observations, or clinical questions..."></div>
                 </div>
 
-                <div class="drive-info-banner">
-                    <ion-icon name="information-circle-outline"></ion-icon>
+                <div class="modal-form-group">
+                    <label class="modal-label">Attach Photos or PDF Manuscripts (Optional)</label>
+                    <div class="attachment-upload-zone" id="topicUploadZone">
+                        <input type="file" id="topicFileInput" accept="image/png,image/jpeg,image/webp,image/gif,.pdf" multiple style="display: none;">
+                        <label for="topicFileInput" class="attachment-upload-label">
+                            <div class="upload-icon-circle">
+                                <ion-icon name="cloud-upload-outline"></ion-icon>
+                            </div>
+                            <div class="upload-text-group">
+                                <span class="upload-title">Click to upload photos or PDF files</span>
+                                <span class="upload-subtitle">Supports JPG, PNG, WEBP, and PDF documents (stored in dedicated Google Drive folder)</span>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="composer-attachments-preview" id="topicAttachmentsPreview" style="display: none;"></div>
+                </div>
+
+                <div class="drive-info-banner" style="background: #f0fdf4; border-color: #bbf7d0; color: #166534;">
+                    <ion-icon name="shield-checkmark-outline" style="color: #059669;"></ion-icon>
                     <div>
-                        <strong>Formatting &amp; Storage Notice:</strong> Full rich text formatting, bullet points, and classical quotes are supported. Large PDF monographs and specimen photo attachments will connect directly to Dr. Milind Chatrabhuji's 5 TB Google Drive storage in the upcoming attachments update.
+                        <strong>Google Drive 5 TB Cloud Storage Active:</strong> Attachments are automatically stored in the dedicated <code>RSBK_Forum_Attachments</code> folder in Dr. Milind Chatrabhuji's Google Drive.
                     </div>
                 </div>
 
@@ -343,7 +370,11 @@
             </div>
 
             <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.5rem;">
-                <button type="button" class="btn-new-topic" id="btnExportForumJson" style="font-size: 0.85rem; padding: 0.7rem 1.25rem;">
+                <a href="https://drive.google.com/drive/folders/1F-H-eGDWWiiAybYM9oXAh6Xnocuuhdj6?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn-new-topic" style="font-size: 0.85rem; padding: 0.7rem 1.25rem; text-decoration: none;">
+                    <ion-icon name="folder-open-outline"></ion-icon>
+                    <span>Open Drive Attachments Folder</span>
+                </a>
+                <button type="button" class="btn-drive-backup" id="btnExportForumJson" style="font-size: 0.85rem; padding: 0.7rem 1.25rem;">
                     <ion-icon name="download-outline"></ion-icon>
                     <span>Export Full Archive (JSON)</span>
                 </button>
@@ -351,6 +382,32 @@
                     <ion-icon name="document-text-outline"></ion-icon>
                     <span>Export Topics Table (CSV)</span>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Interactive Document & Image Viewer -->
+    <div class="forum-modal-backdrop" id="forumViewerModal" role="dialog" aria-modal="true" aria-labelledby="viewerModalTitle">
+        <div class="forum-modal-window viewer-window">
+            <div class="modal-header">
+                <h3 class="modal-title" id="viewerModalTitle" style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem;">
+                    <ion-icon name="document-text-outline" id="viewerModalIcon" style="color: #2563eb;"></ion-icon>
+                    <span id="viewerModalHeading">Document Preview</span>
+                </h3>
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <a href="#" target="_blank" rel="noopener noreferrer" class="btn-drive-backup" id="viewerModalDriveBtn" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; text-decoration: none;">
+                        <ion-icon name="logo-google"></ion-icon>
+                        <span>Open in Drive</span>
+                    </a>
+                    <a href="#" target="_blank" class="btn-new-topic" id="viewerModalDownloadBtn" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; text-decoration: none;">
+                        <ion-icon name="download-outline"></ion-icon>
+                        <span>Download</span>
+                    </a>
+                    <button type="button" class="modal-close-btn" id="btnCloseViewerModal" aria-label="Close Preview">&times;</button>
+                </div>
+            </div>
+            <div class="viewer-modal-body" id="viewerModalBody">
+                <!-- Dynamically loaded preview image or Google Drive embedded viewer -->
             </div>
         </div>
     </div>
@@ -387,7 +444,7 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="script.js?v=4.7"></script>
-    <script src="forum.js?v=4.7"></script>
+    <script src="script.js?v=4.8"></script>
+    <script src="forum.js?v=4.8"></script>
 </body>
 </html>

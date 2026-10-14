@@ -7938,6 +7938,400 @@ body.page-confirmation .auth-gate {
     color: #94a3b8;
 }
 
+/* ===================================================
+   RSBK Forum Attachments & Google Drive Storage Styles
+   =================================================== */
+
+/* Attachment Upload Zone (Drag/Drop or Click) */
+.attachment-upload-zone {
+    border: 2px dashed rgba(5, 150, 105, 0.35);
+    background: rgba(5, 150, 105, 0.02);
+    border-radius: 14px;
+    padding: 1.25rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.attachment-upload-zone:hover,
+.attachment-upload-zone.dragover {
+    border-color: var(--primary, #059669);
+    background: rgba(5, 150, 105, 0.06);
+    transform: translateY(-1px);
+}
+
+.attachment-upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.upload-icon-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #ecfdf5;
+    color: var(--primary, #059669);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.upload-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--text-color, #0f172a);
+}
+
+.upload-subtitle {
+    font-size: 0.78rem;
+    color: var(--text-muted, #64748b);
+}
+
+/* Composer Attachments Preview Bar */
+.composer-attachments-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 0.75rem;
+    padding: 0.5rem;
+    background: #f8fafc;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 12px;
+}
+
+.attachment-preview-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #ffffff;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 10px;
+    padding: 0.35rem 0.65rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    font-size: 0.8rem;
+    color: #334155;
+    max-width: 100%;
+}
+
+.attachment-preview-chip .chip-thumb {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.attachment-preview-chip .chip-pdf-icon {
+    font-size: 1.35rem;
+    color: #dc2626;
+    flex-shrink: 0;
+}
+
+.attachment-preview-chip .chip-meta {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.attachment-preview-chip .chip-name {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+}
+
+.attachment-preview-chip .chip-size {
+    font-size: 0.7rem;
+    color: #94a3b8;
+}
+
+.attachment-preview-chip .chip-remove-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+}
+
+.attachment-preview-chip .chip-remove-btn:hover {
+    color: #ef4444;
+    background: #fee2e2;
+}
+
+/* Comment Composer Attach Tool */
+.composer-attach-tools {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.btn-attach-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 0.45rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.btn-attach-chip:hover {
+    background: #e2e8f0;
+    color: var(--primary, #059669);
+    border-color: rgba(5, 150, 105, 0.3);
+}
+
+.attach-limit-hint {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+/* Rendered Attachments Section in Topic & Comment */
+.topic-attachments-container {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.topic-attachments-label {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.photo-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.85rem;
+}
+
+.photo-attachment-card {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #f8fafc;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    aspect-ratio: 4 / 3;
+}
+
+.photo-attachment-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
+}
+
+.photo-attachment-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(15, 23, 42, 0.75) 100%);
+    opacity: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0.65rem;
+    transition: opacity 0.2s ease;
+    color: #ffffff;
+    font-size: 0.78rem;
+}
+
+.photo-attachment-card:hover .photo-overlay {
+    opacity: 1;
+}
+
+.photo-overlay .zoom-icon {
+    font-size: 1.25rem;
+}
+
+/* PDF Attachment Card */
+.pdf-attachment-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: #ffffff;
+    border: 1.5px solid #fed7aa;
+    border-left: 4px solid #ea580c;
+    border-radius: 12px;
+    padding: 0.85rem 1.15rem;
+    box-shadow: 0 2px 8px rgba(234, 88, 12, 0.05);
+    transition: all 0.2s ease;
+}
+
+.pdf-attachment-card:hover {
+    border-color: #ea580c;
+    box-shadow: 0 4px 16px rgba(234, 88, 12, 0.12);
+}
+
+.pdf-card-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    overflow: hidden;
+}
+
+.pdf-icon-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #fff7ed;
+    color: #ea580c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.pdf-details {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.pdf-filename {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pdf-filesize {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.pdf-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.btn-pdf-preview {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #059669;
+    color: #ffffff;
+    padding: 0.45rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-pdf-preview:hover {
+    background: #047857;
+}
+
+.btn-pdf-drive {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #f8fafc;
+    color: #334155;
+    padding: 0.45rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-pdf-drive:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+/* Feed Topic Card Attachment Badge */
+.topic-attachment-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    padding: 0.15rem 0.55rem;
+    border-radius: 9999px;
+    font-size: 0.74rem;
+    font-weight: 600;
+}
+
+/* Interactive Document & Image Viewer Modal */
+.viewer-window {
+    max-width: 950px;
+    width: 95vw;
+    height: 85vh;
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem;
+}
+
+.viewer-modal-body {
+    flex: 1;
+    margin-top: 1rem;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #0f172a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.viewer-modal-body iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #ffffff;
+}
+
+.viewer-modal-body img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
     .forum-page-container {

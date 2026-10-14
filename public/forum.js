@@ -66,6 +66,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     const statTotalTopics = document.getElementById('statTotalTopics');
     const statTotalReplies = document.getElementById('statTotalReplies');
 
+    // Google Drive 5 TB Dedicated Storage Configuration
+    const GOOGLE_DRIVE_UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbythI1dm3szewe6sbnsA6M7gIfyLdNGAhPEvWIbFbniSOCJEU4KoUQ_zVDQnzS-3-1gpw/exec';
+    const GOOGLE_DRIVE_FOLDER_ID = '1F-H-eGDWWiiAybYM9oXAh6Xnocuuhdj6';
+    const GOOGLE_DRIVE_FOLDER_LINK = 'https://drive.google.com/drive/folders/1F-H-eGDWWiiAybYM9oXAh6Xnocuuhdj6?usp=sharing';
+
+    // Attachment DOM Elements
+    const topicFileInput = document.getElementById('topicFileInput');
+    const topicAttachmentsPreview = document.getElementById('topicAttachmentsPreview');
+    const topicUploadZone = document.getElementById('topicUploadZone');
+    const commentFileInput = document.getElementById('commentFileInput');
+    const commentAttachmentsPreview = document.getElementById('commentAttachmentsPreview');
+
+    // Interactive Attachment Viewer Modal Elements
+    const forumViewerModal = document.getElementById('forumViewerModal');
+    const viewerModalHeading = document.getElementById('viewerModalHeading');
+    const viewerModalIcon = document.getElementById('viewerModalIcon');
+    const viewerModalBody = document.getElementById('viewerModalBody');
+    const viewerModalDriveBtn = document.getElementById('viewerModalDriveBtn');
+    const viewerModalDownloadBtn = document.getElementById('viewerModalDownloadBtn');
+    const btnCloseViewerModal = document.getElementById('btnCloseViewerModal');
+
+    // Queued Files for Upload
+    let topicPendingFiles = [];
+    let commentPendingFiles = [];
+
     // Helper: Sanitize Key for Firebase RTDB
     const sanitizeUserKey = (str) => {
         if (!str) return 'guest_' + Math.random().toString(36).substring(2, 7);
@@ -130,6 +155,211 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         return temp.innerHTML;
+    };
+
+    // =========================================================================
+    // Google Drive Attachment Helpers
+    // =========================================================================
+
+    // Read File to Base64
+    const readFileAsBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const res = reader.result;
+                const base64 = res.split(',')[1];
+                resolve(base64);
+            };
+            reader.onerror = (err) => reject(err);
+            reader.readAsDataURL(file);
+        });
+    };
+
+    // Format File Size
+    const formatFileSize = (bytes) => {
+        if (!bytes || bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    };
+
+    // Upload File directly to Google Drive via Apps Script Web App
+    const uploadFileToGoogleDrive = async (file) => {
+        const base64 = await readFileAsBase64(file);
+        const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+        const isPhoto = file.type.startsWith('image/');
+
+        const payload = {
+            fileName: file.name,
+            mimeType: file.type || (isPdf ? 'application/pdf' : 'application/octet-stream'),
+            base64: base64
+        };
+
+        const response = await fetch(GOOGLE_DRIVE_UPLOAD_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        if (data.status !== 'success') {
+            throw new Error(data.message || 'Failed to upload attachment to Google Drive');
+        }
+
+        return {
+            id: data.fileId,
+            fileName: data.fileName || file.name,
+            fileType: isPdf ? 'pdf' : (isPhoto ? 'photo' : 'document'),
+            mimeType: data.mimeType || file.type,
+            fileSize: data.size || file.size,
+            driveFileId: data.fileId,
+            driveViewUrl: data.viewUrl,
+            drivePreviewUrl: data.previewUrl,
+            directImgUrl: data.directImgUrl,
+            downloadUrl: data.downloadUrl
+        };
+    };
+
+    // Render Preview Chips of attached files before submission
+    const renderAttachmentPreviewChips = (filesArray, containerEl) => {
+        if (!containerEl) return;
+        if (!filesArray || filesArray.length === 0) {
+            containerEl.style.display = 'none';
+            containerEl.innerHTML = '';
+            return;
+        }
+
+        containerEl.style.display = 'flex';
+        containerEl.innerHTML = '';
+
+        filesArray.forEach((file, index) => {
+            const chip = document.createElement('div');
+            chip.className = 'attachment-preview-chip';
+
+            const isImg = file.type.startsWith('image/');
+
+            let iconHtml = '';
+            if (isImg) {
+                const objectUrl = URL.createObjectURL(file);
+                iconHtml = `<img src="${objectUrl}" class="chip-thumb" alt="Preview">`;
+            } else {
+                iconHtml = `<ion-icon name="document-text" class="chip-pdf-icon"></ion-icon>`;
+            }
+
+            chip.innerHTML = `
+                ${iconHtml}
+                <div class="chip-meta">
+                    <span class="chip-name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span>
+                    <span class="chip-size">${formatFileSize(file.size)}</span>
+                </div>
+                <button type="button" class="chip-remove-btn" title="Remove attachment">&times;</button>
+            `;
+
+            chip.querySelector('.chip-remove-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                filesArray.splice(index, 1);
+                renderAttachmentPreviewChips(filesArray, containerEl);
+            });
+
+            containerEl.appendChild(chip);
+        });
+    };
+
+    // Render Published Attachments Container HTML (Photos Gallery + PDF Cards)
+    const renderAttachmentsHtml = (attachments) => {
+        if (!attachments || !Array.isArray(attachments) || attachments.length === 0) return '';
+
+        const photos = attachments.filter(a => a.fileType === 'photo' || (a.mimeType && a.mimeType.startsWith('image/')));
+        const pdfs = attachments.filter(a => a.fileType === 'pdf' || (a.mimeType === 'application/pdf') || (a.fileName && a.fileName.toLowerCase().endsWith('.pdf')));
+        const others = attachments.filter(a => !photos.includes(a) && !pdfs.includes(a));
+
+        let html = `<div class="topic-attachments-container">
+            <div class="topic-attachments-label">
+                <ion-icon name="attach-outline"></ion-icon>
+                <span>Attachments (${attachments.length}) &bull; Google Drive</span>
+            </div>`;
+
+        // Render Photos Grid
+        if (photos.length > 0) {
+            html += `<div class="photo-gallery-grid">`;
+            photos.forEach(photo => {
+                const imgUrl = photo.directImgUrl || `https://lh3.googleusercontent.com/d/${photo.driveFileId}`;
+                html += `
+                    <div class="photo-attachment-card" onclick="window.RSBK_openViewer('${photo.driveFileId}', '${escapeHtml(photo.fileName)}', 'photo', '${photo.driveViewUrl}', '${photo.downloadUrl}')" title="Click to view full photo">
+                        <img src="${imgUrl}" alt="${escapeHtml(photo.fileName)}" loading="lazy" onerror="this.src='${photo.driveViewUrl}'">
+                        <div class="photo-overlay">
+                            <span>${escapeHtml(photo.fileName)}</span>
+                            <ion-icon name="scan-outline" class="zoom-icon"></ion-icon>
+                        </div>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+        }
+
+        // Render PDFs & Documents
+        const docs = [...pdfs, ...others];
+        if (docs.length > 0) {
+            docs.forEach(doc => {
+                html += `
+                    <div class="pdf-attachment-card">
+                        <div class="pdf-card-info">
+                            <div class="pdf-icon-badge">
+                                <ion-icon name="document-text-outline"></ion-icon>
+                            </div>
+                            <div class="pdf-details">
+                                <span class="pdf-filename" title="${escapeHtml(doc.fileName)}">${escapeHtml(doc.fileName)}</span>
+                                <span class="pdf-filesize">${formatFileSize(doc.fileSize)} &bull; Google Drive</span>
+                            </div>
+                        </div>
+                        <div class="pdf-card-actions">
+                            <button type="button" class="btn-pdf-preview" onclick="window.RSBK_openViewer('${doc.driveFileId}', '${escapeHtml(doc.fileName)}', 'pdf', '${doc.driveViewUrl}', '${doc.downloadUrl}')" title="Read document preview in-website">
+                                <ion-icon name="eye-outline"></ion-icon>
+                                <span>Preview</span>
+                            </button>
+                            <a href="${doc.driveViewUrl}" target="_blank" rel="noopener noreferrer" class="btn-pdf-drive" title="Open in Google Drive (External)">
+                                <ion-icon name="logo-google"></ion-icon>
+                                <span>Drive</span>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        html += `</div>`;
+        return html;
+    };
+
+    // Global Modal Viewer Opener (Photos & PDFs)
+    window.RSBK_openViewer = (fileId, fileName, fileType, driveViewUrl, downloadUrl) => {
+        if (!forumViewerModal) return;
+        if (viewerModalHeading) viewerModalHeading.textContent = fileName;
+        if (viewerModalDriveBtn) viewerModalDriveBtn.href = driveViewUrl || `https://drive.google.com/file/d/${fileId}/view?usp=sharing`;
+        if (viewerModalDownloadBtn) viewerModalDownloadBtn.href = downloadUrl || `https://drive.google.com/uc?export=download&id=${fileId}`;
+
+        if (fileType === 'photo') {
+            if (viewerModalIcon) {
+                viewerModalIcon.setAttribute('name', 'image-outline');
+                viewerModalIcon.style.color = '#059669';
+            }
+            if (viewerModalBody) {
+                viewerModalBody.innerHTML = `<img src="https://lh3.googleusercontent.com/d/${fileId}" alt="${escapeHtml(fileName)}" style="max-width:100%;max-height:100%;object-fit:contain;">`;
+            }
+        } else {
+            if (viewerModalIcon) {
+                viewerModalIcon.setAttribute('name', 'document-text-outline');
+                viewerModalIcon.style.color = '#dc2626';
+            }
+            if (viewerModalBody) {
+                viewerModalBody.innerHTML = `<iframe src="https://drive.google.com/file/d/${fileId}/preview" allow="autoplay" loading="lazy"></iframe>`;
+            }
+        }
+
+        forumViewerModal.classList.add('open');
     };
 
     // Initialize Firebase Realtime Database
@@ -319,6 +549,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="topic-badges-wrap">
                         ${topic.isPinned ? `<span class="badge-pinned"><ion-icon name="pin"></ion-icon> Pinned</span>` : ''}
                         ${topic.isLocked ? `<span class="badge-locked"><ion-icon name="lock-closed"></ion-icon> Closed</span>` : ''}
+                        ${topic.attachments && topic.attachments.length ? `<span class="topic-attachment-chip" title="${topic.attachments.length} Google Drive attachment(s)"><ion-icon name="attach-outline"></ion-icon> ${topic.attachments.length}</span>` : ''}
                         <span class="topic-cat-badge">${cat.icon} ${cat.label}</span>
                     </div>
                 </div>
@@ -448,6 +679,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div class="topic-content-body">
                 ${sanitizeHtml(topic.content)}
             </div>
+
+            <!-- Attached Photos & PDFs (Stored in Google Drive) -->
+            ${renderAttachmentsHtml(topic.attachments)}
 
             <!-- Reactions & Actions Bar -->
             <div class="reactions-bar">
@@ -706,6 +940,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ${sanitizeHtml(comment.content)}
             </div>
 
+            <!-- Attached Photos & PDFs (Stored in Google Drive) -->
+            ${renderAttachmentsHtml(comment.attachments)}
+
             <div class="comment-footer">
                 <button type="button" class="reaction-btn ${hasUserReacted(comment.reactions?.thumbsUp, userEmailKey) ? 'active' : ''}" data-comment-reaction="thumbsUp" style="padding: 0.25rem 0.6rem; font-size: 0.78rem;">
                     <ion-icon name="thumbs-up-outline"></ion-icon>
@@ -837,8 +1074,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     // =========================================================================
-    // Post New Top-Level Comment on Active Topic
+    // Post New Top-Level Comment on Active Topic (with Google Drive Attachments)
     // =========================================================================
+    if (commentFileInput) {
+        commentFileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            const availableSlots = 3 - commentPendingFiles.length;
+            if (availableSlots <= 0) {
+                alert('You can attach up to 3 files per comment.');
+                return;
+            }
+            commentPendingFiles.push(...files.slice(0, availableSlots));
+            renderAttachmentPreviewChips(commentPendingFiles, commentAttachmentsPreview);
+            commentFileInput.value = '';
+        });
+    }
+
     if (btnSubmitComment) {
         btnSubmitComment.addEventListener('click', async () => {
             if (!currentUser) {
@@ -848,21 +1099,36 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!activeTopicId || !db) return;
 
             const content = commentContentArea.innerHTML.trim();
-            if (!content || content === '<br>') {
-                alert('Please write your insight before posting.');
+            const hasText = content && content !== '<br>';
+            const hasFiles = commentPendingFiles.length > 0;
+
+            if (!hasText && !hasFiles) {
+                alert('Please write your insight or attach a file before posting.');
                 return;
             }
 
             btnSubmitComment.disabled = true;
-            btnSubmitComment.textContent = 'Posting...';
 
             try {
+                // Upload attachments to Google Drive if present
+                let uploadedAttachments = [];
+                if (hasFiles) {
+                    for (let i = 0; i < commentPendingFiles.length; i++) {
+                        btnSubmitComment.innerHTML = `<ion-icon name="cloud-upload-outline"></ion-icon> <span>Uploading ${i + 1}/${commentPendingFiles.length} to Drive...</span>`;
+                        const att = await uploadFileToGoogleDrive(commentPendingFiles[i]);
+                        uploadedAttachments.push(att);
+                    }
+                }
+
+                btnSubmitComment.textContent = 'Posting...';
+
                 const commentRef = push(ref(db, `forum/comments/${activeTopicId}`));
                 await set(commentRef, {
                     id: commentRef.key,
                     topicId: activeTopicId,
                     parentId: null,
                     content: content,
+                    attachments: uploadedAttachments,
                     authorName: currentUser.displayName || 'Ayurveda Scholar',
                     authorEmail: currentUser.email || '',
                     authorRole: isAdmin ? 'Faculty / Admin' : 'Scholar',
@@ -870,11 +1136,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     createdAt: Date.now()
                 });
 
-                // Clear composer
+                // Clear composer and attachment queue
                 commentContentArea.innerHTML = '';
+                commentPendingFiles = [];
+                renderAttachmentPreviewChips(commentPendingFiles, commentAttachmentsPreview);
             } catch (err) {
                 console.error('Error posting comment:', err);
-                alert('Failed to post comment. Please check your internet connection.');
+                alert('Failed to post comment: ' + (err.message || 'Please check connection.'));
             } finally {
                 btnSubmitComment.disabled = false;
                 btnSubmitComment.innerHTML = '<ion-icon name="paper-plane-outline"></ion-icon> <span>Post Comment</span>';
@@ -967,6 +1235,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         newTopicModal.classList.remove('open');
         newTopicForm.reset();
         topicContentArea.innerHTML = '';
+        topicPendingFiles = [];
+        if (topicAttachmentsPreview) {
+            topicAttachmentsPreview.innerHTML = '';
+            topicAttachmentsPreview.style.display = 'none';
+        }
     };
 
     if (btnOpenNewTopicModal) btnOpenNewTopicModal.addEventListener('click', openNewTopicModal);
@@ -974,7 +1247,54 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (btnCloseNewTopicModal) btnCloseNewTopicModal.addEventListener('click', closeNewTopicModal);
     if (btnCancelNewTopic) btnCancelNewTopic.addEventListener('click', closeNewTopicModal);
 
-    // Submit New Topic Form
+    // Topic File Input Handler (Max 5 files)
+    if (topicFileInput) {
+        topicFileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            const availableSlots = 5 - topicPendingFiles.length;
+            if (availableSlots <= 0) {
+                alert('You can attach up to 5 files per topic.');
+                return;
+            }
+            topicPendingFiles.push(...files.slice(0, availableSlots));
+            renderAttachmentPreviewChips(topicPendingFiles, topicAttachmentsPreview);
+            topicFileInput.value = '';
+        });
+    }
+
+    // Drag & Drop for Topic Upload Zone
+    if (topicUploadZone) {
+        ['dragenter', 'dragover'].forEach(eventName => {
+            topicUploadZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                topicUploadZone.classList.add('dragover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            topicUploadZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                topicUploadZone.classList.remove('dragover');
+            });
+        });
+
+        topicUploadZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = Array.from(dt.files);
+            const validFiles = files.filter(f => f.type.startsWith('image/') || f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
+            if (validFiles.length > 0) {
+                const availableSlots = 5 - topicPendingFiles.length;
+                if (availableSlots > 0) {
+                    topicPendingFiles.push(...validFiles.slice(0, availableSlots));
+                    renderAttachmentPreviewChips(topicPendingFiles, topicAttachmentsPreview);
+                }
+            }
+        });
+    }
+
+    // Submit New Topic Form (Uploading Attachments to Google Drive)
     if (newTopicForm) {
         newTopicForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1001,9 +1321,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
             const submitBtn = document.getElementById('btnPublishTopic');
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Publishing...';
 
             try {
+                // Upload attachments to Google Drive if present
+                let uploadedAttachments = [];
+                if (topicPendingFiles.length > 0) {
+                    for (let i = 0; i < topicPendingFiles.length; i++) {
+                        submitBtn.innerHTML = `<ion-icon name="cloud-upload-outline"></ion-icon> <span>Uploading ${i + 1}/${topicPendingFiles.length} to Drive...</span>`;
+                        const att = await uploadFileToGoogleDrive(topicPendingFiles[i]);
+                        uploadedAttachments.push(att);
+                    }
+                }
+
+                submitBtn.textContent = 'Publishing topic...';
+
                 const now = Date.now();
                 const newTopicRef = push(ref(db, 'forum/topics'));
                 const topicId = newTopicRef.key;
@@ -1014,6 +1345,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     category: category,
                     tags: tags,
                     content: content,
+                    attachments: uploadedAttachments,
                     authorName: currentUser.displayName || 'Ayurveda Scholar',
                     authorEmail: currentUser.email || '',
                     authorRole: isAdmin ? 'Faculty / Admin' : 'Scholar',
@@ -1032,7 +1364,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 openTopic(topicId);
             } catch (err) {
                 console.error('Error creating topic:', err);
-                alert('Failed to publish topic. Please try again.');
+                alert('Failed to publish topic: ' + (err.message || 'Please try again.'));
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<ion-icon name="checkmark-circle-outline"></ion-icon> <span>Publish Topic</span>';
@@ -1094,10 +1426,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Close viewer modal
+    if (btnCloseViewerModal) {
+        btnCloseViewerModal.addEventListener('click', () => {
+            forumViewerModal.classList.remove('open');
+            if (viewerModalBody) viewerModalBody.innerHTML = '';
+        });
+    }
+
     // Close modals when clicking backdrop
     window.addEventListener('click', (e) => {
         if (e.target === newTopicModal) closeNewTopicModal();
         if (e.target === driveArchiveModal) driveArchiveModal.classList.remove('open');
+        if (e.target === forumViewerModal) {
+            forumViewerModal.classList.remove('open');
+            if (viewerModalBody) viewerModalBody.innerHTML = '';
+        }
     });
 
     // =========================================================================
