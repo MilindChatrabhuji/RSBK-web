@@ -1,0 +1,60 @@
+{
+  "name": "RSBK Online — Ayurvedic Pharmaceutical Sciences",
+  "short_name": "RSBK Online",
+  "description": "Comprehensive digital gateway for BAMS & MD/MS scholars, faculty members, and researchers authored and curated by Dr. Milind Chatrabhuji.",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0b1120",
+  "theme_color": "#059669",
+  "icons": [
+    {
+      "src": "/assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "education",
+    "medical",
+    "books"
+  ],
+  "shortcuts": [
+    {
+      "name": "Discussion Forum",
+      "short_name": "Forum",
+      "description": "Open academic discussion forum",
+      "url": "/forum.html",
+      "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Membership & Wallet",
+      "short_name": "Membership",
+      "description": "₹1/Day access & wallet management",
+      "url": "/membership.html",
+      "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Student Resources",
+      "short_name": "Students",
+      "description": "Textbooks & Question Banks",
+      "url": "/students.html",
+      "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Teacher Handbooks",
+      "short_name": "Teachers",
+      "description": "Bloom's & Miller's Pedagogical Volumes",
+      "url": "/teachers.html",
+      "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

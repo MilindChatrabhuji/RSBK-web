@@ -849,6 +849,217 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // -------------------------------------------------------------
+    // Doctor & Faculty Verifications Queue (Admin Validation)
+    // -------------------------------------------------------------
+    let allVerifications = [];
+    let activeVerifFilter = 'all';
+
+    const loadVerifications = () => {
+        try {
+            const raw = localStorage.getItem('rsbk_pending_verifications');
+            allVerifications = raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            allVerifications = [];
+        }
+    };
+
+    const renderVerificationsTable = () => {
+        loadVerifications();
+        const tbody = document.getElementById('verificationsTableBody');
+        const badgeEl = document.getElementById('tabBadgeVerifications');
+        const countAll = document.getElementById('countVerifAll');
+        const countPending = document.getElementById('countVerifPending');
+        const countApproved = document.getElementById('countVerifApproved');
+        const countRejected = document.getElementById('countVerifRejected');
+        const summaryEl = document.getElementById('verifCountSummary');
+
+        const pendingCount = allVerifications.filter(v => v.status === 'pending').length;
+        const approvedCount = allVerifications.filter(v => v.status === 'approved').length;
+        const rejectedCount = allVerifications.filter(v => v.status === 'rejected').length;
+
+        if (badgeEl) badgeEl.textContent = pendingCount;
+        if (countAll) countAll.textContent = allVerifications.length;
+        if (countPending) countPending.textContent = pendingCount;
+        if (countApproved) countApproved.textContent = approvedCount;
+        if (countRejected) countRejected.textContent = rejectedCount;
+
+        if (!tbody) return;
+
+        const q = (document.getElementById('verifSearchInput') ? document.getElementById('verifSearchInput').value : '').toLowerCase().trim();
+
+        const filtered = allVerifications.filter(v => {
+            const matchesFilter = activeVerifFilter === 'all' || v.status === activeVerifFilter;
+            if (!matchesFilter) return false;
+            if (!q) return true;
+            return (v.name || '').toLowerCase().includes(q) || (v.email || '').toLowerCase().includes(q) || (v.regNo || '').toLowerCase().includes(q) || (v.degree || '').toLowerCase().includes(q);
+        });
+
+        if (summaryEl) summaryEl.textContent = `Showing ${filtered.length} of ${allVerifications.length} verification requests`;
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
+                        <ion-icon name="shield-checkmark-outline" style="font-size: 2.5rem; opacity: 0.4; margin-bottom: 0.5rem;"></ion-icon>
+                        <p style="font-weight: 600; margin: 0;">No doctor verification requests found in this view.</p>
+                        <p style="font-size: 0.82rem; margin-top: 0.25rem;">When doctors submit their degree certificates with ₹100 fee on Profile, they will appear here for your audit.</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = filtered.map(v => {
+            const isPending = v.status === 'pending';
+            const isApproved = v.status === 'approved';
+
+            let statusBadge = '';
+            if (isApproved) {
+                statusBadge = '<span class="badge-doctor-verified"><ion-icon name="checkmark-done-circle"></ion-icon> Approved</span>';
+            } else if (v.status === 'rejected') {
+                statusBadge = '<span style="background: #ef4444; color: #fff; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 50px;">Rejected</span>';
+            } else {
+                statusBadge = '<span style="background: #d97706; color: #fff; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 50px;">Pending Review</span>';
+            }
+
+            return `
+                <tr>
+                    <td>
+                        <strong style="color: var(--text-color); display: block;">${v.name || 'Scholar'}</strong>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">${v.email || '—'}</span>
+                    </td>
+                    <td>
+                        <strong style="color: var(--primary); display: block;">${v.degree || 'BAMS'}</strong>
+                        <span style="font-size: 0.8rem; font-family: monospace; color: var(--text-muted);">Reg: ${v.regNo || '—'}</span>
+                    </td>
+                    <td>
+                        <span style="font-size: 0.85rem; color: var(--text-color);">${v.institution || '—'}</span>
+                    </td>
+                    <td>
+                        <span style="font-size: 0.85rem; font-weight: 700; color: #059669;">₹100 Paid</span>
+                        <div style="font-size: 0.72rem; font-family: monospace; color: var(--text-muted);">${v.paymentId || 'rzp_paid'}</div>
+                    </td>
+                    <td>
+                        ${v.fileName ? `
+                            <button type="button" class="btn-admin-table-action btn-view-cert" data-uid="${v.uid}" style="font-size: 0.78rem; padding: 0.3rem 0.6rem; background: rgba(37, 99, 235, 0.1); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.2); border-radius: 6px; cursor: pointer;">
+                                <ion-icon name="document-attach-outline"></ion-icon> ${v.fileName.substring(0, 18)}...
+                            </button>
+                        ` : '<span style="color: var(--text-muted);">No file</span>'}
+                    </td>
+                    <td>${statusBadge}</td>
+                    <td style="text-align: right; white-space: nowrap;">
+                        ${isPending ? `
+                            <button type="button" class="btn-admin-table-action btn-approve-doc" data-uid="${v.uid}" style="background: #059669; color: #fff; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-weight: 700; cursor: pointer; margin-right: 0.35rem;">
+                                <ion-icon name="checkmark"></ion-icon> Approve
+                            </button>
+                            <button type="button" class="btn-admin-table-action btn-reject-doc" data-uid="${v.uid}" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.4rem 0.6rem; border-radius: 6px; font-weight: 700; cursor: pointer;">
+                                Reject
+                            </button>
+                        ` : (isApproved ? `
+                            <span style="font-size: 0.8rem; color: #059669; font-weight: 700;">Badge Granted</span>
+                        ` : `
+                            <span style="font-size: 0.8rem; color: #ef4444; font-weight: 700;">Rejected</span>
+                        `)}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        // Wire Action Buttons
+        tbody.querySelectorAll('.btn-approve-doc').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const uid = btn.dataset.uid;
+                approveDoctorVerification(uid);
+            });
+        });
+
+        tbody.querySelectorAll('.btn-reject-doc').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const uid = btn.dataset.uid;
+                rejectDoctorVerification(uid);
+            });
+        });
+
+        tbody.querySelectorAll('.btn-view-cert').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const uid = btn.dataset.uid;
+                const rec = allVerifications.find(v => v.uid === uid);
+                if (rec && rec.fileData) {
+                    const w = window.open('');
+                    w.document.write(`<title>Certificate — ${rec.name}</title><body style="margin:0; background:#0f172a; display:flex; align-items:center; justify-content:center; min-height:100vh;"><img src="${rec.fileData}" style="max-width:95%; max-height:95vh; border-radius:8px; box-shadow:0 10px 40px rgba(0,0,0,0.5);"></body>`);
+                } else {
+                    alert('Certificate file preview is not available.');
+                }
+            });
+        });
+    };
+
+    const approveDoctorVerification = (uid) => {
+        const item = allVerifications.find(v => v.uid === uid);
+        if (!item) return;
+
+        if (!confirm(`Are you sure you want to approve credentials for ${item.name} (${item.degree}) and grant the official Verified Doctor Badge?`)) {
+            return;
+        }
+
+        item.status = 'approved';
+        item.approvedAt = new Date().toISOString();
+        localStorage.setItem('rsbk_pending_verifications', JSON.stringify(allVerifications));
+
+        // If user is currently stored in local user cache
+        if (localStorage.getItem('rsbk_user_uid') === uid || (localStorage.getItem('rsbk_user_email') || '').toLowerCase() === item.email.toLowerCase()) {
+            localStorage.setItem('rsbk_doctor_verified', 'true');
+            localStorage.setItem('rsbk_verification_status', 'approved');
+        }
+
+        alert(`Credentials Verified!\n\n${item.name} has been granted the Verified Doctor Badge.`);
+        renderVerificationsTable();
+    };
+
+    const rejectDoctorVerification = (uid) => {
+        const item = allVerifications.find(v => v.uid === uid);
+        if (!item) return;
+
+        const reason = prompt('Please enter reason for rejection (e.g. illegible council registration scan):', 'Registration proof could not be validated');
+        if (!reason) return;
+
+        item.status = 'rejected';
+        item.rejectionReason = reason;
+        localStorage.setItem('rsbk_pending_verifications', JSON.stringify(allVerifications));
+
+        alert(`Application for ${item.name} has been rejected.`);
+        renderVerificationsTable();
+    };
+
+    // Filters for Verifications Table
+    const verifFilterChips = document.querySelectorAll('#verifFilterGroup .filter-chip');
+    verifFilterChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            verifFilterChips.forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            activeVerifFilter = chip.dataset.vfilter;
+            renderVerificationsTable();
+        });
+    });
+
+    const verifSearchInput = document.getElementById('verifSearchInput');
+    if (verifSearchInput) {
+        verifSearchInput.addEventListener('input', () => {
+            renderVerificationsTable();
+        });
+    }
+
+    const btnRefreshVerif = document.getElementById('btnRefreshVerifications');
+    if (btnRefreshVerif) {
+        btnRefreshVerif.addEventListener('click', () => {
+            renderVerificationsTable();
+        });
+    }
+
+    // Initial render
+    setTimeout(renderVerificationsTable, 500);
+
+    // -------------------------------------------------------------
     // Modal 1: Adjust Balance
     // -------------------------------------------------------------
     const openAdjustBalanceModal = (uid) => {

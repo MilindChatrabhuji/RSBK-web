@@ -1,16 +1,22 @@
+// Auto-load Features Module (Dark Mode, Global Search, PWA, Doctor Verification)
+if (!document.querySelector('script[src*="features.js"]')) {
+    const featScript = document.createElement('script');
+    featScript.src = 'features.js?v=5.0';
+    document.head.appendChild(featScript);
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
-    // Navbar scroll effect (Light Mode)
+    // Navbar scroll effect (Theme-aware via CSS class)
     const navbar = document.querySelector('.navbar');
-    
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            navbar.style.background = 'rgba(255, 255, 255, 0.95)';
-            navbar.style.boxShadow = '0 4px 20px rgba(15, 23, 42, 0.08)';
-        } else {
-            navbar.style.background = 'rgba(255, 255, 255, 0.88)';
-            navbar.style.boxShadow = 'none';
-        }
-    });
+    if (navbar) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    }
 
     // Simple reveal animation on scroll
     const observerOptions = {
@@ -768,8 +774,44 @@ document.addEventListener('DOMContentLoaded', async () => {
                             isVip: isAdmin,
                             lastActive: now
                         });
+
+                        // Dispatch Automated Welcome Email (30-Day Free Trial Activated)
+                        if (user.email && window.RSBK && window.RSBK.EmailService) {
+                            window.RSBK.EmailService.sendNotification('welcome', {
+                                recipientName: user.displayName || firstName,
+                                recipientEmail: user.email,
+                                details: {
+                                    expiryDate: 'in 30 Days'
+                                }
+                            });
+                        }
                     }
                     localStorage.setItem('rsbk_users_registry', JSON.stringify(registry));
+
+                    // Low Balance Alert Check (3 days or fewer remaining)
+                    const isLowBalance = (accessInfo.status === 'trial' && accessInfo.trialDaysRemaining <= 3 && accessInfo.trialDaysRemaining > 0) ||
+                                         (accessInfo.status === 'paid' && accessInfo.balance <= 3 && accessInfo.balance > 0);
+                    const alertKey = 'rsbk_low_bal_alert_' + user.uid;
+                    const lastAlert = parseInt(localStorage.getItem(alertKey) || '0', 10);
+                    const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+                    if (isLowBalance && (now - lastAlert > ONE_WEEK_MS) && user.email && window.RSBK && window.RSBK.EmailService) {
+                        localStorage.setItem(alertKey, now.toString());
+                        const daysLeft = accessInfo.status === 'trial' ? accessInfo.trialDaysRemaining : Math.floor(accessInfo.balance);
+                        const expDate = accessInfo.status === 'trial' 
+                            ? new Date(now + daysLeft * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+                            : new Date(now + daysLeft * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+                        window.RSBK.EmailService.sendNotification('low_balance', {
+                            recipientName: user.displayName || firstName,
+                            recipientEmail: user.email,
+                            details: {
+                                daysRemaining: daysLeft,
+                                currentBalance: accessInfo.balance.toFixed(2),
+                                expiryDate: expDate
+                            }
+                        });
+                    }
                 } catch (e) {
                     console.error('Error synchronizing user registry:', e);
                 }

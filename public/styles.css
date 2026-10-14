@@ -12,6 +12,20 @@
     --font-body: 'Inter', sans-serif;
 }
 
+[data-theme="dark"] {
+    --bg-color: #090e17;
+    --text-color: #f1f5f9;
+    --text-muted: #94a3b8;
+    --primary: #10b981;
+    --primary-glow: rgba(16, 185, 129, 0.28);
+    --secondary: #38bdf8;
+    --card-bg: #131d2e;
+    --card-border: rgba(255, 255, 255, 0.08);
+    --glass-bg: rgba(9, 14, 23, 0.92);
+}
+
+@import url('features.css');
+
 * {
     margin: 0;
     padding: 0;

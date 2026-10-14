@@ -540,6 +540,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="topic-author-details">
                             <div class="topic-author-name">
                                 <span>${escapeHtml(topic.authorName || 'Ayurveda Scholar')}</span>
+                                ${topic.isDoctorVerified ? `<span class="badge-doctor-verified" style="font-size: 0.72rem; padding: 0.15rem 0.5rem; margin-left: 0.35rem;"><ion-icon name="checkmark-done-circle"></ion-icon> Doctor</span>` : ''}
                                 ${isAdminAuthor ? `<span class="role-badge admin"><ion-icon name="ribbon-outline"></ion-icon> Admin</span>` : `<span class="role-badge scholar">${authorRole}</span>`}
                             </div>
                             <span class="topic-time-ago">${formatTimeAgo(topic.lastActivityAt || topic.createdAt)}</span>
@@ -655,6 +656,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="topic-author-details">
                         <div class="topic-author-name" style="font-size: 1.05rem;">
                             <span>${escapeHtml(topic.authorName || 'Ayurveda Scholar')}</span>
+                            ${topic.isDoctorVerified ? `<span class="badge-doctor-verified" style="font-size: 0.75rem; padding: 0.2rem 0.6rem; margin-left: 0.4rem;"><ion-icon name="checkmark-done-circle"></ion-icon> Verified Doctor</span>` : ''}
                             ${isAdminAuthor ? `<span class="role-badge admin"><ion-icon name="ribbon-outline"></ion-icon> Admin / Author</span>` : `<span class="role-badge scholar">${topic.authorRole || 'Scholar'}</span>`}
                         </div>
                         <span class="topic-time-ago">${new Date(topic.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}</span>
@@ -922,6 +924,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="topic-author-details">
                         <div class="topic-author-name" style="font-size: 0.88rem;">
                             <span>${escapeHtml(comment.authorName || 'Ayurveda Scholar')}</span>
+                            ${comment.isDoctorVerified ? `<span class="badge-doctor-verified" style="font-size: 0.68rem; padding: 0.12rem 0.45rem; margin-left: 0.3rem;"><ion-icon name="checkmark-done-circle"></ion-icon> Doctor</span>` : ''}
                             ${isAdminAuthor ? `<span class="role-badge admin"><ion-icon name="ribbon-outline"></ion-icon> Admin</span>` : `<span class="role-badge scholar">${comment.authorRole || 'Scholar'}</span>`}
                         </div>
                         <span class="topic-time-ago">${formatTimeAgo(comment.createdAt)}</span>
@@ -1064,6 +1067,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 authorName: currentUser.displayName || 'Ayurveda Scholar',
                 authorEmail: currentUser.email || '',
                 authorRole: isAdmin ? 'Faculty / Admin' : 'Scholar',
+                isDoctorVerified: localStorage.getItem('rsbk_doctor_verified') === 'true',
                 authorAvatar: currentUser.photoURL || '',
                 createdAt: Date.now()
             });
@@ -1132,6 +1136,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     authorName: currentUser.displayName || 'Ayurveda Scholar',
                     authorEmail: currentUser.email || '',
                     authorRole: isAdmin ? 'Faculty / Admin' : 'Scholar',
+                    isDoctorVerified: localStorage.getItem('rsbk_doctor_verified') === 'true',
                     authorAvatar: currentUser.photoURL || '',
                     createdAt: Date.now()
                 });
@@ -1349,6 +1354,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     authorName: currentUser.displayName || 'Ayurveda Scholar',
                     authorEmail: currentUser.email || '',
                     authorRole: isAdmin ? 'Faculty / Admin' : 'Scholar',
+                    isDoctorVerified: localStorage.getItem('rsbk_doctor_verified') === 'true',
                     authorAvatar: currentUser.photoURL || '',
                     createdAt: now,
                     lastActivityAt: now,

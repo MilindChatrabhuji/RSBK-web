@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -18,6 +18,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+        <script>if(localStorage.getItem('rsbk_theme')==='dark'||(!localStorage.getItem('rsbk_theme')&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.setAttribute('data-theme','dark');}</script>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta name="theme-color" content="#059669">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="styles.css?v=4.6">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
@@ -270,6 +276,11 @@
                         <span>Transactions &amp; Ledger</span>
                         <span class="tab-badge" id="tabBadgeTxns">0</span>
                     </button>
+                    <button class="admin-tab-btn" data-tab="tabVerifications" type="button" role="tab">
+                        <ion-icon name="shield-checkmark-outline"></ion-icon>
+                        <span>Doctor Verifications</span>
+                        <span class="tab-badge" id="tabBadgeVerifications" style="background: #059669; color: #fff;">0</span>
+                    </button>
                     <button class="admin-tab-btn" data-tab="tabCatalog" type="button" role="tab">
                         <ion-icon name="book-outline"></ion-icon>
                         <span>Curriculum Handbooks</span>
@@ -424,7 +435,66 @@
                 </div>
 
                 <!-- ============================================ -->
-                <!-- TAB 3: CURRICULUM HANDBOOKS CATALOG          -->
+                <!-- TAB 3: DOCTOR & FACULTY VERIFICATIONS        -->
+                <!-- ============================================ -->
+                <div id="tabVerifications" class="admin-tab-content" role="tabpanel">
+                    <div class="admin-panel-card">
+                        <div class="panel-card-header">
+                            <div>
+                                <h2 class="panel-card-title">Doctor &amp; Faculty Credential Verifications</h2>
+                                <p class="panel-card-desc">Review submitted medical/academic degree certificates, verify council registration numbers, audit ₹100 verification payments, and grant official Verified Badges.</p>
+                            </div>
+                            <div class="panel-header-actions">
+                                <button id="btnRefreshVerifications" class="btn-admin-action" type="button">
+                                    <ion-icon name="refresh-outline"></ion-icon>
+                                    <span>Refresh Queue</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Verification Filters Toolbar -->
+                        <div class="admin-toolbar">
+                            <div class="search-input-wrapper">
+                                <ion-icon name="search-outline"></ion-icon>
+                                <input type="text" id="verifSearchInput" placeholder="Search applicant by doctor name, email, or council reg number..." autocomplete="off">
+                            </div>
+                            <div class="filter-pills-row" id="verifFilterGroup">
+                                <button class="filter-chip active" data-vfilter="all" type="button">All Requests (<span id="countVerifAll">0</span>)</button>
+                                <button class="filter-chip" data-vfilter="pending" type="button">Pending Review (<span id="countVerifPending">0</span>)</button>
+                                <button class="filter-chip" data-vfilter="approved" type="button">Approved (<span id="countVerifApproved">0</span>)</button>
+                                <button class="filter-chip" data-vfilter="rejected" type="button">Rejected (<span id="countVerifRejected">0</span>)</button>
+                            </div>
+                        </div>
+
+                        <!-- Verification Applications Table -->
+                        <div class="admin-table-responsive">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Doctor / Scholar</th>
+                                        <th>Degree &amp; Council Reg No</th>
+                                        <th>Affiliated Institution</th>
+                                        <th>Fee (Razorpay)</th>
+                                        <th>Certificate Proof</th>
+                                        <th>Status</th>
+                                        <th style="text-align: right;">Admin Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="verificationsTableBody">
+                                    <!-- Populated dynamically by admin.js -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="admin-table-footer">
+                            <span id="verifCountSummary">Showing 0 verification requests</span>
+                            <span class="text-muted"><ion-icon name="shield-checkmark"></ion-icon> Official Council Verification Policy</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- TAB 4: CURRICULUM HANDBOOKS CATALOG          -->
                 <!-- ============================================ -->
                 <div id="tabCatalog" class="admin-tab-content" role="tabpanel">
                     <div class="admin-panel-card">
