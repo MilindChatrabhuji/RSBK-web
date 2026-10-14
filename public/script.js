@@ -145,24 +145,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderRightVerticalMenubar(isCachedAdminUser);
 
     // =========================================================================
-    // Floating Academic Visitor Counter (Lower Left Corner)
+    // Floating Visitor Counter (Lower Left Corner - Real Actual Numbers Only)
     // =========================================================================
     const initVisitorCounter = () => {
         if (document.getElementById('visitorCounterWidget')) return;
 
-        // Academic portal baseline visits
-        const BASELINE_COUNT = 14280;
-        let storedCount = parseInt(localStorage.getItem('rsbk_total_visitors'), 10);
-        if (isNaN(storedCount) || storedCount < BASELINE_COUNT) {
-            storedCount = BASELINE_COUNT;
+        // Clean up any legacy synthetic baseline counters
+        if (localStorage.getItem('rsbk_total_visitors')) {
+            localStorage.removeItem('rsbk_total_visitors');
         }
 
-        // Increment visit count once per unique browser session
-        const sessionCounted = sessionStorage.getItem('rsbk_session_counted');
-        if (!sessionCounted) {
-            storedCount += 1;
-            localStorage.setItem('rsbk_total_visitors', storedCount.toString());
-            sessionStorage.setItem('rsbk_session_counted', 'true');
+        // Retrieve actual count from local storage (defaults strictly to 0)
+        let actualCount = parseInt(localStorage.getItem('rsbk_real_visitors'), 10);
+        if (isNaN(actualCount) || actualCount < 0) {
+            actualCount = 0;
         }
 
         // Create Widget DOM container
@@ -170,7 +166,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         widget.id = 'visitorCounterWidget';
         widget.className = 'visitor-counter-widget';
         widget.setAttribute('role', 'region');
-        widget.setAttribute('aria-label', 'Academic Portal Visitor Counter');
+        widget.setAttribute('aria-label', 'Website Visitor Counter');
 
         // Restore minimized preference if stored
         const isMinimized = localStorage.getItem('rsbk_vc_minimized') === 'true';
@@ -178,30 +174,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             widget.classList.add('minimized');
         }
 
-        // Initial active online scholars (3 to 6)
-        let activeCount = Math.floor(Math.random() * 4) + 3;
-
         widget.innerHTML = `
             <div class="vc-card" id="vcCard">
                 <div class="vc-top-row">
                     <div class="vc-live-indicator">
                         <span class="vc-pulse-dot"></span>
-                        <span>Live</span>
-                    </div>
-                    <div class="vc-active-readers" title="Scholars reading RSBK Online right now">
-                        <span id="vcActiveCount">${activeCount}</span> online
+                        <span>Live Counter</span>
                     </div>
                     <button class="vc-toggle-btn" id="vcToggleBtn" type="button" title="Minimize / Expand Counter" aria-label="Minimize or Expand">
                         <ion-icon name="${isMinimized ? 'chevron-up-outline' : 'chevron-down-outline'}"></ion-icon>
                     </button>
                 </div>
                 <div class="vc-main-row">
-                    <div class="vc-icon-wrap" title="Academic Visitors">
+                    <div class="vc-icon-wrap" title="Real Website Visitors">
                         <ion-icon name="people-outline"></ion-icon>
                     </div>
                     <div class="vc-data-wrap">
-                        <div class="vc-count-number" id="vcCountDisplay">${storedCount.toLocaleString('en-IN')}</div>
-                        <div class="vc-count-label">Scholars Visited</div>
+                        <div class="vc-count-number" id="vcCountDisplay">${actualCount.toLocaleString('en-IN')}</div>
+                        <div class="vc-count-label">Total Visitors</div>
                     </div>
                 </div>
                 <div class="vc-footer-tooltip">
@@ -213,37 +203,60 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.body.appendChild(widget);
 
-        // Odometer counter animation on initial load
         const countDisplay = document.getElementById('vcCountDisplay');
-        if (countDisplay) {
-            const startVal = Math.max(0, storedCount - 35);
-            const duration = 1200;
-            const startTime = performance.now();
 
-            const updateOdometer = (currentTime) => {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const easeProgress = 1 - Math.pow(1 - progress, 3); // easeOutCubic
-                const currentNum = Math.floor(startVal + (storedCount - startVal) * easeProgress);
-                countDisplay.textContent = currentNum.toLocaleString('en-IN');
+        // Fetch / increment genuine visitor count from real counting API
+        const updateRealVisitorCount = async () => {
+            const sessionCounted = sessionStorage.getItem('rsbk_session_counted');
+            const endpoint = sessionCounted
+                ? 'https://abacus.jasoncameron.dev/get/rsbk-online.web.app/unique_visitors'
+                : 'https://abacus.jasoncameron.dev/hit/rsbk-online.web.app/unique_visitors';
 
-                if (progress < 1) {
-                    requestAnimationFrame(updateOdometer);
-                } else {
-                    countDisplay.textContent = storedCount.toLocaleString('en-IN');
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 4000);
+                const response = await fetch(endpoint, { signal: controller.signal });
+                clearTimeout(timeoutId);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (typeof data.value === 'number') {
+                        actualCount = data.value;
+                        localStorage.setItem('rsbk_real_visitors', actualCount.toString());
+                        if (!sessionCounted) {
+                            sessionStorage.setItem('rsbk_session_counted', 'true');
+                        }
+                        if (countDisplay) {
+                            countDisplay.textContent = actualCount.toLocaleString('en-IN');
+                        }
+                    }
+                } else if (response.status === 404 && sessionCounted) {
+                    // First time initializing
+                    const initRes = await fetch('https://abacus.jasoncameron.dev/hit/rsbk-online.web.app/unique_visitors');
+                    if (initRes.ok) {
+                        const initData = await initRes.json();
+                        actualCount = initData.value || 1;
+                        localStorage.setItem('rsbk_real_visitors', actualCount.toString());
+                        sessionStorage.setItem('rsbk_session_counted', 'true');
+                        if (countDisplay) {
+                            countDisplay.textContent = actualCount.toLocaleString('en-IN');
+                        }
+                    }
                 }
-            };
-            requestAnimationFrame(updateOdometer);
-        }
+            } catch (err) {
+                // If offline or remote blocked, count locally without falsification
+                if (!sessionCounted) {
+                    actualCount += 1;
+                    localStorage.setItem('rsbk_real_visitors', actualCount.toString());
+                    sessionStorage.setItem('rsbk_session_counted', 'true');
+                    if (countDisplay) {
+                        countDisplay.textContent = actualCount.toLocaleString('en-IN');
+                    }
+                }
+            }
+        };
 
-        // Live scholar traffic fluctuation every 18 seconds
-        const activeCountEl = document.getElementById('vcActiveCount');
-        setInterval(() => {
-            if (!activeCountEl) return;
-            const delta = Math.random() < 0.5 ? 1 : -1;
-            activeCount = Math.max(3, Math.min(8, activeCount + delta));
-            activeCountEl.textContent = activeCount;
-        }, 18000);
+        updateRealVisitorCount();
 
         // Toggle Minimize / Expand behavior
         const toggleBtn = document.getElementById('vcToggleBtn');

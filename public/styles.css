@@ -6762,7 +6762,7 @@ body.page-confirmation .auth-gate {
     display: flex;
     flex-direction: column;
     gap: 0.45rem;
-    min-width: 195px;
+    min-width: 170px;
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     cursor: default;
 }
