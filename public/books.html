@@ -15,7 +15,8 @@
     <meta name="theme-color" content="#059669">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="stylesheet" href="styles.css?v=4.6">
+    <link rel="stylesheet" href="features.css?v=5.2">
+    <link rel="stylesheet" href="styles.css?v=5.2">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -39,7 +40,15 @@
                 <a href="forum.html"><ion-icon name="chatbubbles-outline"></ion-icon><span>Forum</span></a>
             </nav>
 
-            <div class="nav-actions">
+                        <div class="nav-actions">
+                <button class="nav-action-btn search-trigger-btn" id="navGlobalSearchBtn" type="button" title="Quick Search (Ctrl + K)" aria-label="Quick Search">
+                    <ion-icon name="search-outline"></ion-icon>
+                    <span class="search-trigger-label">Search</span>
+                    <span class="search-key-badge">Ctrl K</span>
+                </button>
+                <button class="nav-action-btn theme-toggle-btn" id="navThemeToggleBtn" type="button" title="Toggle Dark / Light Mode (Alt + T)" aria-label="Toggle Theme">
+                    <ion-icon name="moon-outline" id="themeToggleIcon"></ion-icon>
+                </button>
                 <div class="auth-widget" id="authWidget"></div>
                 <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false">
                     <span class="bar bar-1"></span>
@@ -121,6 +130,8 @@
     </footer>
 
     <script src="books-explorer.js?v=4.0"></script>
-    <script src="script.js?v=4.6"></script>
+    <script src="features.js?v=5.2"></script>
+    <script src="email-service.js?v=5.2"></script>
+    <script src="script.js?v=5.2"></script>
 </body>
 </html>

@@ -1,12 +1,15 @@
 // Service Worker for RSBK Online PWA
-const CACHE_NAME = 'rsbk-online-v5.0';
+const CACHE_NAME = 'rsbk-online-v5.2';
 
 const PRECACHE_ASSETS = [
     '/',
     '/index.html',
     '/manifest.json',
-    '/styles.css',
-    '/script.js',
+    '/styles.css?v=5.2',
+    '/features.css?v=5.2',
+    '/script.js?v=5.2',
+    '/features.js?v=5.2',
+    '/email-service.js?v=5.2',
     '/assets/icons/icon-192.png',
     '/assets/icons/icon-512.png',
     '/favicon.png',
@@ -15,22 +18,24 @@ const PRECACHE_ASSETS = [
 
 // Install Event
 self.addEventListener('install', (event) => {
+    self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             return cache.addAll(PRECACHE_ASSETS).catch((err) => {
                 console.warn('Pre-cache partial failure (non-blocking):', err);
             });
-        }).then(() => self.skipWaiting())
+        })
     );
 });
 
-// Activate Event (Cleanup Old Caches)
+// Activate Event (Immediately purge ALL old caches)
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((keys) => {
             return Promise.all(
                 keys.map((key) => {
                     if (key !== CACHE_NAME) {
+                        console.log('Purging legacy cache:', key);
                         return caches.delete(key);
                     }
                 })
@@ -39,7 +44,7 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// Fetch Event
+// Fetch Event (Network First with fallback to cache for freshest content)
 self.addEventListener('fetch', (event) => {
     const request = event.request;
     const url = new URL(request.url);
@@ -48,22 +53,10 @@ self.addEventListener('fetch', (event) => {
     if (request.method !== 'GET') return;
     if (url.origin !== self.location.origin) return;
 
-    // HTML Navigation: Network first, fallback to cached HTML
-    if (request.mode === 'navigate') {
-        event.respondWith(
-            fetch(request).catch(() => {
-                return caches.match(request).then((res) => {
-                    return res || caches.match('/index.html');
-                });
-            })
-        );
-        return;
-    }
-
-    // Static Assets (CSS, JS, Images, Icons, Fonts): Stale-while-revalidate
+    // Network First strategy: Always get fresh live server content first
     event.respondWith(
-        caches.match(request).then((cachedResponse) => {
-            const fetchPromise = fetch(request).then((networkResponse) => {
+        fetch(request)
+            .then((networkResponse) => {
                 if (networkResponse && networkResponse.status === 200) {
                     const responseToCache = networkResponse.clone();
                     caches.open(CACHE_NAME).then((cache) => {
@@ -71,9 +64,15 @@ self.addEventListener('fetch', (event) => {
                     });
                 }
                 return networkResponse;
-            }).catch(() => cachedResponse);
-
-            return cachedResponse || fetchPromise;
-        })
+            })
+            .catch(() => {
+                return caches.match(request).then((cachedResponse) => {
+                    if (cachedResponse) return cachedResponse;
+                    if (request.mode === 'navigate') {
+                        return caches.match('/index.html');
+                    }
+                    return null;
+                });
+            })
     );
 });

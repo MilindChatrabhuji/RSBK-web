@@ -36,12 +36,18 @@
         document.head.appendChild(fav);
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    function bootFeatures() {
         initThemeToggle();
         initGlobalSearch();
         initPWA();
         initDoctorVerification();
-    });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bootFeatures);
+    } else {
+        bootFeatures();
+    }
 
     // =========================================================================
     // 1. Dark Mode Toggle

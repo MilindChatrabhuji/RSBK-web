@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 lang="en">
 <head>
     <meta charset="UTF-8">
@@ -15,7 +15,8 @@ lang="en">
     <meta name="theme-color" content="#059669">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="stylesheet" href="styles.css?v=4.6">
+    <link rel="stylesheet" href="features.css?v=5.2">
+    <link rel="stylesheet" href="styles.css?v=5.2">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -39,7 +40,15 @@ lang="en">
                 <a href="forum.html"><ion-icon name="chatbubbles-outline"></ion-icon><span>Forum</span></a>
             </nav>
 
-            <div class="nav-actions">
+                        <div class="nav-actions">
+                <button class="nav-action-btn search-trigger-btn" id="navGlobalSearchBtn" type="button" title="Quick Search (Ctrl + K)" aria-label="Quick Search">
+                    <ion-icon name="search-outline"></ion-icon>
+                    <span class="search-trigger-label">Search</span>
+                    <span class="search-key-badge">Ctrl K</span>
+                </button>
+                <button class="nav-action-btn theme-toggle-btn" id="navThemeToggleBtn" type="button" title="Toggle Dark / Light Mode (Alt + T)" aria-label="Toggle Theme">
+                    <ion-icon name="moon-outline" id="themeToggleIcon"></ion-icon>
+                </button>
                 <div class="auth-widget" id="authWidget"></div>
                 <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false">
                     <span class="bar bar-1"></span>
@@ -110,6 +119,23 @@ lang="en">
                 <div class="profile-notice">
                     <ion-icon name="information-circle-outline"></ion-icon>
                     <span><strong>Voluntary Academic Profile:</strong> All fields are voluntary. Filling this helps tailor curriculum-aligned updates, pedagogical resources, and publication announcements to your academic focus.</span>
+                </div>
+
+                <!-- Doctor & Faculty Verification Status Card -->
+                <div class="doctor-verification-card" id="doctorVerificationCard">
+                    <div class="dvc-content">
+                        <div class="dvc-icon">
+                            <ion-icon name="school-outline"></ion-icon>
+                        </div>
+                        <div class="dvc-text">
+                            <h3>Apply for Verified Doctor / Faculty Badge</h3>
+                            <p>Upload your BAMS, MD/MS, or PhD degree certificate to get an official <strong>Verified Doctor / Faculty</strong> checkmark on your profile and forum contributions. (Requires ₹100 one-time verification fee &amp; manual admin approval).</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-apply-doctor-badge" id="btnOpenDoctorVerificationModal">
+                        <ion-icon name="shield-checkmark-outline"></ion-icon>
+                        <span>Apply for Badge (₹100)</span>
+                    </button>
                 </div>
 
                 <!-- Profile Edit Form -->
@@ -346,7 +372,9 @@ lang="en">
         </div>
     </footer>
 
-    <script src="script.js?v=4.6"></script>
+    <script src="features.js?v=5.2"></script>
+    <script src="email-service.js?v=5.2"></script>
+    <script src="script.js?v=5.2"></script>
     <script>
         // Profile form auto-save and pre-populate script
         document.addEventListener('DOMContentLoaded', () => {
