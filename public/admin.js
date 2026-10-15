@@ -641,6 +641,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (ledgerActivePool) ledgerActivePool.innerHTML = `&#8377;${activePool.toLocaleString('en-IN')}`;
 
         // Filter Counts
+        const vipMembers = allUsers.filter(u => u.isVip || u.status === 'vip').length;
+        const countFilterVip = document.getElementById('countFilterVip');
+        if (countFilterVip) countFilterVip.textContent = vipMembers;
+
         if (countFilterAll) countFilterAll.textContent = total;
         if (countFilterTrial) countFilterTrial.textContent = activeTrials;
         if (countFilterPaid) countFilterPaid.textContent = paidMembers;
@@ -661,6 +665,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const filtered = allUsers.filter(u => {
             // Status Filter
+            if (activeMemberFilter === 'vip' && !u.isVip && u.status !== 'vip') return false;
             if (activeMemberFilter === 'trial' && u.status !== 'trial') return false;
             if (activeMemberFilter === 'paid' && u.status !== 'paid' && u.status !== 'vip') return false;
             if (activeMemberFilter === 'expired' && u.status !== 'expired') return false;
@@ -738,6 +743,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </td>
                     <td style="text-align: right;">
                         <div class="table-actions-group">
+                            <button class="btn-action-icon btn-action-vip ${u.isVip ? 'active-vip' : ''}" data-uid="${u.uid}" title="${u.isVip ? 'Manage Lifetime Unlimited VIP Access (Currently Active)' : 'Convert to Lifetime Unlimited VIP Access'}">
+                                <ion-icon name="${u.isVip ? 'star' : 'star-outline'}"></ion-icon>
+                            </button>
                             <button class="btn-action-icon btn-action-balance" data-uid="${u.uid}" title="Adjust Wallet Balance">
                                 <ion-icon name="wallet-outline"></ion-icon>
                             </button>
@@ -758,6 +766,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         // Attach action click listeners
+        document.querySelectorAll('.btn-action-vip').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const uid = btn.dataset.uid;
+                openLifetimeVipModal(uid);
+            });
+        });
         document.querySelectorAll('.btn-action-balance').forEach(btn => {
             btn.addEventListener('click', () => {
                 const uid = btn.dataset.uid;
@@ -1692,6 +1706,208 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (btnClosePassbookModal) btnClosePassbookModal.addEventListener('click', closePassbookModal);
     if (btnClosePassbookModalBtn) btnClosePassbookModalBtn.addEventListener('click', closePassbookModal);
+
+    // -------------------------------------------------------------
+    // Modal 6: Convert Any User to Lifetime Unlimited VIP Access
+    // -------------------------------------------------------------
+    const modalConvertLifetimeVip = document.getElementById('modalConvertLifetimeVip');
+    const vipModalUserLabel = document.getElementById('vipModalUserLabel');
+    const vipModalCurrentStatusText = document.getElementById('vipModalCurrentStatusText');
+    const vipModalStatusBadge = document.getElementById('vipModalStatusBadge');
+    const btnToggleGrantVip = document.getElementById('btnToggleGrantVip');
+    const btnToggleRevokeVip = document.getElementById('btnToggleRevokeVip');
+    const vipReasonInput = document.getElementById('vipReasonInput');
+    const btnCloseVipModal = document.getElementById('btnCloseVipModal');
+    const btnCancelVipModal = document.getElementById('btnCancelVipModal');
+    const btnConfirmVipAction = document.getElementById('btnConfirmVipAction');
+    const btnOpenVipFromAdjust = document.getElementById('btnOpenVipFromAdjust');
+
+    let currentVipSelectedUser = null;
+    let vipActionType = 'grant'; // 'grant' or 'revoke'
+
+    const openLifetimeVipModal = (uid) => {
+        currentVipSelectedUser = allUsers.find(u => u.uid === uid);
+        if (!currentVipSelectedUser) return;
+
+        if (vipModalUserLabel) {
+            vipModalUserLabel.textContent = `Member: ${currentVipSelectedUser.displayName || 'Member'} (${currentVipSelectedUser.email || '—'})`;
+        }
+
+        const isCurrentlyVip = Boolean(currentVipSelectedUser.isVip || currentVipSelectedUser.status === 'vip');
+
+        if (vipModalCurrentStatusText) {
+            vipModalCurrentStatusText.textContent = isCurrentlyVip 
+                ? '⭐ Active Lifetime VIP Pass (Never Expires · No Recharge Needed)' 
+                : (currentVipSelectedUser.status === 'trial' 
+                    ? `30-Day Free Trial (${currentVipSelectedUser.trialDaysLeft} days left)` 
+                    : (currentVipSelectedUser.status === 'paid' ? `Paid Member (₹${Number(currentVipSelectedUser.balance).toFixed(2)})` : 'Trial Expired (₹0.00)'));
+        }
+
+        if (vipModalStatusBadge) {
+            vipModalStatusBadge.className = isCurrentlyVip ? 'badge-status vip' : 'badge-status trial';
+            vipModalStatusBadge.innerHTML = isCurrentlyVip 
+                ? '<ion-icon name="star"></ion-icon> VIP Pass' 
+                : '<ion-icon name="sparkles"></ion-icon> Standard Member';
+        }
+
+        // Set action toggle based on current state
+        if (isCurrentlyVip) {
+            vipActionType = 'grant';
+            if (btnToggleGrantVip) btnToggleGrantVip.classList.add('active');
+            if (btnToggleRevokeVip) btnToggleRevokeVip.classList.remove('active');
+            if (vipReasonInput) vipReasonInput.value = 'Lifetime VIP Unlimited Access maintained by Admin';
+        } else {
+            vipActionType = 'grant';
+            if (btnToggleGrantVip) btnToggleGrantVip.classList.add('active');
+            if (btnToggleRevokeVip) btnToggleRevokeVip.classList.remove('active');
+            if (vipReasonInput) vipReasonInput.value = 'Complimentary Lifetime Academic Access granted by Admin';
+        }
+
+        if (modalConvertLifetimeVip) modalConvertLifetimeVip.style.display = 'flex';
+    };
+
+    const closeLifetimeVipModal = () => {
+        if (modalConvertLifetimeVip) modalConvertLifetimeVip.style.display = 'none';
+        currentVipSelectedUser = null;
+    };
+
+    if (btnToggleGrantVip) {
+        btnToggleGrantVip.addEventListener('click', () => {
+            vipActionType = 'grant';
+            btnToggleGrantVip.classList.add('active');
+            if (btnToggleRevokeVip) btnToggleRevokeVip.classList.remove('active');
+            if (vipReasonInput) vipReasonInput.value = 'Complimentary Lifetime Academic Access granted by Admin';
+        });
+    }
+
+    if (btnToggleRevokeVip) {
+        btnToggleRevokeVip.addEventListener('click', () => {
+            vipActionType = 'revoke';
+            btnToggleRevokeVip.classList.add('active');
+            if (btnToggleGrantVip) btnToggleGrantVip.classList.remove('active');
+            if (vipReasonInput) vipReasonInput.value = 'Reverted from Lifetime VIP to standard access';
+        });
+    }
+
+    if (btnCloseVipModal) btnCloseVipModal.addEventListener('click', closeLifetimeVipModal);
+    if (btnCancelVipModal) btnCancelVipModal.addEventListener('click', closeLifetimeVipModal);
+
+    if (btnConfirmVipAction) {
+        btnConfirmVipAction.addEventListener('click', async () => {
+            if (!currentVipSelectedUser) return;
+
+            const isGranting = (vipActionType === 'grant');
+            const targetUser = currentVipSelectedUser;
+            const reason = (vipReasonInput ? vipReasonInput.value.trim() : '') || (isGranting ? 'Lifetime Unlimited Access granted' : 'Reverted to Standard Access');
+
+            // 1. Update in-memory user record
+            targetUser.isVip = isGranting;
+            targetUser.unlimitedAccess = isGranting;
+            targetUser.status = isGranting ? 'vip' : 'paid';
+            targetUser.trialDaysLeft = isGranting ? '∞' : targetUser.trialDaysLeft;
+            targetUser.balance = isGranting ? 9999 : (targetUser.balance || 0);
+            if (isGranting) {
+                targetUser.role = 'VIP Member (Unlimited Access)';
+            } else {
+                targetUser.role = 'Registered Member';
+            }
+
+            // 2. Persist to Firebase Realtime Database
+            try {
+                if (window.firebaseDb && window.firebaseRef && window.firebaseUpdate) {
+                    const uRef = window.firebaseRef(window.firebaseDb, 'users/' + targetUser.uid);
+                    await window.firebaseUpdate(uRef, {
+                        isVip: isGranting,
+                        unlimitedAccess: isGranting,
+                        balance: isGranting ? 9999 : targetUser.balance,
+                        role: isGranting ? 'VIP Member (Unlimited Access)' : 'Registered Member',
+                        vipGrantedAt: isGranting ? Date.now() : null,
+                        vipGrantedBy: isGranting ? 'Platform Administration' : null,
+                        lastModified: Date.now()
+                    });
+                }
+            } catch (fbErr) {
+                console.warn('Firebase VIP update warning:', fbErr);
+            }
+
+            // 3. Persist to Local Storage User Registry
+            try {
+                let registry = JSON.parse(localStorage.getItem('rsbk_users_registry') || '[]');
+                let regIdx = registry.findIndex(u => u.uid === targetUser.uid || (u.email && targetUser.email && u.email.toLowerCase() === targetUser.email.toLowerCase()));
+                if (regIdx !== -1) {
+                    registry[regIdx].isVip = isGranting;
+                    registry[regIdx].unlimitedAccess = isGranting;
+                    registry[regIdx].balance = isGranting ? 9999 : registry[regIdx].balance;
+                    registry[regIdx].role = isGranting ? 'VIP Member (Unlimited Access)' : 'Registered Member';
+                    localStorage.setItem('rsbk_users_registry', JSON.stringify(registry));
+                }
+            } catch (e) {}
+
+            // 4. Update individual wallet in localStorage
+            const walletKey = `rsbk_wallet_${targetUser.uid}`;
+            try {
+                let w = { balance: isGranting ? 9999 : 0, isVip: isGranting, transactions: [] };
+                const existingRaw = localStorage.getItem(walletKey);
+                if (existingRaw) w = JSON.parse(existingRaw);
+                w.isVip = isGranting;
+                w.balance = isGranting ? 9999 : w.balance;
+                localStorage.setItem(walletKey, JSON.stringify(w));
+            } catch (e) {}
+
+            // 5. If this is the current active session user on this browser, update active keys
+            const activeUid = localStorage.getItem('rsbk_user_uid');
+            const activeEmail = (localStorage.getItem('rsbk_user_email') || '').toLowerCase().trim();
+            if (activeUid === targetUser.uid || (targetUser.email && activeEmail === targetUser.email.toLowerCase().trim())) {
+                localStorage.setItem('rsbk_is_vip', isGranting ? 'true' : 'false');
+                if (isGranting) {
+                    localStorage.setItem('rsbk_access_valid', 'true');
+                    localStorage.setItem('rsbk_access_type', 'vip');
+                    localStorage.setItem('rsbk_wallet_balance', '9999');
+                    localStorage.setItem('rsbk_trial_days_left', '9999');
+                }
+            }
+
+            // 6. Record Audit Transaction
+            const txnRecord = {
+                id: 'TXN-VIP-' + Date.now(),
+                date: formatISTDateTime(Date.now()),
+                rawDate: Date.now(),
+                userName: targetUser.displayName || 'Member',
+                userEmail: targetUser.email || '—',
+                userId: targetUser.uid,
+                type: isGranting ? 'credit' : 'debit',
+                amount: isGranting ? 9999 : 0,
+                note: isGranting 
+                    ? `Admin converted member to Lifetime Unlimited VIP Access (${reason})` 
+                    : `Admin reverted VIP Access (${reason})`,
+                refId: 'ADMIN-VIP-ACTION',
+                balanceAfter: isGranting ? 9999 : targetUser.balance
+            };
+            allTransactions.unshift(txnRecord);
+            saveGlobalTransactions();
+
+            // 7. Update UI
+            updateMetricsUI();
+            renderMembersTable();
+            renderTransactionsTable();
+            closeLifetimeVipModal();
+
+            alert(isGranting 
+                ? `Success!\n\n${targetUser.displayName} (${targetUser.email}) has been converted to Lifetime Unlimited Access.\n\nThey now have permanent complimentary access with zero daily deductions and will never need to recharge.` 
+                : `Updated!\n\nVIP access for ${targetUser.displayName} has been reverted.`);
+        });
+    }
+
+    // Connect shortcut button in Adjust Balance modal
+    if (btnOpenVipFromAdjust) {
+        btnOpenVipFromAdjust.addEventListener('click', () => {
+            if (selectedUserForAction) {
+                const uid = selectedUserForAction.uid;
+                closeAdjustModal();
+                openLifetimeVipModal(uid);
+            }
+        });
+    }
 
     // -------------------------------------------------------------
     // Export CSV Ledger
