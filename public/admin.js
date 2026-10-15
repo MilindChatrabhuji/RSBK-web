@@ -508,16 +508,28 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const combinedTxns = [];
 
-        // Add real wallet transactions
+        // Add real wallet transactions, normalizing any VIP grants to complimentary type
         genuineWalletTxns.forEach(wt => {
+            if ((wt.id && wt.id.startsWith('TXN-VIP-')) || (wt.refId && (wt.refId.startsWith('ADMIN-VIP') || wt.refId === 'ADMIN-VIP-ACTION'))) {
+                wt.type = 'vip';
+                wt.amount = 0;
+                wt.refId = 'ADMIN-VIP-PASS';
+                wt.balanceAfter = '∞';
+            }
             combinedTxns.push(wt);
         });
 
-        // Add legitimate global transactions, PURGING any synthetic TXN-RZP- entries
+        // Add legitimate global transactions, PURGING any synthetic TXN-RZP- entries and normalizing VIP grants
         if (Array.isArray(existingGlobal)) {
             existingGlobal.forEach(t => {
                 if (t.id && t.id.startsWith('TXN-RZP-')) {
                     return; // PURGE MOCK DATA
+                }
+                if ((t.id && t.id.startsWith('TXN-VIP-')) || (t.refId && (t.refId.startsWith('ADMIN-VIP') || t.refId === 'ADMIN-VIP-ACTION'))) {
+                    t.type = 'vip';
+                    t.amount = 0;
+                    t.refId = 'ADMIN-VIP-PASS';
+                    t.balanceAfter = '∞';
                 }
                 combinedTxns.push(t);
             });
@@ -614,14 +626,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         const paidMembers = allUsers.filter(u => u.status === 'paid' || u.status === 'vip').length;
         const expiredMembers = allUsers.filter(u => u.status === 'expired').length;
 
-        // Calculate Revenue from credit transactions
-        const creditTxns = allTransactions.filter(t => t.type === 'credit');
+        // Calculate Revenue strictly from genuine Razorpay credit transactions (excluding administrative VIP grants)
+        const creditTxns = allTransactions.filter(t => 
+            t.type === 'credit' && 
+            (!t.id || !t.id.startsWith('TXN-VIP-')) && 
+            (!t.refId || (!t.refId.startsWith('ADMIN-VIP') && t.refId !== 'ADMIN-VIP-ACTION'))
+        );
         const grossRevenue = creditTxns.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
 
         // Calculate Ledger Inflow / Debits / Pool
         const debitTxns = allTransactions.filter(t => t.type === 'debit');
         const totalDebits = debitTxns.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
-        const activePool = allUsers.reduce((sum, u) => sum + (Number(u.balance) || 0), 0);
+        
+        // Active wallet escrow pool only counts actual non-VIP member balances (VIP users have complimentary unlimited access)
+        const activePool = allUsers
+            .filter(u => !u.isVip && u.status !== 'vip')
+            .reduce((sum, u) => sum + (Number(u.balance) || 0), 0);
 
         if (statTotalUsers) statTotalUsers.textContent = total;
         if (statActiveTrials) statActiveTrials.textContent = activeTrials;
@@ -649,6 +669,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (countFilterTrial) countFilterTrial.textContent = activeTrials;
         if (countFilterPaid) countFilterPaid.textContent = paidMembers;
         if (countFilterExpired) countFilterExpired.textContent = expiredMembers;
+
+        const vipTxns = allTransactions.filter(t => t.type === 'vip' || (t.id && t.id.startsWith('TXN-VIP-')) || (t.refId && t.refId.startsWith('ADMIN-VIP')));
+        const countTxnVip = document.getElementById('countTxnVip');
+        if (countTxnVip) countTxnVip.textContent = vipTxns.length;
 
         if (countTxnAll) countTxnAll.textContent = allTransactions.length;
         if (countTxnCredit) countTxnCredit.textContent = creditTxns.length;
@@ -803,8 +827,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const query = (txnSearchInput ? txnSearchInput.value : '').toLowerCase().trim();
 
         const filtered = allTransactions.filter(t => {
-            if (activeTxnFilter === 'credit' && t.type !== 'credit') return false;
+            const isVip = t.type === 'vip' || (t.id && t.id.startsWith('TXN-VIP-')) || (t.refId && t.refId.startsWith('ADMIN-VIP'));
+            if (activeTxnFilter === 'credit' && (t.type !== 'credit' || isVip)) return false;
             if (activeTxnFilter === 'debit' && t.type !== 'debit') return false;
+            if (activeTxnFilter === 'vip' && !isVip) return false;
 
             if (query) {
                 const id = (t.id || '').toLowerCase();
@@ -831,11 +857,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         transactionsTableBody.innerHTML = filtered.map(t => {
-            const isCredit = t.type === 'credit';
-            const badgeClass = isCredit ? 'badge-txn-credit' : 'badge-txn-debit';
-            const badgeIcon = isCredit ? 'arrow-down-circle' : 'arrow-up-circle';
-            const badgeText = isCredit ? 'Credit (Top-Up)' : 'Debit (Daily)';
-            const amountFormatted = isCredit ? `+&#8377;${t.amount}` : `-&#8377;${t.amount}`;
+            const isVipTxn = t.type === 'vip' || (t.id && t.id.startsWith('TXN-VIP-')) || (t.refId && (t.refId.startsWith('ADMIN-VIP') || t.refId === 'ADMIN-VIP-ACTION'));
+            const isCredit = t.type === 'credit' && !isVipTxn;
+            
+            let badgeClass = 'badge-txn-debit';
+            let badgeIcon = 'arrow-up-circle';
+            let badgeText = 'Debit (Daily)';
+            let amountHtml = `<strong class="table-amount debit">-&#8377;${t.amount}</strong>`;
+
+            if (isVipTxn) {
+                badgeClass = 'badge-status vip';
+                badgeIcon = 'star';
+                badgeText = 'VIP Complimentary';
+                amountHtml = `<span style="color: #059669; font-weight: 700;">&#8377;0 (Free)</span>`;
+            } else if (isCredit) {
+                badgeClass = 'badge-txn-credit';
+                badgeIcon = 'arrow-down-circle';
+                badgeText = 'Credit (Top-Up)';
+                amountHtml = `<strong class="table-amount credit">+&#8377;${t.amount}</strong>`;
+            }
+
+            const balanceAfterFormatted = (isVipTxn || t.balanceAfter === '∞' || t.balanceAfter === 9999) 
+                ? '<span style="color: #059669; font-weight: 700;">&#8734; Unlimited</span>' 
+                : `&#8377;${Number(t.balanceAfter || 0).toFixed(2)}`;
 
             return `
                 <tr>
@@ -853,7 +897,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         </span>
                     </td>
                     <td>
-                        <strong class="table-amount ${isCredit ? 'credit' : 'debit'}">${amountFormatted}</strong>
+                        ${amountHtml}
                     </td>
                     <td>
                         <code class="table-code-ref" title="Click to copy" onclick="navigator.clipboard.writeText('${t.refId}'); alert('Copied: ${t.refId}');">
@@ -861,7 +905,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         </code>
                     </td>
                     <td><span class="table-note">${t.note || '—'}</span></td>
-                    <td><span class="table-balance-after">&#8377;${Number(t.balanceAfter || 0).toFixed(2)}</span></td>
+                    <td><span class="table-balance-after">${balanceAfterFormatted}</span></td>
                 </tr>
             `;
         }).join('');
@@ -1867,7 +1911,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             }
 
-            // 6. Record Audit Transaction
+            // 6. Record Audit Transaction (Complimentary VIP Pass - Not Revenue)
             const txnRecord = {
                 id: 'TXN-VIP-' + Date.now(),
                 date: formatISTDateTime(Date.now()),
@@ -1875,13 +1919,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 userName: targetUser.displayName || 'Member',
                 userEmail: targetUser.email || '—',
                 userId: targetUser.uid,
-                type: isGranting ? 'credit' : 'debit',
-                amount: isGranting ? 9999 : 0,
+                type: 'vip',
+                amount: 0,
                 note: isGranting 
-                    ? `Admin converted member to Lifetime Unlimited VIP Access (${reason})` 
+                    ? `Admin converted member to Lifetime Unlimited VIP Access (${reason}) — Complimentary (₹0)` 
                     : `Admin reverted VIP Access (${reason})`,
-                refId: 'ADMIN-VIP-ACTION',
-                balanceAfter: isGranting ? 9999 : targetUser.balance
+                refId: 'ADMIN-VIP-PASS',
+                balanceAfter: '∞'
             };
             allTransactions.unshift(txnRecord);
             saveGlobalTransactions();
