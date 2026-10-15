@@ -69,13 +69,8 @@
             const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
             themeBtn.innerHTML = `<ion-icon name="${currentTheme === 'dark' ? 'sunny-outline' : 'moon-outline'}" id="themeToggleIcon"></ion-icon>`;
 
-            // Insert before the auth widget or mobile toggle
-            const authWidget = document.getElementById('authWidget');
-            if (authWidget) {
-                navActions.insertBefore(themeBtn, authWidget);
-            } else {
-                navActions.prepend(themeBtn);
-            }
+            // Place at the rightmost end of nav actions
+            navActions.appendChild(themeBtn);
         }
 
         const updateThemeUI = (theme) => {

@@ -44,6 +44,7 @@
     height: 38px;
     padding: 0;
     border-radius: 50%;
+    order: 90;
 }
 
 .theme-toggle-btn ion-icon {
