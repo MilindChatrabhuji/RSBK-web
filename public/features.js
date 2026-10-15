@@ -145,7 +145,7 @@
         { title: "Academic Discussion Forum", category: "pages", url: "forum.html", desc: "Ask questions, share clinical cases, upload lab attachments, and discuss classical shlokas." },
         { title: "Membership & Wallet (Fair ₹1/Day Access)", category: "pages", url: "membership.html", desc: "Transparent prepaid wallet, Razorpay recharge, daily 5 AM deductions, and 30-day trial." },
         { title: "User Profile & Voluntary Academic Focus", category: "pages", url: "profile.html", desc: "Manage academic designation, university affiliation, and Doctor Verification badge." },
-        { title: "Books Archive & Treatise Showcase", category: "pages", url: "books.html", desc: "Comprehensive catalog of authored books and research handbooks by Dr. Milind Chatrabhuji." },
+        { title: "Books Archive & Treatise Showcase", category: "pages", url: "books.html", desc: "Comprehensive catalog of classical treatises, textbooks, and research reference handbooks." },
         { title: "Undergraduate (UG) Handbooks Portal", category: "pages", url: "teachers-ug.html", desc: "Second Professional BAMS pedagogical handbooks mapped to NCISM curricula." },
         { title: "Postgraduate (PG) Handbooks Portal", category: "pages", url: "teachers-pg.html", desc: "MD/MS Ayurveda curriculum taxonomy handbooks for faculty and researchers." }
     ];
