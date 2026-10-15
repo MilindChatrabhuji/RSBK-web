@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "rsbk-online",
     "public": "public",
     "cleanUrls": true,
     "ignore": [

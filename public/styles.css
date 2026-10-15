@@ -160,6 +160,7 @@ h1, h2, h3, h4, h5, h6 {
     gap: 0.5rem;
     transition: all 0.25s ease;
     border: 1px solid transparent;
+    white-space: nowrap;
 }
 
 .nav-links a ion-icon {
@@ -188,7 +189,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ===================================================
-   Right-Side Vertical Menubar (Home, Books, Membership, Profile)
+   Right-Side Vertical Menubar (Home, Students, Teachers, Books, Forum, Membership, Profile)
    =================================================== */
 .right-vertical-menubar {
     position: fixed;
@@ -202,13 +203,15 @@ h1, h2, h3, h4, h5, h6 {
     border: 1px solid rgba(15, 23, 42, 0.1);
     border-radius: 20px;
     box-shadow: 0 14px 38px rgba(15, 23, 42, 0.08), 0 2px 8px rgba(15, 23, 42, 0.04);
-    padding: 0.7rem 0.55rem;
+    padding: 0.55rem 0.5rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.25rem;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     width: 146px;
+    max-height: 94vh;
+    overflow-y: auto;
 }
 
 .vmenu-header {
