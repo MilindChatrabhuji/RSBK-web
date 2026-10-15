@@ -1006,7 +1006,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             displayName: user.displayName || 'RSBK Member',
                             email: user.email || '',
                             photoURL: photo,
-                            role: isAdmin ? 'Platform Author & Admin' : 'Registered Member',
+                            role: isAdmin ? 'Platform Administrator' : 'Registered Member',
                             createdAt: now,
                             trialStartDate: accessInfo.trialStartDate || now,
                             balance: accessInfo.balance,
@@ -1026,6 +1026,30 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
                     }
                     localStorage.setItem('rsbk_users_registry', JSON.stringify(registry));
+
+                    // Realtime Database Cloud Sync for Global User Registry
+                    if (db && ref && update && user && user.uid) {
+                        try {
+                            const userCloudData = {
+                                uid: user.uid,
+                                displayName: user.displayName || (existingUser ? existingUser.displayName : 'RSBK Member'),
+                                email: user.email || '',
+                                photoURL: photo || (existingUser ? existingUser.photoURL : ''),
+                                role: isAdmin ? 'Platform Administrator' : 'Registered Member',
+                                lastActive: now,
+                                trialStartDate: accessInfo.trialStartDate || now,
+                                balance: Number(accessInfo.balance) || 0,
+                                isVip: Boolean(isAdmin),
+                                source: 'google'
+                            };
+                            if (!existingUser) {
+                                userCloudData.createdAt = now;
+                            }
+                            update(ref(db, 'users/' + user.uid), userCloudData);
+                        } catch (cloudErr) {
+                            console.warn('Realtime database user sync warning:', cloudErr);
+                        }
+                    }
 
                     // Low Balance Alert Check (3 days or fewer remaining)
                     const isLowBalance = (accessInfo.status === 'trial' && accessInfo.trialDaysRemaining <= 3 && accessInfo.trialDaysRemaining > 0) ||

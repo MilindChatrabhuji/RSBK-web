@@ -383,7 +383,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     adminRecord = u;
                 }
             } else {
-                nonAdminMembers.push(u);
+                const alreadyExists = nonAdminMembers.some(ex => 
+                    (ex.email && ex.email.toLowerCase().trim() === emailLower) ||
+                    (ex.uid && ex.uid === u.uid)
+                );
+                if (!alreadyExists) {
+                    nonAdminMembers.push(u);
+                }
             }
         });
 
@@ -393,7 +399,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 displayName: 'Milind Chatrabhuji',
                 email: activeAdminEmail,
                 photoURL: 'https://rsbk-online.web.app/assets/books/dr_milind_photo.png',
-                role: 'Platform Author & Admin',
+                role: 'Platform Administrator',
                 createdAt: Date.now() - (60 * 24 * 60 * 60 * 1000),
                 trialStartDate: Date.now() - (60 * 24 * 60 * 60 * 1000),
                 balance: 5,
@@ -402,7 +408,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             adminRecord.displayName = 'Milind Chatrabhuji';
             adminRecord.email = activeAdminEmail;
-            adminRecord.role = 'Platform Author & Admin';
+            adminRecord.role = 'Platform Administrator';
             adminRecord.isVip = true;
             adminRecord.balance = 5;
         }
@@ -539,10 +545,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.setItem('rsbk_users_registry', JSON.stringify(allUsers));
     };
 
-    // Save Users back to localStorage
-    const saveUsersRegistry = () => {
+    // Save Users back to localStorage and sync to Firebase Realtime Database cloud
+    const saveUsersRegistry = (singleUserToUpdate) => {
         try {
             localStorage.setItem('rsbk_users_registry', JSON.stringify(allUsers));
+            if (window.firebaseDb && window.firebaseRef && window.firebaseUpdate) {
+                if (singleUserToUpdate && singleUserToUpdate.uid) {
+                    const uRef = window.firebaseRef(window.firebaseDb, 'users/' + singleUserToUpdate.uid);
+                    window.firebaseUpdate(uRef, singleUserToUpdate);
+                } else if (allUsers && allUsers.length > 0) {
+                    const updatePayload = {};
+                    allUsers.forEach(u => {
+                        if (u && u.uid) {
+                            updatePayload[u.uid] = {
+                                uid: u.uid,
+                                displayName: u.displayName || 'Member',
+                                email: u.email || '',
+                                photoURL: u.photoURL || '',
+                                role: u.role || 'Registered Member',
+                                createdAt: u.createdAt || Date.now(),
+                                trialStartDate: u.trialStartDate || Date.now(),
+                                balance: Number(u.balance) || 0,
+                                isVip: Boolean(u.isVip),
+                                isDoctorVerified: Boolean(u.isDoctorVerified)
+                            };
+                        }
+                    });
+                    const usersRef = window.firebaseRef(window.firebaseDb, 'users');
+                    window.firebaseUpdate(usersRef, updatePayload);
+                }
+            }
         } catch (e) {
             console.error('Error saving registry:', e);
         }
@@ -896,6 +928,71 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    // Realtime Database synchronization for all registered members
+    const syncFirebaseUsers = () => {
+        if (!window.firebaseDb || !window.firebaseRef || !window.firebaseOnValue) {
+            setTimeout(syncFirebaseUsers, 500);
+            return;
+        }
+
+        try {
+            const uRef = window.firebaseRef(window.firebaseDb, 'users');
+            window.firebaseOnValue(uRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data && typeof data === 'object') {
+                    let localList = [];
+                    try {
+                        const raw = localStorage.getItem('rsbk_users_registry');
+                        if (raw) localList = JSON.parse(raw);
+                    } catch (e) {}
+                    if (!Array.isArray(localList)) localList = [];
+
+                    const mergedMap = new Map();
+
+                    // Seed with existing local users
+                    localList.forEach(item => {
+                        if (item && (item.email || item.uid)) {
+                            const k = (item.email || item.uid).toLowerCase().trim();
+                            mergedMap.set(k, item);
+                        }
+                    });
+
+                    // Overlay and add all cloud users from Firebase
+                    Object.keys(data).forEach(k => {
+                        const cu = data[k];
+                        if (cu && (cu.email || cu.uid)) {
+                            const key = (cu.email || cu.uid || k).toLowerCase().trim();
+                            const existing = mergedMap.get(key);
+                            if (existing) {
+                                mergedMap.set(key, {
+                                    ...existing,
+                                    ...cu,
+                                    balance: cu.balance !== undefined ? cu.balance : existing.balance,
+                                    trialStartDate: cu.trialStartDate || existing.trialStartDate
+                                });
+                            } else {
+                                mergedMap.set(key, {
+                                    uid: k,
+                                    ...cu
+                                });
+                            }
+                        }
+                    });
+
+                    const mergedList = Array.from(mergedMap.values());
+                    localStorage.setItem('rsbk_users_registry', JSON.stringify(mergedList));
+
+                    // Refresh in-memory store and re-render UI
+                    loadPlatformData();
+                    renderMembersTable();
+                    updateMetricsUI();
+                }
+            });
+        } catch (err) {
+            console.warn('Firebase users listener notice:', err);
+        }
+    };
+
     // Open Doctor Certificate Audit Modal
     const openDocCertModal = (uid) => {
         currentCertUid = uid;
@@ -915,8 +1012,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const fileContainer = document.getElementById('modalDocFileContainer');
         const downloadBtn = document.getElementById('modalDocDownloadBtn');
 
-        if (applicantEl) applicantEl.textContent = `Applicant: ${rec.name || 'Scholar'} (${rec.email || '—'})`;
-        if (nameEl) nameEl.textContent = rec.name || 'Scholar';
+        if (applicantEl) applicantEl.textContent = `Applicant: ${rec.name || 'Applicant'} (${rec.email || '—'})`;
+        if (nameEl) nameEl.textContent = rec.name || 'Applicant';
         if (emailEl) emailEl.textContent = rec.email || '—';
         if (degreeEl) degreeEl.textContent = rec.degree || 'BAMS';
         if (regNoEl) regNoEl.textContent = rec.regNo || '—';
@@ -1033,7 +1130,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return `
                 <tr>
                     <td>
-                        <strong style="color: var(--text-color); display: block;">${v.name || 'Scholar'}</strong>
+                        <strong style="color: var(--text-color); display: block;">${v.name || 'Applicant'}</strong>
                         <span style="font-size: 0.8rem; color: var(--text-muted);">${v.email || '—'}</span>
                     </td>
                     <td>
@@ -1240,6 +1337,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setTimeout(() => {
         renderVerificationsTable();
         syncFirebaseVerifications();
+        syncFirebaseUsers();
     }, 600);
 
     // -------------------------------------------------------------
@@ -1444,7 +1542,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const email = newMemberEmail.value.trim().toLowerCase();
             const trialDays = parseInt(newMemberTrialDays.value, 10) || 30;
             const balance = parseFloat(newMemberBalance.value) || 0;
-            const role = newMemberRole.value.trim() || 'Ayurvedic Scholar';
+            const role = newMemberRole.value.trim() || 'Registered Member';
 
             if (!name || !email || !email.includes('@')) {
                 alert('Please enter a valid full name and Google email address.');
@@ -1733,6 +1831,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateMetricsUI();
         renderMembersTable();
         renderTransactionsTable();
+        syncFirebaseUsers();
+        syncFirebaseVerifications();
     };
 
     // Listen for Firebase Auth event dispatched from script.js
