@@ -8,6 +8,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentUser = null;
     let selectedAmount = 365; // Default 1 year
 
+    // Unlimited VIP Lifetime Access Accounts (Never expire, zero daily deductions, no recharge needed)
+    const UNLIMITED_VIP_EMAILS = [
+        'milind.chatrabhuji@gmail.com',
+        'dr.milindchatrabhuji@gmail.com',
+        'milind.chatrabhuji32052@paruluniversity.com',
+        'milind.chatrabhuji32052@paruluniversity.ac.in',
+        'dr.smitachatrabhuji@gmail.com'
+    ];
+
+    const checkIsUnlimitedVip = (email) => {
+        if (!email) return false;
+        return UNLIMITED_VIP_EMAILS.includes(email.toLowerCase().trim());
+    };
+
     // DOM Elements
     const walletHeroCard = document.getElementById('walletHeroCard');
     const walletUserName = document.getElementById('walletUserName');
@@ -119,6 +133,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const TRIAL_MS = 30 * 24 * 60 * 60 * 1000;
 
     const processDailyDeductions = (wallet) => {
+        const isVipUser = (currentUser && checkIsUnlimitedVip(currentUser.email)) || Boolean(wallet.isVip);
+        if (isVipUser) {
+            wallet.isVip = true;
+            wallet.balance = Math.max(Number(wallet.balance) || 0, 9999);
+            saveWallet(wallet);
+            return wallet;
+        }
+
         const now = Date.now();
         const trialStart = wallet.trialStartDate || now;
         const trialEnd = trialStart + TRIAL_MS;
@@ -191,6 +213,27 @@ document.addEventListener('DOMContentLoaded', () => {
             walletUserName.textContent = currentUser.displayName || currentUser.email || 'Verified Member';
         } else {
             walletUserName.textContent = 'Member Account (Sign In with Google to Sync)';
+        }
+
+        const isVipUser = (currentUser && checkIsUnlimitedVip(currentUser.email)) || Boolean(wallet.isVip);
+        if (isVipUser) {
+            walletStatusBadge.className = 'wallet-status-badge active';
+            walletStatusBadge.style.background = 'rgba(5, 150, 105, 0.15)';
+            walletStatusBadge.style.color = '#059669';
+            walletStatusBadge.style.borderColor = 'rgba(5, 150, 105, 0.3)';
+            walletStatusBadge.innerHTML = '<ion-icon name="star" style="color:#f59e0b; margin-right:4px;"></ion-icon> <span>Unlimited Access (VIP Lifetime)</span>';
+            walletBalanceNumber.textContent = 'Unlimited';
+            walletDaysRemaining.textContent = '∞';
+            walletValidUntil.textContent = 'Lifetime Access (Never Expires)';
+            walletDaysSubtext.textContent = 'Complimentary lifetime access active — No recharge needed';
+
+            if (trialInfoAlert) {
+                trialInfoAlert.style.display = 'flex';
+                if (trialAlertTitle) trialAlertTitle.textContent = 'Lifetime VIP Unlimited Access Active';
+                if (trialAlertDesc) trialAlertDesc.textContent = 'Your account has complimentary permanent access to all academic textbooks, curriculum blueprints, and treatises. You will never need to recharge.';
+            }
+            updatePreviewDate();
+            return;
         }
 
         walletBalanceNumber.textContent = balance.toFixed(2);

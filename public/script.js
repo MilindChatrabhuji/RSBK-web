@@ -91,13 +91,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         'milind.chatrabhuji@gmail.com'
     ];
 
+    // Unlimited VIP Lifetime Access Accounts (Never expire, zero daily deductions, no recharge needed)
+    const UNLIMITED_VIP_EMAILS = [
+        'milind.chatrabhuji@gmail.com',
+        'dr.milindchatrabhuji@gmail.com',
+        'milind.chatrabhuji32052@paruluniversity.com',
+        'milind.chatrabhuji32052@paruluniversity.ac.in',
+        'dr.smitachatrabhuji@gmail.com'
+    ];
+
     const checkIsAdmin = (email) => {
         if (!email) return false;
         return ADMIN_EMAILS.includes(email.toLowerCase().trim());
     };
 
+    const checkIsUnlimitedVip = (email) => {
+        if (!email) return false;
+        return UNLIMITED_VIP_EMAILS.includes(email.toLowerCase().trim());
+    };
+
     const cachedUserEmail = (localStorage.getItem('rsbk_user_email') || '').toLowerCase();
     const isCachedAdminUser = checkIsAdmin(cachedUserEmail) || localStorage.getItem('rsbk_is_admin') === 'true';
+    const isCachedVipUser = checkIsUnlimitedVip(cachedUserEmail) || localStorage.getItem('rsbk_is_vip') === 'true';
 
     // Mount Right-Side Vertical Menubar (Home, Books, Membership, Profile, Admin)
     const renderRightVerticalMenubar = (isAdmin = false) => {
@@ -296,7 +311,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (isCachedAuth) {
         document.documentElement.classList.add('auth-verified');
         document.body.classList.add('auth-verified');
-        if (cachedAccessValid) {
+        if (cachedAccessValid || isCachedVipUser) {
             document.documentElement.classList.add('access-granted');
             document.body.classList.add('access-granted');
         } else {
@@ -407,6 +422,37 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.setItem(`rsbk_trial_start_${uid}`, wallet.trialStartDate.toString());
 
         const now = Date.now();
+
+        // Check Unlimited VIP Lifetime Access
+        const email = (user.email || '').toLowerCase().trim();
+        const isUnlimitedVip = checkIsUnlimitedVip(email) || Boolean(wallet.isVip) || Boolean(user.isVip);
+
+        if (isUnlimitedVip) {
+            wallet.isVip = true;
+            wallet.balance = Math.max(Number(wallet.balance) || 0, 9999);
+            try {
+                localStorage.setItem(walletKey, JSON.stringify(wallet));
+                localStorage.setItem('rsbk_is_vip', 'true');
+                localStorage.setItem('rsbk_access_valid', 'true');
+                localStorage.setItem('rsbk_access_type', 'vip');
+                localStorage.setItem('rsbk_trial_days_left', '9999');
+                localStorage.setItem('rsbk_wallet_balance', '9999');
+            } catch (e) {}
+
+            return {
+                hasAccess: true,
+                status: 'vip',
+                isVip: true,
+                isTrialActive: true,
+                trialDaysRemaining: 9999,
+                trialStartDate: wallet.trialStartDate,
+                trialEndDate: now + (3650 * 24 * 60 * 60 * 1000), // 10 years
+                balance: 9999,
+                paidDaysRemaining: 9999,
+                wallet
+            };
+        }
+
         const trialEnd = wallet.trialStartDate + TRIAL_MS;
         const isTrialActive = now < trialEnd;
         const trialDaysRemaining = isTrialActive ? Math.max(1, Math.ceil((trialEnd - now) / (24 * 60 * 60 * 1000))) : 0;
@@ -1006,11 +1052,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                             displayName: user.displayName || 'RSBK Member',
                             email: user.email || '',
                             photoURL: photo,
-                            role: isAdmin ? 'Platform Administrator' : 'Registered Member',
+                            role: isAdmin ? 'Platform Administrator' : (accessInfo.isVip || checkIsUnlimitedVip(userEmail) ? 'VIP Member (Unlimited Access)' : 'Registered Member'),
                             createdAt: now,
                             trialStartDate: accessInfo.trialStartDate || now,
                             balance: accessInfo.balance,
-                            isVip: isAdmin,
+                            isVip: Boolean(isAdmin || accessInfo.isVip || checkIsUnlimitedVip(userEmail)),
                             lastActive: now
                         });
 
@@ -1035,11 +1081,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 displayName: user.displayName || (existingUser ? existingUser.displayName : 'RSBK Member'),
                                 email: user.email || '',
                                 photoURL: photo || (existingUser ? existingUser.photoURL : ''),
-                                role: isAdmin ? 'Platform Administrator' : 'Registered Member',
+                                role: isAdmin ? 'Platform Administrator' : (accessInfo.isVip || checkIsUnlimitedVip(userEmail) ? 'VIP Member (Unlimited Access)' : 'Registered Member'),
                                 lastActive: now,
                                 trialStartDate: accessInfo.trialStartDate || now,
                                 balance: Number(accessInfo.balance) || 0,
-                                isVip: Boolean(isAdmin),
+                                isVip: Boolean(isAdmin || accessInfo.isVip || checkIsUnlimitedVip(userEmail)),
                                 source: 'google'
                             };
                             if (!existingUser) {
@@ -1051,9 +1097,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
                     }
 
-                    // Low Balance Alert Check (3 days or fewer remaining)
-                    const isLowBalance = (accessInfo.status === 'trial' && accessInfo.trialDaysRemaining <= 3 && accessInfo.trialDaysRemaining > 0) ||
-                                         (accessInfo.status === 'paid' && accessInfo.balance <= 3 && accessInfo.balance > 0);
+                    // Low Balance Alert Check (suppressed for VIP unlimited users)
+                    const isLowBalance = !accessInfo.isVip && (
+                        (accessInfo.status === 'trial' && accessInfo.trialDaysRemaining <= 3 && accessInfo.trialDaysRemaining > 0) ||
+                        (accessInfo.status === 'paid' && accessInfo.balance <= 3 && accessInfo.balance > 0)
+                    );
                     const alertKey = 'rsbk_low_bal_alert_' + user.uid;
                     const lastAlert = parseInt(localStorage.getItem(alertKey) || '0', 10);
                     const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;

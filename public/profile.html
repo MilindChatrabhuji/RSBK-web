@@ -101,9 +101,9 @@ lang="en">
                         <p class="profile-email" id="profileDisplayEmail">user@domain.com</p>
                     </div>
                     <div class="profile-header-action">
-                        <a href="membership.html" class="btn-tier-action">
+                        <a href="membership.html" class="btn-tier-action" id="profileWalletBtn">
                             <ion-icon name="wallet-outline"></ion-icon>
-                            <span>Wallet (₹1/Day)</span>
+                            <span id="profileWalletBtnText">Wallet (₹1/Day)</span>
                         </a>
                         <a href="admin.html" class="btn-tier-action admin-btn" id="profileAdminBtn" style="display: none; background: #059669; color: #ffffff; margin-left: 0.5rem;">
                             <ion-icon name="shield-checkmark"></ion-icon>
@@ -472,9 +472,24 @@ lang="en">
                 const isTrialActive = now < trialEnd;
                 const trialDaysRemaining = isTrialActive ? Math.max(1, Math.ceil((trialEnd - now) / (24 * 60 * 60 * 1000))) : 0;
 
+                const UNLIMITED_VIP_EMAILS = [
+                    'milind.chatrabhuji@gmail.com',
+                    'dr.milindchatrabhuji@gmail.com',
+                    'milind.chatrabhuji32052@paruluniversity.com',
+                    'milind.chatrabhuji32052@paruluniversity.ac.in',
+                    'dr.smitachatrabhuji@gmail.com'
+                ];
+                const cachedUserEmail = (localStorage.getItem('rsbk_user_email') || '').toLowerCase().trim();
+                const isVipUser = UNLIMITED_VIP_EMAILS.includes(cachedUserEmail) || localStorage.getItem('rsbk_is_vip') === 'true';
+
                 // Wallet / Tier badge
                 if (tierBadge) {
-                    if (isTrialActive) {
+                    if (isVipUser) {
+                        tierBadge.innerHTML = '<ion-icon name="star" style="color: #f59e0b; margin-right: 4px;"></ion-icon> Unlimited Access (VIP Lifetime)';
+                        tierBadge.className = 'badge badge-tier pro';
+                        const btnText = document.getElementById('profileWalletBtnText');
+                        if (btnText) btnText.textContent = 'Unlimited Access (Active)';
+                    } else if (isTrialActive) {
                         tierBadge.textContent = `30-Day Free Trial (${trialDaysRemaining} ${trialDaysRemaining === 1 ? 'Day' : 'Days'} Remaining)`;
                         tierBadge.className = 'badge badge-tier trial';
                     } else if (walletBal >= 1) {

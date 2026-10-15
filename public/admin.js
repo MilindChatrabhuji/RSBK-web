@@ -9,6 +9,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         'milind.chatrabhuji@gmail.com'
     ];
 
+    // Unlimited VIP Lifetime Access Accounts (Never expire, zero daily deductions, no recharge needed)
+    const UNLIMITED_VIP_EMAILS = [
+        'milind.chatrabhuji@gmail.com',
+        'dr.milindchatrabhuji@gmail.com',
+        'milind.chatrabhuji32052@paruluniversity.com',
+        'milind.chatrabhuji32052@paruluniversity.ac.in',
+        'dr.smitachatrabhuji@gmail.com'
+    ];
+
+    const checkIsUnlimitedVip = (email) => {
+        if (!email) return false;
+        return UNLIMITED_VIP_EMAILS.includes(email.toLowerCase().trim());
+    };
+
     let currentAdminUser = null;
     let allUsers = [];
     let allTransactions = [];
@@ -442,9 +456,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             const trialEnd = trialStart + TRIAL_MS;
             const isTrialActive = now < trialEnd;
             const trialDaysLeft = isTrialActive ? Math.max(1, Math.ceil((trialEnd - now) / (24 * 60 * 60 * 1000))) : 0;
-            const balance = Number(u.balance) || 0;
+            const email = (u.email || '').toLowerCase().trim();
+            const isVip = Boolean(u.isVip || u.unlimitedAccess || checkIsUnlimitedVip(email));
+            const balance = isVip ? Math.max(Number(u.balance) || 0, 9999) : (Number(u.balance) || 0);
             const isPaidActive = balance >= 1;
-            const isVip = Boolean(u.isVip);
 
             let status = 'expired';
             if (isVip) {
@@ -458,11 +473,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             return {
                 ...u,
                 trialStartDate: trialStart,
-                trialEndDate: trialEnd,
+                trialEndDate: isVip ? (now + (3650 * 24 * 60 * 60 * 1000)) : trialEnd,
                 isTrialActive,
-                trialDaysLeft,
+                trialDaysLeft: isVip ? '∞' : trialDaysLeft,
                 balance,
-                status
+                status,
+                isVip
             };
         });
 
@@ -680,7 +696,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             let statusPillHtml = '';
             if (u.status === 'vip') {
-                statusPillHtml = `<span class="badge-status vip" title="Lifetime VIP Pass"><ion-icon name="star"></ion-icon> VIP Bypass</span>`;
+                statusPillHtml = `<span class="badge-status vip" title="Lifetime Unlimited VIP Access (No recharge needed)"><ion-icon name="star"></ion-icon> Unlimited VIP</span>`;
             } else if (u.status === 'trial') {
                 statusPillHtml = `<span class="badge-status trial" title="30-Day Free Trial"><ion-icon name="sparkles"></ion-icon> Trial (${u.trialDaysLeft}d left)</span>`;
             } else if (u.status === 'paid') {
@@ -709,11 +725,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <td><span class="table-date">${joinedDateStr}</span></td>
                     <td>${statusPillHtml}</td>
                     <td>
-                        <strong class="table-balance ${u.balance > 0 ? 'positive' : 'zero'}">&#8377;${Number(u.balance).toFixed(2)}</strong>
+                        ${u.status === 'vip' 
+                            ? `<strong class="table-balance positive" title="Lifetime Unlimited VIP Access (No recharge needed)"><ion-icon name="infinite-outline" style="vertical-align: -2px; font-size: 1.15em;"></ion-icon> Unlimited</strong>` 
+                            : `<strong class="table-balance ${u.balance > 0 ? 'positive' : 'zero'}">&#8377;${Number(u.balance).toFixed(2)}</strong>`
+                        }
                     </td>
                     <td>
-                        <span class="table-date">${trialEndStr}</span>
-                        ${u.isTrialActive ? `<div class="table-subdate text-emerald">${u.trialDaysLeft} days remaining</div>` : '<div class="table-subdate text-muted">Completed</div>'}
+                        ${u.status === 'vip' 
+                            ? `<span class="table-date">Never Expires</span><div class="table-subdate text-emerald">Lifetime Access</div>` 
+                            : `<span class="table-date">${trialEndStr}</span>${u.isTrialActive ? `<div class="table-subdate text-emerald">${u.trialDaysLeft} days remaining</div>` : '<div class="table-subdate text-muted">Completed</div>'}`
+                        }
                     </td>
                     <td style="text-align: right;">
                         <div class="table-actions-group">
@@ -1348,7 +1369,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!selectedUserForAction) return;
 
         adjustModalUserLabel.textContent = `Member: ${selectedUserForAction.displayName} (${selectedUserForAction.email})`;
-        adjustModalCurrentBalance.innerHTML = `&#8377;${Number(selectedUserForAction.balance).toFixed(2)}`;
+        adjustModalCurrentBalance.innerHTML = selectedUserForAction.isVip 
+            ? '<span style="color: #059669; font-weight: 700;"><ion-icon name="infinite-outline" style="vertical-align: -2px;"></ion-icon> Unlimited VIP Access (No recharge needed)</span>' 
+            : `&#8377;${Number(selectedUserForAction.balance).toFixed(2)}`;
         adjustAmountInput.value = '';
         adjustReasonInput.value = '';
         balanceAdjustType = 'credit';
