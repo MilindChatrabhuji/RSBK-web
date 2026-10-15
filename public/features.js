@@ -121,7 +121,7 @@
         { title: "Volume 1: Bloom's Taxonomy — AyUG-RB", category: "handbooks", url: "teachers-ug.html", desc: "Cognitive domain hierarchy L1 to L6 for Second Professional BAMS (36 Units · 268 Objectives)." },
         { title: "Volume 2: Miller's Pyramid — AyUG-RB", category: "handbooks", url: "teachers-ug.html", desc: "Clinical & laboratory competency assessment framework for Second Professional BAMS." },
         { title: "Volume 3: Bloom's Taxonomy — AYPG-AB-RB", category: "handbooks", url: "teachers-pg-sem2.html", desc: "Applied Basics of Rasa Shastra & Bhaishajya Kalpana (MD/MS Sem II · 8 Modules · 42 Units)." },
-        { title: "Volume 4: Miller's Pyramid — AYPG-AB-RB", category: "handbooks", url: "teachers-pg-sem2.html", desc: "Competency blueprints for postgraduate scholars in practical pharmaceutics." },
+        { title: "Volume 4: Miller's Pyramid — AYPG-AB-RB", category: "handbooks", url: "teachers-pg-sem2.html", desc: "Competency blueprints for postgraduate students in practical pharmaceutics." },
         { title: "Volume 5: Bloom's Taxonomy — AYPG-RB", category: "handbooks", url: "teachers-pg-sem3-6.html", desc: "Specialty volumes across Semesters III–VI covering Papers I to IV (32 Modules · 577 Objectives)." },
         { title: "Volume 6: Miller's Pyramid — AYPG-RB", category: "handbooks", url: "teachers-pg-sem3-6.html", desc: "Instrumental methods, research protocols, XRD, SEM-EDX, and OECD safety studies." },
         
@@ -637,7 +637,7 @@
         if (e) e.preventDefault();
 
         const userEmail = localStorage.getItem('rsbk_user_email') || '';
-        const userName = localStorage.getItem('rsbk_user_name') || 'Ayurveda Scholar';
+        const userName = localStorage.getItem('rsbk_user_name') || 'Ayurveda Member';
         let uid = localStorage.getItem('rsbk_user_uid');
 
         if (!userEmail) {

@@ -17,6 +17,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="features.css?v=5.2">
     <link rel="stylesheet" href="styles.css?v=5.2">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -90,13 +91,13 @@
                     <span>Official Academic Portal · Rasashastra &amp; Bhaishajya Kalpana</span>
                 </div>
 
-                <div class="trial-hero-banner" title="30-Day Free Trial Announcement (Hover to pause)">
+                <div class="trial-hero-banner" title="100% Free Academic Portal for UG/PG Students, Teachers &amp; Everyone">
                     <ion-icon name="sparkles" class="trial-ticker-icon"></ion-icon>
                     <div class="trial-ticker-viewport">
                         <div class="trial-ticker-content">
-                            <span class="ticker-text-item"><strong>30-Day Free Trial:</strong> Sign in with Google to start full complimentary access to all curriculum handbooks &amp; books!</span>
+                            <span class="ticker-text-item"><strong>100% Free Academic Portal:</strong> Sign in with Google for instant access — For UG &amp; PG students, teachers &amp; everyone!</span>
                             <span class="ticker-text-sep">&#10022;</span>
-                            <span class="ticker-text-item"><strong>30-Day Free Trial:</strong> Sign in with Google to start full complimentary access to all curriculum handbooks &amp; books!</span>
+                            <span class="ticker-text-item"><strong>100% Free Academic Portal:</strong> Sign in with Google for instant access — For UG &amp; PG students, teachers &amp; everyone!</span>
                             <span class="ticker-text-sep">&#10022;</span>
                         </div>
                     </div>
@@ -104,7 +105,26 @@
 
                 <h1 class="hero-title"><span class="text-gradient">RSBK Online</span></h1>
                 <p class="hero-lead">Advancing Ayurvedic Pharmaceutical Sciences, Competency Frameworks &amp; Research</p>
-                <p class="hero-subtitle">Comprehensive digital gateway for BAMS &amp; MD/MS scholars, faculty members, and researchers. Explore curriculum-aligned textbooks, Bloom's &amp; Miller's pedagogical blueprints, and cloud-synchronized reference treatises authored and curated by <strong>Dr. Milind Chatrabhuji</strong>.</p>
+                <p class="hero-subtitle">Comprehensive digital gateway for UG &amp; PG students, teachers, doctors, researchers, and everyone passionate about Ayurveda. Explore curriculum-aligned textbooks, Bloom's &amp; Miller's pedagogical blueprints, and cloud-synchronized reference treatises authored and curated by <strong>Dr. Milind Chatrabhuji</strong>.</p>
+
+                <!-- High-Converting Hero Google Sign-In Action (Visible for guests, hidden when logged in) -->
+                <div class="hero-guest-cta" id="heroGuestCTA">
+                    <button class="btn-hero-google" id="heroGoogleSignInBtn" type="button" title="Sign in with Google (100% Free)">
+                        <svg class="google-icon" viewBox="0 0 24 24" width="22" height="22">
+                            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+                            <path fill="#34A853" d="M12 24c3.3 0 6.08-1.09 8.1-2.96l-3.88-3.05c-1.08.72-2.45 1.16-4.22 1.16-3.24 0-5.98-2.18-6.96-5.11H1.05v3.14C3.06 21.2 7.22 24 12 24z"/>
+                            <path fill="#FBBC05" d="M5.04 14.04c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.32H1.05C.38 7.66 0 9.16 0 10.75s.38 3.09 1.05 4.43l3.99-3.14z"/>
+                            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.22 0 3.06 2.8 1.05 6.82l3.99 3.14c.98-2.93 3.72-5.21 6.96-5.21z"/>
+                        </svg>
+                        <span>Continue with Google — 100% Free Instant Access</span>
+                        <ion-icon name="arrow-forward-outline" class="hero-btn-arrow"></ion-icon>
+                    </button>
+                    <div class="hero-cta-guarantees">
+                        <span class="cta-guarantee-item"><ion-icon name="checkmark-circle"></ion-icon> 100% Free of Charge</span>
+                        <span class="cta-guarantee-item"><ion-icon name="checkmark-circle"></ion-icon> 1-Click Instant Sign-In</span>
+                        <span class="cta-guarantee-item"><ion-icon name="checkmark-circle"></ion-icon> For Students, Teachers &amp; Everyone</span>
+                    </div>
+                </div>
 
                 <!-- Academic Trust / Pillars Strip -->
                 <div class="hero-pillars">
@@ -145,7 +165,7 @@
 
                         <div class="showcase-body">
                             <h2 class="showcase-title">Student Academic Hub</h2>
-                            <p class="showcase-desc">Curriculum-aligned textbooks, high-yield study notes, module-wise ABQ question banks, and practical training proformas for Ayurvedic scholars.</p>
+                            <p class="showcase-desc">Curriculum-aligned textbooks, high-yield study notes, module-wise ABQ question banks, and practical training proformas for UG &amp; PG students and learners.</p>
                             
                             <ul class="showcase-features">
                                 <li><ion-icon name="checkmark-circle"></ion-icon> Applied Basics of RSBK Textbook</li>

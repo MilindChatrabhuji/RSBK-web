@@ -522,7 +522,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             card.setAttribute('data-topic-id', topic.id);
 
             const cat = getCategoryDisplay(topic.category);
-            const authorRole = topic.authorRole || 'Scholar';
+            const authorRole = topic.authorRole || 'Member';
             const isAdminAuthor = checkIsAdmin(topic.authorEmail);
             const totalReactions = countTotalReactions(topic.reactions);
 
@@ -539,7 +539,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         </div>
                         <div class="topic-author-details">
                             <div class="topic-author-name">
-                                <span>${escapeHtml(topic.authorName || 'Ayurveda Scholar')}</span>
+                                <span>${escapeHtml(topic.authorName || 'Ayurveda Member')}</span>
                                 ${topic.isDoctorVerified ? `<span class="badge-doctor-verified" style="font-size: 0.72rem; padding: 0.15rem 0.5rem; margin-left: 0.35rem;"><ion-icon name="checkmark-done-circle"></ion-icon> Doctor</span>` : ''}
                                 ${isAdminAuthor ? `<span class="role-badge admin"><ion-icon name="ribbon-outline"></ion-icon> Admin</span>` : `<span class="role-badge scholar">${authorRole}</span>`}
                             </div>
@@ -655,9 +655,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                     <div class="topic-author-details">
                         <div class="topic-author-name" style="font-size: 1.05rem;">
-                            <span>${escapeHtml(topic.authorName || 'Ayurveda Scholar')}</span>
+                            <span>${escapeHtml(topic.authorName || 'Ayurveda Member')}</span>
                             ${topic.isDoctorVerified ? `<span class="badge-doctor-verified" style="font-size: 0.75rem; padding: 0.2rem 0.6rem; margin-left: 0.4rem;"><ion-icon name="checkmark-done-circle"></ion-icon> Verified Doctor</span>` : ''}
-                            ${isAdminAuthor ? `<span class="role-badge admin"><ion-icon name="ribbon-outline"></ion-icon> Admin / Author</span>` : `<span class="role-badge scholar">${topic.authorRole || 'Scholar'}</span>`}
+                            ${isAdminAuthor ? `<span class="role-badge admin"><ion-icon name="ribbon-outline"></ion-icon> Admin / Author</span>` : `<span class="role-badge scholar">${topic.authorRole || 'Member'}</span>`}
                         </div>
                         <span class="topic-time-ago">${new Date(topic.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}</span>
                     </div>
@@ -813,7 +813,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Toggle Reaction on Topic
     const toggleTopicReaction = async (topicId, reactionType) => {
         if (!currentUser) {
-            alert('Please sign in with Google to react to scholarly insights.');
+            alert('Please sign in with Google to react to forum insights.');
             return;
         }
         if (!db) return;
@@ -864,7 +864,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div style="background: #f8fafc; border: 1px dashed rgba(15,23,42,0.1); border-radius: 16px; padding: 2rem; text-align: center; color: #94a3b8;">
                     <ion-icon name="chatbox-outline" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></ion-icon>
                     <p style="font-size: 0.95rem; font-weight: 600;">No comments yet on this topic.</p>
-                    <p style="font-size: 0.85rem;">Be the first scholar to share your insight or clinical query below.</p>
+                    <p style="font-size: 0.85rem;">Be the first person to share your insight or clinical query below.</p>
                 </div>
             `;
             return;
@@ -923,9 +923,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                     <div class="topic-author-details">
                         <div class="topic-author-name" style="font-size: 0.88rem;">
-                            <span>${escapeHtml(comment.authorName || 'Ayurveda Scholar')}</span>
+                            <span>${escapeHtml(comment.authorName || 'Ayurveda Member')}</span>
                             ${comment.isDoctorVerified ? `<span class="badge-doctor-verified" style="font-size: 0.68rem; padding: 0.12rem 0.45rem; margin-left: 0.3rem;"><ion-icon name="checkmark-done-circle"></ion-icon> Doctor</span>` : ''}
-                            ${isAdminAuthor ? `<span class="role-badge admin"><ion-icon name="ribbon-outline"></ion-icon> Admin</span>` : `<span class="role-badge scholar">${comment.authorRole || 'Scholar'}</span>`}
+                            ${isAdminAuthor ? `<span class="role-badge admin"><ion-icon name="ribbon-outline"></ion-icon> Admin</span>` : `<span class="role-badge scholar">${comment.authorRole || 'Member'}</span>`}
                         </div>
                         <span class="topic-time-ago">${formatTimeAgo(comment.createdAt)}</span>
                     </div>
@@ -1064,9 +1064,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 topicId: activeTopicId,
                 parentId: commentId,
                 content: text,
-                authorName: currentUser.displayName || 'Ayurveda Scholar',
+                authorName: currentUser.displayName || 'Ayurveda Member',
                 authorEmail: currentUser.email || '',
-                authorRole: isAdmin ? 'Faculty / Admin' : 'Scholar',
+                authorRole: isAdmin ? 'Faculty / Admin' : 'Member',
                 isDoctorVerified: localStorage.getItem('rsbk_doctor_verified') === 'true',
                 authorAvatar: currentUser.photoURL || '',
                 createdAt: Date.now()
@@ -1133,9 +1133,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     parentId: null,
                     content: content,
                     attachments: uploadedAttachments,
-                    authorName: currentUser.displayName || 'Ayurveda Scholar',
+                    authorName: currentUser.displayName || 'Ayurveda Member',
                     authorEmail: currentUser.email || '',
-                    authorRole: isAdmin ? 'Faculty / Admin' : 'Scholar',
+                    authorRole: isAdmin ? 'Faculty / Admin' : 'Member',
                     isDoctorVerified: localStorage.getItem('rsbk_doctor_verified') === 'true',
                     authorAvatar: currentUser.photoURL || '',
                     createdAt: Date.now()
@@ -1351,9 +1351,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     tags: tags,
                     content: content,
                     attachments: uploadedAttachments,
-                    authorName: currentUser.displayName || 'Ayurveda Scholar',
+                    authorName: currentUser.displayName || 'Ayurveda Member',
                     authorEmail: currentUser.email || '',
-                    authorRole: isAdmin ? 'Faculty / Admin' : 'Scholar',
+                    authorRole: isAdmin ? 'Faculty / Admin' : 'Member',
                     isDoctorVerified: localStorage.getItem('rsbk_doctor_verified') === 'true',
                     authorAvatar: currentUser.photoURL || '',
                     createdAt: now,

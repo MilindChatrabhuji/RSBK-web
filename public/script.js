@@ -516,29 +516,29 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             gate.innerHTML = `
                 <div class="auth-gate-card paywall-card-trial">
-                    <div class="paywall-trial-badge">
-                        <ion-icon name="sparkles"></ion-icon> 30-Day Free Trial Available
+                    <div class="paywall-trial-badge" style="background: rgba(16, 185, 129, 0.15); color: #059669; border-color: rgba(16, 185, 129, 0.3);">
+                        <ion-icon name="sparkles"></ion-icon> 100% Free Academic Access
                     </div>
                     <div class="auth-gate-icon">
-                        <ion-icon name="lock-closed"></ion-icon>
+                        <ion-icon name="lock-open-outline" style="color: #059669;"></ion-icon>
                     </div>
-                    <h2 class="auth-gate-title">Sign In to Start Your 30-Day Free Trial</h2>
+                    <h2 class="auth-gate-title">Sign In with Google for Instant Free Access</h2>
                     <p class="auth-gate-desc">
-                        Full curriculum taxonomy handbooks, cognitive assessment frameworks, and the complete reference books archive authored by <strong>Dr. Milind Chatrabhuji</strong> require an active membership. Sign in with Google to start your 30-day complimentary access immediately.
+                        Curriculum handbooks, cognitive assessment blueprints, ABQ question banks, and the complete reference books archive are completely free of charge for <strong>UG &amp; PG students, teachers, doctors, and everyone</strong>. Sign in with Google to read immediately.
                     </p>
 
                     <div class="paywall-features-list">
                         <div class="paywall-feature-item">
                             <ion-icon name="checkmark-circle"></ion-icon>
-                            <span><strong>30 Days Full Access</strong> — 100% Free on your first Google Sign-In.</span>
+                            <span><strong>100% Free of Charge</strong> — Free registration with your Google account.</span>
                         </div>
                         <div class="paywall-feature-item">
                             <ion-icon name="checkmark-circle"></ion-icon>
-                            <span><strong>No Credit Card Required</strong> — Instant access without advance payment.</span>
+                            <span><strong>Instant 1-Click Access</strong> — No passwords, forms, or payment details required.</span>
                         </div>
                         <div class="paywall-feature-item">
                             <ion-icon name="checkmark-circle"></ion-icon>
-                            <span><strong>Only ₹1 / Day After Trial</strong> — Simple, affordable daily membership wallet.</span>
+                            <span><strong>For Students, Teachers &amp; Everyone</strong> — NCISM aligned study and pedagogy materials.</span>
                         </div>
                     </div>
 
@@ -549,12 +549,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <path fill="#FBBC05" d="M5.04 14.04c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.32H1.05C.38 7.66 0 9.16 0 10.75s.38 3.09 1.05 4.43l3.99-3.14z"/>
                             <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.22 0 3.06 2.8 1.05 6.82l3.99 3.14c.98-2.93 3.72-5.21 6.96-5.21z"/>
                         </svg>
-                        <span>Sign in with Google (Start Free Trial)</span>
+                        <span>Continue with Google (Instant Free Access)</span>
                     </button>
 
                     <div class="auth-gate-footer">
                         <a href="index.html" class="auth-gate-back-link">
-                            <ion-icon name="arrow-back-outline"></ion-icon> Return to Homepage (Free to browse)
+                            <ion-icon name="arrow-back-outline"></ion-icon> Return to Homepage
                         </a>
                     </div>
                 </div>
@@ -613,7 +613,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialize Firebase Services (Auth & Realtime Database)
     try {
         const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
-        const { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+        const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithCredential, signOut, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
         const { getDatabase, ref, onValue, set, onDisconnect, runTransaction, push, update } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
 
         const firebaseConfig = {
@@ -727,10 +727,230 @@ document.addEventListener('DOMContentLoaded', async () => {
             signInBtn.addEventListener('click', handleGoogleSignIn);
         }
 
+        const heroSignInBtn = document.getElementById('heroGoogleSignInBtn');
+        if (heroSignInBtn) {
+            heroSignInBtn.addEventListener('click', handleGoogleSignIn);
+        }
+
+        // =========================================================================
+        // Google One Tap Identity Services (Instant Zero-Click Google Prompt)
+        // =========================================================================
+        const initGoogleOneTap = (authInstance) => {
+            if (localStorage.getItem('rsbk_auth_cached') === 'true') return;
+            if (sessionStorage.getItem('rsbk_onetap_dismissed') === 'true') return;
+
+            const clientId = "362985180438-r0cbhumpvkoclh6ghvohh65rsfitrcf9.apps.googleusercontent.com";
+
+            if (!document.getElementById('googleGsiScript') && (!window.google || !window.google.accounts || !window.google.accounts.id)) {
+                const gsiScript = document.createElement('script');
+                gsiScript.id = 'googleGsiScript';
+                gsiScript.src = 'https://accounts.google.com/gsi/client';
+                gsiScript.async = true;
+                gsiScript.defer = true;
+                document.head.appendChild(gsiScript);
+            }
+
+            const triggerOneTap = () => {
+                if (!window.google || !window.google.accounts || !window.google.accounts.id) return;
+                try {
+                    window.google.accounts.id.initialize({
+                        client_id: clientId,
+                        callback: async (response) => {
+                            if (response && response.credential) {
+                                try {
+                                    const credential = GoogleAuthProvider.credential(response.credential);
+                                    await signInWithCredential(authInstance, credential);
+                                } catch (err) {
+                                    console.error('One Tap credential exchange failed:', err);
+                                }
+                            }
+                        },
+                        auto_select: false,
+                        cancel_on_tap_outside: true
+                    });
+
+                    window.google.accounts.id.prompt((notification) => {
+                        if (notification.isDismissedMoment() || notification.isSkippedMoment()) {
+                            sessionStorage.setItem('rsbk_onetap_dismissed', 'true');
+                        }
+                    });
+                } catch (e) {
+                    console.warn('Google One Tap note:', e);
+                }
+            };
+
+            if (window.google && window.google.accounts) {
+                triggerOneTap();
+            } else {
+                const checkGoogle = setInterval(() => {
+                    if (window.google && window.google.accounts) {
+                        clearInterval(checkGoogle);
+                        triggerOneTap();
+                    }
+                }, 400);
+                setTimeout(() => clearInterval(checkGoogle), 6000);
+            }
+        };
+
+        // =========================================================================
+        // Floating Sticky Guest Bar (Center Bottom on Scroll)
+        // =========================================================================
+        const initFloatingGuestBar = (onSignIn) => {
+            if (localStorage.getItem('rsbk_auth_cached') === 'true') return;
+            if (document.getElementById('floatingGuestBar')) return;
+
+            const bar = document.createElement('div');
+            bar.id = 'floatingGuestBar';
+            bar.className = 'floating-guest-bar';
+            bar.innerHTML = `
+                <div class="guest-bar-content">
+                    <div class="guest-bar-text">
+                        <span class="guest-bar-title"><ion-icon name="sparkles"></ion-icon> 100% Free Academic Access</span>
+                        <span class="guest-bar-desc">Sign in with Google to explore textbooks, ABQ question banks &amp; classical treatises!</span>
+                    </div>
+                    <button class="btn-guest-bar-google" id="guestBarGoogleBtn" type="button" title="Sign in with Google (100% Free)">
+                        <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18">
+                            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+                            <path fill="#34A853" d="M12 24c3.3 0 6.08-1.09 8.1-2.96l-3.88-3.05c-1.08.72-2.45 1.16-4.22 1.16-3.24 0-5.98-2.18-6.96-5.11H1.05v3.14C3.06 21.2 7.22 24 12 24z"/>
+                            <path fill="#FBBC05" d="M5.04 14.04c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.32H1.05C.38 7.66 0 9.16 0 10.75s.38 3.09 1.05 4.43l3.99-3.14z"/>
+                            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.22 0 3.06 2.8 1.05 6.82l3.99 3.14c.98-2.93 3.72-5.21 6.96-5.21z"/>
+                        </svg>
+                        <span>Sign in Free</span>
+                    </button>
+                    <button class="guest-bar-close" id="closeGuestBarBtn" type="button" title="Dismiss">&times;</button>
+                </div>
+            `;
+            document.body.appendChild(bar);
+
+            const barBtn = document.getElementById('guestBarGoogleBtn');
+            if (barBtn && onSignIn) barBtn.addEventListener('click', onSignIn);
+
+            const closeBtn = document.getElementById('closeGuestBarBtn');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    bar.classList.remove('visible');
+                    sessionStorage.setItem('rsbk_guest_bar_dismissed', 'true');
+                });
+            }
+
+            const checkScroll = () => {
+                if (sessionStorage.getItem('rsbk_guest_bar_dismissed') === 'true' || localStorage.getItem('rsbk_auth_cached') === 'true') {
+                    bar.classList.remove('visible');
+                    return;
+                }
+                if (window.scrollY > 260) {
+                    bar.classList.add('visible');
+                } else {
+                    bar.classList.remove('visible');
+                }
+            };
+
+            window.addEventListener('scroll', checkScroll, { passive: true });
+            checkScroll();
+        };
+
+        // =========================================================================
+        // Exit-Intent & Gentle Inactivity Welcome Modal
+        // =========================================================================
+        const initGuestNudge = (onSignIn) => {
+            if (localStorage.getItem('rsbk_auth_cached') === 'true') return;
+            if (sessionStorage.getItem('rsbk_nudge_shown') === 'true') return;
+
+            const showNudgeModal = () => {
+                if (localStorage.getItem('rsbk_auth_cached') === 'true') return;
+                if (sessionStorage.getItem('rsbk_nudge_shown') === 'true') return;
+                if (document.getElementById('guestNudgeModal')) return;
+
+                sessionStorage.setItem('rsbk_nudge_shown', 'true');
+
+                const modal = document.createElement('div');
+                modal.id = 'guestNudgeModal';
+                modal.className = 'guest-nudge-modal';
+                modal.innerHTML = `
+                    <div class="guest-nudge-card">
+                        <button class="nudge-close-btn" id="nudgeCloseBtn" type="button" title="Close">&times;</button>
+                        <div class="nudge-icon-wrap">
+                            <ion-icon name="sparkles"></ion-icon>
+                        </div>
+                        <h3 class="nudge-title">Welcome to RSBK Online!</h3>
+                        <p class="nudge-desc">
+                            Unlock full NCISM curriculum handbooks, Bloom's &amp; Miller's pedagogical series, question banks, and classical treatises free of charge.
+                        </p>
+                        <div class="nudge-perks">
+                            <div class="nudge-perk-item">
+                                <ion-icon name="checkmark-circle"></ion-icon>
+                                <span>100% Free of Charge — No fees required</span>
+                            </div>
+                            <div class="nudge-perk-item">
+                                <ion-icon name="checkmark-circle"></ion-icon>
+                                <span>Instant 1-Click Sign-In with Google</span>
+                            </div>
+                            <div class="nudge-perk-item">
+                                <ion-icon name="checkmark-circle"></ion-icon>
+                                <span>For Students, Teachers, Doctors &amp; Everyone</span>
+                            </div>
+                        </div>
+                        <button class="btn-nudge-google" id="nudgeGoogleSignInBtn" type="button">
+                            <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+                                <path fill="#34A853" d="M12 24c3.3 0 6.08-1.09 8.1-2.96l-3.88-3.05c-1.08.72-2.45 1.16-4.22 1.16-3.24 0-5.98-2.18-6.96-5.11H1.05v3.14C3.06 21.2 7.22 24 12 24z"/>
+                                <path fill="#FBBC05" d="M5.04 14.04c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.32H1.05C.38 7.66 0 9.16 0 10.75s.38 3.09 1.05 4.43l3.99-3.14z"/>
+                                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.22 0 3.06 2.8 1.05 6.82l3.99 3.14c.98-2.93 3.72-5.21 6.96-5.21z"/>
+                            </svg>
+                            <span>Continue with Google (Instant Free Access)</span>
+                        </button>
+                        <button class="nudge-dismiss-link" id="nudgeDismissLink" type="button">Continue Browsing First</button>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+
+                const dismiss = () => {
+                    if (modal && modal.parentNode) modal.parentNode.removeChild(modal);
+                };
+
+                const closeBtn = document.getElementById('nudgeCloseBtn');
+                const dismissLink = document.getElementById('nudgeDismissLink');
+                const signBtn = document.getElementById('nudgeGoogleSignInBtn');
+
+                if (closeBtn) closeBtn.addEventListener('click', dismiss);
+                if (dismissLink) dismissLink.addEventListener('click', dismiss);
+                if (signBtn && onSignIn) {
+                    signBtn.addEventListener('click', () => {
+                        dismiss();
+                        onSignIn();
+                    });
+                }
+            };
+
+            // Inactivity trigger on homepage after 24 seconds
+            if (isHomepage) {
+                setTimeout(showNudgeModal, 24000);
+
+                // Desktop exit-intent trigger
+                const handleMouseLeave = (e) => {
+                    if (e.clientY <= 5) {
+                        document.removeEventListener('mouseleave', handleMouseLeave);
+                        showNudgeModal();
+                    }
+                };
+                setTimeout(() => {
+                    document.addEventListener('mouseleave', handleMouseLeave);
+                }, 6000);
+            }
+        };
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 const firstName = (user.displayName || user.email || 'User').split(' ')[0];
                 const photo = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'U')}&background=059669&color=fff`;
+
+                // Clean up guest widgets immediately
+                const heroGuestCTA = document.getElementById('heroGuestCTA');
+                if (heroGuestCTA) heroGuestCTA.style.display = 'none';
+                const floatingBar = document.getElementById('floatingGuestBar');
+                if (floatingBar) floatingBar.remove();
+                const nudgeModal = document.getElementById('guestNudgeModal');
+                if (nudgeModal) nudgeModal.remove();
 
                 localStorage.setItem('rsbk_auth_cached', 'true');
                 localStorage.setItem('rsbk_user_name', firstName);
@@ -889,6 +1109,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 renderPaywall(accessInfo, handleGoogleSignIn);
 
                 window.dispatchEvent(new CustomEvent('rsbk-user-authenticated', { detail: null }));
+
+                // Initialize high-converting guest engagement tools
+                initGoogleOneTap(auth);
+                initFloatingGuestBar(handleGoogleSignIn);
+                initGuestNudge(handleGoogleSignIn);
             }
         });
 
