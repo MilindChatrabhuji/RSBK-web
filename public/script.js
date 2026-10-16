@@ -1329,7 +1329,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // =========================================================================
-    // Homepage Showcase Carousel Auto-Scroll Engine & Controls
+    // Homepage Showcase Carousel Auto-Scroll Engine & Controls (Infinite Loop)
     // =========================================================================
     const initShowcaseCarousel = () => {
         const viewport = document.getElementById('showcaseCarouselViewport');
@@ -1342,9 +1342,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (!viewport || !track) return;
 
-        // Duplicate the cards once to create an endless smooth loop
-        const cards = Array.from(track.children);
-        cards.forEach(card => {
+        // Clone the original 5 cards twice to create Set 1, Set 2, and Set 3
+        // This guarantees continuous cards even across ultra-wide / 4K displays
+        const originalCards = Array.from(track.children);
+        const originalCount = originalCards.length;
+
+        // Set 2
+        originalCards.forEach(card => {
+            const clone = card.cloneNode(true);
+            clone.setAttribute('aria-hidden', 'true');
+            track.appendChild(clone);
+        });
+
+        // Set 3
+        originalCards.forEach(card => {
             const clone = card.cloneNode(true);
             clone.setAttribute('aria-hidden', 'true');
             track.appendChild(clone);
@@ -1354,29 +1365,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         let isHovered = false;
         let isManualScrolling = false;
         let manualTimeout = null;
-        const scrollSpeed = 0.65; // pixels per frame
+        let lastTimestamp = performance.now();
+        const SCROLL_SPEED_PX_PER_SEC = 80; // Noticeable, smooth speed (~80px/sec) across all monitor refresh rates
 
-        const getHalfWidth = () => track.scrollWidth / 2;
+        // Measure cycle width (the exact distance from card 0 to card [originalCount])
+        const getCycleWidth = () => {
+            if (track.children.length > originalCount && track.children[originalCount]) {
+                const diff = track.children[originalCount].offsetLeft - track.children[0].offsetLeft;
+                if (diff > 100) return diff;
+            }
+            return originalCount * 378;
+        };
 
-        const animateLoop = () => {
+        const animateLoop = (currentTimestamp) => {
+            const dt = Math.min((currentTimestamp - lastTimestamp) / 1000, 0.1);
+            lastTimestamp = currentTimestamp;
+
             if (isPlaying && !isHovered && !isManualScrolling) {
-                viewport.scrollLeft += scrollSpeed;
-                const half = getHalfWidth();
-                if (viewport.scrollLeft >= half) {
-                    viewport.scrollLeft -= half;
+                viewport.scrollLeft += SCROLL_SPEED_PX_PER_SEC * dt;
+                
+                const cycleWidth = getCycleWidth();
+                if (cycleWidth > 0 && viewport.scrollLeft >= cycleWidth) {
+                    viewport.scrollLeft -= cycleWidth;
                 }
             }
+
             requestAnimationFrame(animateLoop);
         };
 
         requestAnimationFrame(animateLoop);
 
-        // Pause on mouse hover / touch
+        // Pause on mouse hover / touch interaction
         viewport.addEventListener('mouseenter', () => { isHovered = true; });
         viewport.addEventListener('mouseleave', () => { isHovered = false; });
         viewport.addEventListener('touchstart', () => { isHovered = true; }, { passive: true });
         viewport.addEventListener('touchend', () => { 
-            setTimeout(() => { isHovered = false; }, 1000); 
+            setTimeout(() => { isHovered = false; }, 800); 
         }, { passive: true });
 
         // Play / Pause Toggle
@@ -1396,26 +1420,38 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
-        // Left / Right Manual Movement Buttons
-        const cardStep = 370; // card width (350px) + gap (20px)
+        // Left / Right Manual Movement Buttons (scroll 1 card step = 378px)
+        const getCardStep = () => {
+            if (track.children.length > 1) {
+                const step = track.children[1].offsetLeft - track.children[0].offsetLeft;
+                if (step > 100) return step;
+            }
+            return 378;
+        };
 
         const handleManualNavigation = (direction) => {
             isManualScrolling = true;
             clearTimeout(manualTimeout);
 
-            const half = getHalfWidth();
-            if (direction === 'prev' && viewport.scrollLeft <= 5) {
-                viewport.scrollLeft += half;
-            } else if (direction === 'next' && viewport.scrollLeft >= half) {
-                viewport.scrollLeft -= half;
-            }
+            const cycleWidth = getCycleWidth();
+            const step = getCardStep();
 
-            const targetOffset = (direction === 'next') ? cardStep : -cardStep;
-            viewport.scrollBy({ left: targetOffset, behavior: 'smooth' });
+            if (direction === 'prev') {
+                if (viewport.scrollLeft < step) {
+                    viewport.scrollLeft += cycleWidth;
+                }
+                viewport.scrollBy({ left: -step, behavior: 'smooth' });
+            } else {
+                if (viewport.scrollLeft >= cycleWidth) {
+                    viewport.scrollLeft -= cycleWidth;
+                }
+                viewport.scrollBy({ left: step, behavior: 'smooth' });
+            }
 
             manualTimeout = setTimeout(() => {
                 isManualScrolling = false;
-            }, 800);
+                lastTimestamp = performance.now();
+            }, 600);
         };
 
         if (prevBtn) {
