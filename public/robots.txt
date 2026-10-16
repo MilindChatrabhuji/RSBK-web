@@ -1,0 +1,22 @@
+# robots.txt for RSBK Online (Suvarna Ayurveda)
+# https://rsbk-online.web.app
+
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /students.html
+Allow: /teachers.html
+Allow: /teachers-ug.html
+Allow: /teachers-pg.html
+Allow: /teachers-pg-sem2.html
+Allow: /teachers-pg-sem3-6.html
+Allow: /books.html
+Allow: /videos.html
+Allow: /research.html
+Allow: /forum.html
+Allow: /membership.html
+Disallow: /admin.html
+Disallow: /payment-confirmation.html
+
+# Dedicated sitemap index
+Sitemap: https://rsbk-online.web.app/sitemap.xml
