@@ -791,7 +791,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     // -------------------------------------------------------------
-    // 8. Bootstrap Video Hub Initialization
+    // 8. Back to Top Floating Button Handler
+    // -------------------------------------------------------------
+    const backToTopBtn = document.getElementById('backToTopBtn');
+    if (backToTopBtn && !backToTopBtn.dataset.bound) {
+        backToTopBtn.dataset.bound = 'true';
+        let scrollThrottle = false;
+        const checkScroll = () => {
+            if (window.scrollY > 280) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+        };
+
+        window.addEventListener('scroll', () => {
+            if (!scrollThrottle) {
+                scrollThrottle = true;
+                requestAnimationFrame(() => {
+                    checkScroll();
+                    scrollThrottle = false;
+                });
+            }
+        }, { passive: true });
+
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+            backToTopBtn.blur();
+        });
+
+        checkScroll();
+    }
+
+    // -------------------------------------------------------------
+    // 9. Bootstrap Video Hub Initialization
     // -------------------------------------------------------------
     loadUserInteractions();
     loadCustomVideosLocal();

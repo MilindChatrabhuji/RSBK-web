@@ -1471,4 +1471,38 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     initShowcaseCarousel();
 
+    // Global Back to Top Floating Button support
+    const globalBackToTopBtn = document.getElementById('backToTopBtn');
+    if (globalBackToTopBtn && !globalBackToTopBtn.dataset.bound) {
+        globalBackToTopBtn.dataset.bound = 'true';
+        let scrollThrottle = false;
+        const checkScroll = () => {
+            if (window.scrollY > 280) {
+                globalBackToTopBtn.classList.add('visible');
+            } else {
+                globalBackToTopBtn.classList.remove('visible');
+            }
+        };
+
+        window.addEventListener('scroll', () => {
+            if (!scrollThrottle) {
+                scrollThrottle = true;
+                requestAnimationFrame(() => {
+                    checkScroll();
+                    scrollThrottle = false;
+                });
+            }
+        }, { passive: true });
+
+        globalBackToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+            globalBackToTopBtn.blur();
+        });
+
+        checkScroll();
+    }
+
 });
