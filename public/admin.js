@@ -2109,24 +2109,46 @@ document.addEventListener('DOMContentLoaded', async () => {
         return (match && match[2].length === 11) ? match[2] : null;
     };
 
-    // Live YouTube link preview
+    // Public YouTube Title Auto-fetcher
+    const fetchYouTubeTitle = async (ytId) => {
+        try {
+            const res = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${ytId}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.title) return data.title;
+            }
+        } catch (e) {}
+        return '';
+    };
+
+    // Live YouTube link preview & auto-title population
+    const adminVideoLiveCard = document.getElementById('adminVideoLiveCard');
     if (adminVideoUrl) {
-        const updateThumbPreview = () => {
+        const updateThumbPreview = async () => {
             const ytId = extractYouTubeId(adminVideoUrl.value);
             if (ytId) {
+                if (adminVideoLiveCard) adminVideoLiveCard.style.display = 'flex';
                 if (adminVideoLiveThumb) {
                     adminVideoLiveThumb.src = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
-                    adminVideoLiveThumb.style.display = 'block';
                 }
-                if (adminVideoPreviewPlaceholder) adminVideoPreviewPlaceholder.style.display = 'none';
-                if (adminVideoDetectedId) adminVideoDetectedId.textContent = `Detected YouTube ID: ${ytId}`;
+                if (adminVideoDetectedId) adminVideoDetectedId.textContent = `YouTube ID: ${ytId}`;
+
+                // Auto-fetch title from YouTube oEmbed if title is empty
+                if (adminVideoTitle && (!adminVideoTitle.value || adminVideoTitle.value.startsWith('RSBK Video:'))) {
+                    adminVideoTitle.placeholder = 'Fetching title from YouTube...';
+                    const ytTitle = await fetchYouTubeTitle(ytId);
+                    if (ytTitle) {
+                        adminVideoTitle.value = ytTitle;
+                    } else {
+                        adminVideoTitle.placeholder = 'Enter video title';
+                        if (!adminVideoTitle.value) adminVideoTitle.value = `RSBK Practical Video (${ytId})`;
+                    }
+                }
             } else {
-                if (adminVideoLiveThumb) {
-                    adminVideoLiveThumb.src = '';
-                    adminVideoLiveThumb.style.display = 'none';
-                }
-                if (adminVideoPreviewPlaceholder) adminVideoPreviewPlaceholder.style.display = 'flex';
+                if (adminVideoLiveCard) adminVideoLiveCard.style.display = 'none';
+                if (adminVideoLiveThumb) adminVideoLiveThumb.src = '';
                 if (adminVideoDetectedId) adminVideoDetectedId.textContent = '';
+                if (adminVideoTitle) adminVideoTitle.value = '';
             }
         };
 
@@ -2305,53 +2327,67 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Publish New Video Click Handler
+    // Publish New Video Click Handler (Simple 1-Box Link Add)
     if (btnPublishAdminVideo) {
         btnPublishAdminVideo.addEventListener('click', async () => {
             const rawUrl = (adminVideoUrl ? adminVideoUrl.value : '').trim();
-            const title = (adminVideoTitle ? adminVideoTitle.value : '').trim();
-            const category = adminVideoCategory ? adminVideoCategory.value : 'rasashastra';
-            const reference = (adminVideoReference ? adminVideoReference.value : '').trim();
-            const description = (adminVideoDesc ? adminVideoDesc.value : '').trim();
-            const rawTags = (adminVideoTags ? adminVideoTags.value : '').trim();
-            const duration = (adminVideoDuration ? adminVideoDuration.value : '').trim();
-
             const ytId = extractYouTubeId(rawUrl);
+
             if (!ytId) {
-                alert('Please provide a valid YouTube video link or 11-character video ID.');
+                alert('Please paste a valid YouTube video link (e.g. https://www.youtube.com/watch?v=... or https://youtu.be/...).');
                 if (adminVideoUrl) adminVideoUrl.focus();
                 return;
             }
 
+            // Get title from input or fetch directly from YouTube oEmbed
+            let title = (adminVideoTitle ? adminVideoTitle.value : '').trim();
             if (!title) {
-                alert('Please enter a descriptive title for this practical video.');
-                if (adminVideoTitle) adminVideoTitle.focus();
-                return;
+                btnPublishAdminVideo.disabled = true;
+                btnPublishAdminVideo.innerHTML = '<ion-icon name="hourglass-outline"></ion-icon> <span>Fetching...</span>';
+                title = await fetchYouTubeTitle(ytId);
+                btnPublishAdminVideo.disabled = false;
+                btnPublishAdminVideo.innerHTML = '<ion-icon name="add-circle"></ion-icon> <span>Add Video</span>';
             }
 
-            const tags = rawTags ? rawTags.split(',').map(t => t.trim()).filter(Boolean) : [];
-            const newVideoId = 'vid_custom_' + Date.now();
+            if (!title) {
+                title = `RSBK Practical Video (${ytId})`;
+            }
 
+            // Detect category based on title keywords
+            const lowerTitle = title.toLowerCase();
+            let category = 'rasashastra';
+            let categoryLabel = 'Rasashastra Practicals';
+
+            if (lowerTitle.includes('sneha') || lowerTitle.includes('taila') || lowerTitle.includes('ghrita') || lowerTitle.includes('asava') || lowerTitle.includes('arishta') || lowerTitle.includes('kwatha') || lowerTitle.includes('kashaya') || lowerTitle.includes('avaleha') || lowerTitle.includes('vati') || lowerTitle.includes('churna') || lowerTitle.includes('bhaishajya')) {
+                category = 'bhaishajya-kalpana';
+                categoryLabel = 'Bhaishajya Kalpana Practicals';
+            } else if (lowerTitle.includes('yantra') || lowerTitle.includes('musha') || lowerTitle.includes('puta') || lowerTitle.includes('pariksha') || lowerTitle.includes('testing') || lowerTitle.includes('xrd') || lowerTitle.includes('sem')) {
+                category = 'equipment';
+                categoryLabel = 'Yantras & Quality Control';
+            } else if (lowerTitle.includes('lecture') || lowerTitle.includes('syllabus') || lowerTitle.includes('ncism') || lowerTitle.includes('history') || lowerTitle.includes('theory')) {
+                category = 'lectures';
+                categoryLabel = 'Theory & Expert Lectures';
+            }
+
+            const newVideoId = 'vid_custom_' + Date.now();
             const newVideo = {
                 id: newVideoId,
                 youtubeId: ytId,
                 youtubeUrl: `https://www.youtube.com/watch?v=${ytId}`,
                 title: title,
                 category: category,
-                categoryLabel: (category === 'rasashastra') ? 'Rasashastra Practicals' :
-                               (category === 'bhaishajya-kalpana') ? 'Bhaishajya Kalpana Practicals' :
-                               (category === 'equipment') ? 'Yantras & Quality Control' : 'Theory & Expert Lectures',
-                reference: reference,
-                description: description,
-                tags: tags,
-                duration: duration || '',
+                categoryLabel: categoryLabel,
+                reference: 'Curated by Administration',
+                description: 'Authentic practical video added from YouTube.',
+                tags: [categoryLabel, 'Practical', 'RSBK'],
+                duration: '',
                 source: 'Added by Administrator',
                 dateAdded: new Date().toISOString(),
                 addedBy: currentAdminUser ? (currentAdminUser.email || 'Admin') : 'Admin',
                 isCustom: true
             };
 
-            // 1. Add to local list & save to localStorage
+            // 1. Save to local storage
             adminCustomVideos.unshift(newVideo);
             localStorage.setItem('rsbk_custom_videos', JSON.stringify(adminCustomVideos));
 
@@ -2365,19 +2401,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             }
 
-            // 3. Clear form and update UI
+            // 3. Clear inputs & reset UI
             if (adminVideoUrl) adminVideoUrl.value = '';
             if (adminVideoTitle) adminVideoTitle.value = '';
-            if (adminVideoReference) adminVideoReference.value = '';
-            if (adminVideoDesc) adminVideoDesc.value = '';
-            if (adminVideoTags) adminVideoTags.value = '';
-            if (adminVideoDuration) adminVideoDuration.value = '';
-            if (adminVideoLiveThumb) {
-                adminVideoLiveThumb.src = '';
-                adminVideoLiveThumb.style.display = 'none';
-            }
-            if (adminVideoPreviewPlaceholder) adminVideoPreviewPlaceholder.style.display = 'flex';
-            if (adminVideoDetectedId) adminVideoDetectedId.textContent = '';
+            if (adminVideoLiveCard) adminVideoLiveCard.style.display = 'none';
 
             combineAdminVideos();
             alert(`Video "${title}" successfully added!\nIt is now live on our website's Video Hub.`);

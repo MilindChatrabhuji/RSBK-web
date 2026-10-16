@@ -126,10 +126,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const path = window.location.pathname.toLowerCase();
-        const isHome = path.endsWith('/') || path.endsWith('index.html') || path.endsWith('index') || (!path.includes('students') && !path.includes('teachers') && !path.includes('books') && !path.includes('forum') && !path.includes('membership') && !path.includes('profile') && !path.includes('payment') && !path.includes('admin'));
+        const isHome = path.endsWith('/') || path.endsWith('index.html') || path.endsWith('index') || (!path.includes('students') && !path.includes('teachers') && !path.includes('books') && !path.includes('videos') && !path.includes('forum') && !path.includes('membership') && !path.includes('profile') && !path.includes('payment') && !path.includes('admin'));
         const isStudents = path.includes('students');
         const isTeachers = path.includes('teachers');
         const isBooks = path.includes('books');
+        const isVideos = path.includes('videos');
         const isForum = path.includes('forum');
         const isMembership = path.includes('membership');
         const isProfile = path.includes('profile');
@@ -155,6 +156,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <a href="books.html" class="vmenu-item ${isBooks ? 'active' : ''}" title="Books Archive">
                     <ion-icon name="library-outline"></ion-icon>
                     <span class="vmenu-text">Books</span>
+                </a>
+                <a href="videos.html" class="vmenu-item ${isVideos ? 'active' : ''}" title="Video Hub">
+                    <ion-icon name="videocam-outline"></ion-icon>
+                    <span class="vmenu-text">Videos</span>
                 </a>
                 <a href="forum.html" class="vmenu-item ${isForum ? 'active' : ''}" title="Discussion Forum">
                     <ion-icon name="chatbubbles-outline"></ion-icon>

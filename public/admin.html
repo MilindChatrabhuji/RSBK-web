@@ -803,80 +803,36 @@
                         </div>
 
                         <!-- Form Card: Add YouTube Video -->
-                        <div class="admin-video-form-card">
-                            <h3 class="admin-video-form-title">
-                                <ion-icon name="add-circle" style="color: #ef4444; font-size: 1.3rem;"></ion-icon>
+                        <div class="admin-video-form-card" style="padding: 1.5rem; max-width: 900px;">
+                            <h3 class="admin-video-form-title" style="margin-bottom: 0.25rem;">
+                                <ion-icon name="logo-youtube" style="color: #ef4444; font-size: 1.4rem;"></ion-icon>
                                 Add YouTube Video to Hub
                             </h3>
-                            <p class="admin-video-form-desc">Paste any standard YouTube link, short link (youtu.be), or YouTube Shorts URL. The system will automatically detect the video ID and fetch the thumbnail.</p>
+                            <p class="admin-video-form-desc" style="margin-bottom: 1.25rem;">Paste any YouTube video link below and click <strong>Add Video</strong>. The video will be added immediately to the website's Video Hub.</p>
 
-                            <form id="adminAddVideoForm" class="admin-video-form-grid" onsubmit="return false;">
-                                <div class="admin-video-inputs">
-                                    <div class="admin-input-group">
-                                        <label for="adminVideoUrl">YouTube Video Link / URL *</label>
-                                        <input type="text" id="adminVideoUrl" class="admin-input" placeholder="e.g. https://www.youtube.com/watch?v=... or https://youtu.be/..." required autocomplete="off">
-                                        <small style="color: var(--text-muted); font-size: 0.78rem;">Supports full URL, youtu.be, embed, shorts, or raw 11-char Video ID.</small>
-                                    </div>
-
-                                    <div class="admin-input-group">
-                                        <label for="adminVideoTitle">Video Title *</label>
-                                        <input type="text" id="adminVideoTitle" class="admin-input" placeholder="e.g. Abhraka Shodhana &amp; Dhanyabhraka Nirmana" required autocomplete="off">
-                                    </div>
-
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                                        <div class="admin-input-group">
-                                            <label for="adminVideoCategory">Subject Category *</label>
-                                            <select id="adminVideoCategory" class="admin-select" required>
-                                                <option value="rasashastra">Rasashastra Practicals (Shodhana &amp; Marana)</option>
-                                                <option value="bhaishajya-kalpana">Bhaishajya Kalpana (Sneha, Asava, Avaleha)</option>
-                                                <option value="equipment">Classical Yantras &amp; Quality Control (Bhasma Pariksha)</option>
-                                                <option value="lectures">NCISM Theory &amp; Expert Faculty Lectures</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="admin-input-group">
-                                            <label for="adminVideoReference">Classical Reference / Syllabus</label>
-                                            <input type="text" id="adminVideoReference" class="admin-input" placeholder="e.g. Rasatarangini Taranga 10 / BAMS 2nd Prof" autocomplete="off">
-                                        </div>
-                                    </div>
-
-                                    <div class="admin-input-group">
-                                        <label for="adminVideoDesc">Procedure Summary / Learning Notes</label>
-                                        <textarea id="adminVideoDesc" class="admin-textarea" rows="2" placeholder="Brief explanation of the procedure demonstrated in this video..."></textarea>
-                                    </div>
-
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                                        <div class="admin-input-group">
-                                            <label for="adminVideoTags">Search Keywords / Tags</label>
-                                            <input type="text" id="adminVideoTags" class="admin-input" placeholder="Comma separated: Abhraka, Shodhana, Mica" autocomplete="off">
-                                        </div>
-
-                                        <div class="admin-input-group">
-                                            <label for="adminVideoDuration">Duration (Optional)</label>
-                                            <input type="text" id="adminVideoDuration" class="admin-input" placeholder="e.g. 14:20" autocomplete="off">
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <button id="btnPublishAdminVideo" class="btn-admin-primary" type="button" style="background: #ef4444; border-color: #ef4444;">
-                                            <ion-icon name="cloud-upload"></ion-icon>
-                                            <span>Add &amp; Publish Video to Website</span>
-                                        </button>
-                                    </div>
+                            <!-- Single Simple Input Box & Add Button Row -->
+                            <div style="display: flex; gap: 0.75rem; align-items: stretch; flex-wrap: wrap;">
+                                <div style="flex: 1; min-width: 280px; position: relative;">
+                                    <ion-icon name="link-outline" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-size: 1.25rem; color: #ef4444; pointer-events: none;"></ion-icon>
+                                    <input type="text" id="adminVideoUrl" class="admin-input" style="padding: 0.95rem 1rem 0.95rem 2.85rem; font-size: 1rem; border-radius: 12px; width: 100%;" placeholder="Paste YouTube link here (e.g. https://www.youtube.com/watch?v=... or https://youtu.be/...)" autocomplete="off">
                                 </div>
+                                <button id="btnPublishAdminVideo" class="btn-admin-primary" type="button" style="background: #ef4444; border-color: #ef4444; padding: 0.95rem 1.75rem; font-size: 1rem; font-weight: 700; border-radius: 12px; white-space: nowrap; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <ion-icon name="add-circle" style="font-size: 1.25rem;"></ion-icon>
+                                    <span>Add Video</span>
+                                </button>
+                            </div>
 
-                                <div class="admin-video-preview-col">
-                                    <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Live YouTube Preview</label>
-                                    <div class="admin-video-thumb-preview" id="adminVideoThumbContainer">
-                                        <div class="admin-video-preview-placeholder" id="adminVideoPreviewPlaceholder">
-                                            <ion-icon name="logo-youtube"></ion-icon>
-                                            <span>Paste a YouTube link to see video preview</span>
-                                        </div>
-                                        <img id="adminVideoLiveThumb" src="" alt="Thumbnail Preview" style="display: none;">
-                                    </div>
-                                    <div id="adminVideoDetectedId" style="font-size: 0.78rem; color: var(--text-muted); font-family: monospace;"></div>
+                            <!-- Instant Live Feedback Box (Shows automatically when valid link is entered) -->
+                            <div id="adminVideoLiveCard" style="display: none; margin-top: 1.25rem; padding: 1rem; background: rgba(239, 68, 68, 0.04); border: 1.5px dashed rgba(239, 68, 68, 0.35); border-radius: 12px; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                                <div style="width: 140px; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden; background: #000; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                                    <img id="adminVideoLiveThumb" src="" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;">
                                 </div>
-                            </form>
+                                <div style="flex: 1; min-width: 200px;">
+                                    <div style="font-size: 0.75rem; color: #ef4444; font-weight: 700; text-transform: uppercase;">Ready to Add:</div>
+                                    <input type="text" id="adminVideoTitle" class="admin-input" style="margin-top: 0.25rem; font-weight: 600; padding: 0.5rem 0.75rem; font-size: 0.92rem; border-radius: 8px;" placeholder="Video title (auto-detected from YouTube)">
+                                    <div id="adminVideoDetectedId" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem; font-family: monospace;"></div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Video Library Table Toolbar -->
