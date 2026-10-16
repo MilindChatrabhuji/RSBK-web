@@ -93,9 +93,9 @@
                 <div class="badge">
                     <ion-icon name="videocam-outline" style="vertical-align: -2px; margin-right: 4px;"></ion-icon> Educational Video Hub · RSBK
                 </div>
-                <h1 class="section-title">Visual Learning &amp; Practicals</h1>
+                <h1 class="section-title">Video Hub &amp; Visual Learning</h1>
                 <p class="section-description">
-                    Curated practical demonstrations, standard operating procedures (SOPs), classical pharmaceutical preparations, and expert lectures for UG &amp; PG students, teachers, doctors, and everyone passionate about Ayurveda.
+                    Comprehensive digital video repository of curriculum lectures, academic demonstrations, standard operating procedures (SOPs), formulation preparations, and clinical discussions for UG &amp; PG students, teachers, doctors, and everyone passionate about Ayurveda.
                 </p>
 
                 <!-- Academic Trust / Features Row -->
@@ -111,7 +111,7 @@
             <div class="videos-toolbar">
                 <div class="videos-search-box">
                     <ion-icon name="search-outline"></ion-icon>
-                    <input type="text" id="videoSearchInput" placeholder="Search practicals by drug, formulation, or process (e.g. Abhraka, Sneha Murchana, Kajjali)..." autocomplete="off">
+                    <input type="text" id="videoSearchInput" placeholder="Search videos by drug, topic, formulation, or channel (e.g. Parada, Sneha, Kajjali, Syllabus)..." autocomplete="off">
                     <button id="clearVideoSearch" class="btn-clear-search" type="button" style="display: none;" title="Clear search">
                         <ion-icon name="close-circle"></ion-icon>
                     </button>
@@ -123,7 +123,7 @@
                             <ion-icon name="grid-outline"></ion-icon> All Videos
                         </button>
                         <button class="video-filter-pill" data-filter="rasashastra" type="button">
-                            <ion-icon name="flask-outline"></ion-icon> Rasashastra Practicals
+                            <ion-icon name="flask-outline"></ion-icon> Rasashastra
                         </button>
                         <button class="video-filter-pill" data-filter="bhaishajya-kalpana" type="button">
                             <ion-icon name="leaf-outline"></ion-icon> Bhaishajya Kalpana
@@ -134,12 +134,25 @@
                         <button class="video-filter-pill" data-filter="lectures" type="button">
                             <ion-icon name="school-outline"></ion-icon> Theory &amp; Lectures
                         </button>
+                        
+                        <div class="video-filter-divider"></div>
+                        
+                        <button class="video-filter-pill pill-saved" data-filter="watch-later" type="button" title="View videos saved to your Watch Later list">
+                            <ion-icon name="bookmark"></ion-icon> Watch Later (<span id="countWatchLater">0</span>)
+                        </button>
+                        <button class="video-filter-pill pill-liked" data-filter="liked" type="button" title="View videos you have liked">
+                            <ion-icon name="heart"></ion-icon> Liked (<span id="countLiked">0</span>)
+                        </button>
+                        <button class="video-filter-pill pill-pinned" data-filter="pinned" type="button" title="View your pinned videos">
+                            <ion-icon name="pin"></ion-icon> Pinned (<span id="countPinned">0</span>)
+                        </button>
                     </div>
 
                     <div class="video-sort-box">
                         <label for="videoSortSelect" class="sort-label">Sort:</label>
                         <select id="videoSortSelect" class="video-sort-dropdown">
                             <option value="default">Curated Order</option>
+                            <option value="pinned">Pinned First</option>
                             <option value="newest">Recently Added</option>
                             <option value="az">Title (A to Z)</option>
                             <option value="za">Title (Z to A)</option>
@@ -151,7 +164,7 @@
             <!-- Loading State -->
             <div id="videosLoadingState" class="videos-loading-wrapper">
                 <div class="mini-spinner large"></div>
-                <p>Loading curated RSBK practical demonstrations and lectures...</p>
+                <p>Loading curated RSBK academic videos and lectures...</p>
             </div>
 
             <!-- Video Cards Grid -->
@@ -159,12 +172,12 @@
 
             <!-- Empty State -->
             <div id="videosEmptyState" class="videos-empty-wrapper" style="display: none;">
-                <div class="empty-icon-wrap">
+                <div class="empty-icon-wrap" id="emptyStateIconWrap">
                     <ion-icon name="videocam-off-outline"></ion-icon>
                 </div>
-                <h3>No Matching Videos Found</h3>
-                <p>Try searching for a different drug name, classical process, or reset your category filter.</p>
-                <button class="btn btn-secondary" onclick="document.getElementById('videoSearchInput').value=''; document.querySelector('.video-filter-pill[data-filter=\'all\']').click();">
+                <h3 id="emptyStateHeading">No Matching Videos Found</h3>
+                <p id="emptyStateDesc">Try searching for a different drug name, classical process, or reset your category filter.</p>
+                <button class="btn btn-secondary" id="emptyStateResetBtn" onclick="document.getElementById('videoSearchInput').value=''; document.querySelector('.video-filter-pill[data-filter=\'all\']').click();">
                     <ion-icon name="refresh-outline"></ion-icon> Reset Search &amp; Filters
                 </button>
             </div>
@@ -177,7 +190,7 @@
         <div class="video-modal-dialog">
             <div class="video-modal-header">
                 <div class="modal-title-group">
-                    <span class="modal-category-tag" id="modalVideoCategory">Rasashastra Practical</span>
+                    <span class="modal-category-tag" id="modalVideoCategory">Rasashastra</span>
                     <h3 class="modal-video-title" id="modalVideoTitle">Video Title</h3>
                     <span class="modal-ref-tag" id="modalVideoReference"></span>
                 </div>
@@ -195,6 +208,18 @@
             <div class="video-modal-footer">
                 <p class="modal-video-desc" id="modalVideoDesc"></p>
                 <div class="modal-footer-actions">
+                    <button id="modalLikeBtn" class="btn btn-secondary btn-sm" type="button" title="Like this video">
+                        <ion-icon name="heart-outline" id="modalLikeIcon"></ion-icon> <span id="modalLikeText">Like</span>
+                    </button>
+                    <button id="modalSaveBtn" class="btn btn-secondary btn-sm" type="button" title="Save to Watch Later">
+                        <ion-icon name="bookmark-outline" id="modalSaveIcon"></ion-icon> <span id="modalSaveText">Watch Later</span>
+                    </button>
+                    <button id="modalPinBtn" class="btn btn-secondary btn-sm" type="button" title="Pin this video to top">
+                        <ion-icon name="pin-outline" id="modalPinIcon"></ion-icon> <span id="modalPinText">Pin</span>
+                    </button>
+                    <button id="modalShareBtn" class="btn btn-secondary btn-sm" type="button" title="Share / Copy Link">
+                        <ion-icon name="share-social-outline"></ion-icon> Share
+                    </button>
                     <a id="modalOpenYouTubeBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="Watch on YouTube">
                         <ion-icon name="logo-youtube" style="color: #ef4444;"></ion-icon> Open in YouTube
                     </a>
@@ -202,6 +227,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Toast Notification Container -->
+    <div id="videoToastContainer" class="video-toast-container"></div>
 
     <!-- Semi-Transparent Floating Menu Bar for Mobile Mode -->
     <nav class="mobile-menu-bar" aria-label="Mobile Navigation">

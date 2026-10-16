@@ -60,7 +60,7 @@
     <!-- Live Demonstration Tag -->
     <rect x="0" y="0" width="138" height="24" rx="12" fill="rgba(239, 68, 68, 0.2)" stroke="rgba(239, 68, 68, 0.4)" stroke-width="1"/>
     <circle cx="12" cy="12" r="4.5" fill="#ef4444"/>
-    <text x="24" y="16" font-family="'Inter', -apple-system, sans-serif" font-weight="700" font-size="10.5" fill="#fca5a5" letter-spacing="0.5">RSBK PRACTICALS</text>
+    <text x="24" y="16" font-family="'Inter', -apple-system, sans-serif" font-weight="700" font-size="10.5" fill="#fca5a5" letter-spacing="0.5">RSBK VIDEO HUB</text>
 
     <!-- HD Quality Badge -->
     <rect x="306" y="0" width="46" height="24" rx="6" fill="rgba(255, 255, 255, 0.1)" stroke="rgba(255, 255, 255, 0.2)" stroke-width="1"/>
@@ -85,9 +85,9 @@
     <text y="0" font-family="'Outfit', 'Inter', -apple-system, sans-serif" font-weight="800" font-size="20" fill="#ffffff" letter-spacing="0.5">
       YouTube <tspan fill="#ef4444">Video Hub</tspan>
     </text>
-    <!-- Subtitle: Curated SOPs & Demonstrations -->
+    <!-- Subtitle: Lectures, Demonstrations & Formulations -->
     <text y="20" font-family="'Inter', -apple-system, sans-serif" font-weight="500" font-size="11.5" fill="#94a3b8" letter-spacing="0.5">
-      Authentic Laboratory Demonstrations &amp; SOPs
+      Lectures, Demonstrations &amp; Formulations
     </text>
   </g>
 
