@@ -131,7 +131,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Update total count badge
         if (videoCountBadge) {
-            videoCountBadge.textContent = `${allVideos.length} Practical Videos`;
+            if (allVideos.length === 0) {
+                videoCountBadge.textContent = 'Video Hub';
+            } else if (allVideos.length === 1) {
+                videoCountBadge.textContent = '1 Practical Video';
+            } else {
+                videoCountBadge.textContent = `${allVideos.length} Practical Videos`;
+            }
         }
 
         renderVideos();
@@ -184,7 +190,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (filtered.length === 0) {
             if (videosGrid) videosGrid.style.display = 'none';
-            if (videosEmptyState) videosEmptyState.style.display = 'flex';
+            if (videosEmptyState) {
+                videosEmptyState.style.display = 'flex';
+                const emptyHeading = videosEmptyState.querySelector('h3');
+                const emptyDesc = videosEmptyState.querySelector('p');
+                const emptyBtn = videosEmptyState.querySelector('button');
+                if (allVideos.length === 0) {
+                    if (emptyHeading) emptyHeading.textContent = 'Curated Video Demonstrations Coming Soon';
+                    if (emptyDesc) emptyDesc.innerHTML = 'YouTube practical demonstrations and lectures are currently being added. Videos added via the <strong>Admin Panel</strong> will appear here automatically.';
+                    if (emptyBtn) emptyBtn.style.display = 'none';
+                } else {
+                    if (emptyHeading) emptyHeading.textContent = 'No Matching Videos Found';
+                    if (emptyDesc) emptyDesc.textContent = 'Try searching for a different drug name, classical process, or reset your category filter.';
+                    if (emptyBtn) emptyBtn.style.display = 'inline-flex';
+                }
+            }
             return;
         }
 

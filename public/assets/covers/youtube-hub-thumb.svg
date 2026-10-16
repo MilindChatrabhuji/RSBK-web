@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="ytBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1e24"/>
+      <stop offset="50%" stop-color="#121214"/>
+      <stop offset="100%" stop-color="#0a0a0c"/>
+    </linearGradient>
+
+    <!-- Red Radial Ambient Glow -->
+    <radialGradient id="ytRedGlow" cx="50%" cy="46%" r="55%">
+      <stop offset="0%" stop-color="#ef4444" stop-opacity="0.32"/>
+      <stop offset="60%" stop-color="#dc2626" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#991b1b" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Official YouTube Red Gradient -->
+    <linearGradient id="ytRedBtn" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ff1a1a"/>
+      <stop offset="40%" stop-color="#ff0000"/>
+      <stop offset="100%" stop-color="#cc0000"/>
+    </linearGradient>
+
+    <!-- Button Top Highlight Specular -->
+    <linearGradient id="ytHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Drop Shadows -->
+    <filter id="ytShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#ef4444" flood-opacity="0.45"/>
+    </filter>
+    
+    <filter id="pillShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Base 16:9 Canvas -->
+  <rect width="400" height="225" rx="16" fill="url(#ytBg)"/>
+  
+  <!-- Subtle Grid Texture in Background -->
+  <g opacity="0.04" stroke="#ffffff" stroke-width="1">
+    <line x1="0" y1="45" x2="400" y2="45"/>
+    <line x1="0" y1="90" x2="400" y2="90"/>
+    <line x1="0" y1="135" x2="400" y2="135"/>
+    <line x1="0" y1="180" x2="400" y2="180"/>
+    <line x1="80" y1="0" x2="80" y2="225"/>
+    <line x1="160" y1="0" x2="160" y2="225"/>
+    <line x1="240" y1="0" x2="240" y2="225"/>
+    <line x1="320" y1="0" x2="320" y2="225"/>
+  </g>
+
+  <!-- Red Center Glow -->
+  <circle cx="200" cy="98" r="130" fill="url(#ytRedGlow)"/>
+
+  <!-- Top Badges Row -->
+  <g transform="translate(24, 20)">
+    <!-- Live Demonstration Tag -->
+    <rect x="0" y="0" width="138" height="24" rx="12" fill="rgba(239, 68, 68, 0.2)" stroke="rgba(239, 68, 68, 0.4)" stroke-width="1"/>
+    <circle cx="12" cy="12" r="4.5" fill="#ef4444"/>
+    <text x="24" y="16" font-family="'Inter', -apple-system, sans-serif" font-weight="700" font-size="10.5" fill="#fca5a5" letter-spacing="0.5">RSBK PRACTICALS</text>
+
+    <!-- HD Quality Badge -->
+    <rect x="306" y="0" width="46" height="24" rx="6" fill="rgba(255, 255, 255, 0.1)" stroke="rgba(255, 255, 255, 0.2)" stroke-width="1"/>
+    <text x="329" y="16" font-family="'Inter', -apple-system, sans-serif" font-weight="800" font-size="10.5" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">HD</text>
+  </g>
+
+  <!-- Large Iconic YouTube Play Button in Center -->
+  <g transform="translate(142, 60)" filter="url(#ytShadow)">
+    <!-- Red Rounded YouTube Pill -->
+    <rect x="0" y="0" width="116" height="78" rx="22" fill="url(#ytRedBtn)"/>
+    
+    <!-- Top Sheen Highlight -->
+    <rect x="3" y="3" width="110" height="36" rx="19" fill="url(#ytHighlight)"/>
+
+    <!-- Sharp Centered White Play Triangle -->
+    <path d="M47 24 L76 40 L47 56 Z" fill="#ffffff"/>
+  </g>
+
+  <!-- Bottom Branded Title Bar -->
+  <g transform="translate(200, 168)" text-anchor="middle">
+    <!-- Main YouTube Wordmark & Hub Text -->
+    <text y="0" font-family="'Outfit', 'Inter', -apple-system, sans-serif" font-weight="800" font-size="20" fill="#ffffff" letter-spacing="0.5">
+      YouTube <tspan fill="#ef4444">Video Hub</tspan>
+    </text>
+    <!-- Subtitle: Curated SOPs & Demonstrations -->
+    <text y="20" font-family="'Inter', -apple-system, sans-serif" font-weight="500" font-size="11.5" fill="#94a3b8" letter-spacing="0.5">
+      Authentic Laboratory Demonstrations &amp; SOPs
+    </text>
+  </g>
+
+  <!-- Border Frame Accent -->
+  <rect x="1" y="1" width="398" height="223" rx="15" fill="none" stroke="rgba(255, 255, 255, 0.12)" stroke-width="1.5"/>
+</svg>

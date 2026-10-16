@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260" width="100%" height="100%">
+  <defs>
+    <!-- Background & Glow Gradients -->
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.35"/>
+      <stop offset="70%" stop-color="#d97706" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#b45309" stop-opacity="0"/>
+    </radialGradient>
+    
+    <linearGradient id="bookSpine1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#78350f"/>
+      <stop offset="25%" stop-color="#b45309"/>
+      <stop offset="75%" stop-color="#92400e"/>
+      <stop offset="100%" stop-color="#451a03"/>
+    </linearGradient>
+
+    <linearGradient id="bookSpine2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#064e3b"/>
+      <stop offset="30%" stop-color="#059669"/>
+      <stop offset="70%" stop-color="#047857"/>
+      <stop offset="100%" stop-color="#022c22"/>
+    </linearGradient>
+
+    <linearGradient id="bookSpine3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#701a75"/>
+      <stop offset="30%" stop-color="#a21caf"/>
+      <stop offset="70%" stop-color="#86198f"/>
+      <stop offset="100%" stop-color="#4a044e"/>
+    </linearGradient>
+
+    <linearGradient id="bookCoverRed" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#991b1b"/>
+      <stop offset="50%" stop-color="#7f1d1d"/>
+      <stop offset="100%" stop-color="#450a0a"/>
+    </linearGradient>
+
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="40%" stop-color="#f59e0b"/>
+      <stop offset="70%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+
+    <linearGradient id="pagesGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#fef3c7"/>
+      <stop offset="50%" stop-color="#fffbeb"/>
+      <stop offset="100%" stop-color="#fde68a"/>
+    </linearGradient>
+
+    <!-- Filters for Depth Shadows -->
+    <filter id="dropShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.25"/>
+    </filter>
+
+    <filter id="bookShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="3" dy="5" stdDeviation="4" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Ambient Light Backing -->
+  <rect width="400" height="260" rx="16" fill="#fdfbf7"/>
+  <circle cx="200" cy="130" r="140" fill="url(#bgGlow)"/>
+
+  <!-- Subtle Library Shelf Base -->
+  <rect x="30" y="222" width="340" height="12" rx="4" fill="#78350f" opacity="0.85" filter="url(#dropShadow)"/>
+  <rect x="30" y="222" width="340" height="3" fill="#b45309"/>
+
+  <!-- Left Standing Reference Volume (Brown Leather) -->
+  <g transform="translate(65, 52)" filter="url(#bookShadow)">
+    <rect x="0" y="0" width="34" height="170" rx="3" fill="url(#bookSpine1)"/>
+    <!-- Gold Bands on Spine -->
+    <rect x="0" y="16" width="34" height="3" fill="url(#goldGradient)"/>
+    <rect x="0" y="22" width="34" height="1.5" fill="url(#goldGradient)"/>
+    <rect x="0" y="146" width="34" height="1.5" fill="url(#goldGradient)"/>
+    <rect x="0" y="152" width="34" height="3" fill="url(#goldGradient)"/>
+    <!-- Gold Spine Emblem -->
+    <circle cx="17" cy="46" r="8" fill="none" stroke="url(#goldGradient)" stroke-width="1.5"/>
+    <path d="M17 41 L19 46 L15 46 Z" fill="url(#goldGradient)"/>
+    <!-- Spine Text (Vertical) -->
+    <text x="-98" y="21" transform="rotate(-90)" font-family="'Inter', -apple-system, sans-serif" font-weight="700" font-size="9" fill="#fef08a" letter-spacing="2">TREATISES</text>
+  </g>
+
+  <!-- Second Standing Reference Volume (Emerald Green Leather) -->
+  <g transform="translate(104, 62)" filter="url(#bookShadow)">
+    <rect x="0" y="0" width="32" height="160" rx="3" fill="url(#bookSpine2)"/>
+    <rect x="0" y="18" width="32" height="2.5" fill="url(#goldGradient)"/>
+    <rect x="0" y="138" width="32" height="2.5" fill="url(#goldGradient)"/>
+    <circle cx="16" cy="42" r="7" fill="none" stroke="url(#goldGradient)" stroke-width="1.2"/>
+    <text x="-95" y="20" transform="rotate(-90)" font-family="'Inter', -apple-system, sans-serif" font-weight="700" font-size="8.5" fill="#a7f3d0" letter-spacing="1.5">SAMHITA</text>
+  </g>
+
+  <!-- Third Standing Reference Volume (Magenta / Royal Purple) -->
+  <g transform="translate(141, 72)" filter="url(#bookShadow)">
+    <rect x="0" y="0" width="30" height="150" rx="3" fill="url(#bookSpine3)"/>
+    <rect x="0" y="15" width="30" height="2" fill="url(#goldGradient)"/>
+    <rect x="0" y="132" width="30" height="2" fill="url(#goldGradient)"/>
+    <text x="-88" y="19" transform="rotate(-90)" font-family="'Inter', -apple-system, sans-serif" font-weight="700" font-size="8" fill="#f5d0fe" letter-spacing="1.5">MANUSCRIPTS</text>
+  </g>
+
+  <!-- Large Slanted Classical Reference Book (Main Foreground Feature) -->
+  <g transform="translate(182, 40) rotate(7)" filter="url(#dropShadow)">
+    <!-- Back Cover Shadow Edge -->
+    <rect x="4" y="2" width="130" height="178" rx="6" fill="#1c1917" opacity="0.3"/>
+    
+    <!-- Hardcover Body -->
+    <rect x="0" y="0" width="130" height="176" rx="6" fill="url(#bookCoverRed)"/>
+    
+    <!-- Gold Foil Double Border -->
+    <rect x="8" y="8" width="114" height="160" rx="4" fill="none" stroke="url(#goldGradient)" stroke-width="1.8"/>
+    <rect x="12" y="12" width="106" height="152" rx="3" fill="none" stroke="url(#goldGradient)" stroke-width="0.8" stroke-dasharray="3 1.5"/>
+
+    <!-- Gilded Ornate Corners -->
+    <path d="M12 24 L24 12 M12 28 L28 12" stroke="url(#goldGradient)" stroke-width="1"/>
+    <path d="M118 24 L106 12 M118 28 L102 12" stroke="url(#goldGradient)" stroke-width="1"/>
+    <path d="M12 152 L24 164 M12 148 L28 164" stroke="url(#goldGradient)" stroke-width="1"/>
+    <path d="M118 152 L106 164 M118 148 L102 164" stroke="url(#goldGradient)" stroke-width="1"/>
+
+    <!-- Gold Center Medallion / Classical Emblem -->
+    <circle cx="65" cy="58" r="22" fill="none" stroke="url(#goldGradient)" stroke-width="1.5"/>
+    <circle cx="65" cy="58" r="18" fill="#581c1c" stroke="url(#goldGradient)" stroke-width="0.8"/>
+    
+    <!-- Classical Open Book Glyph in Center -->
+    <path d="M57 56 C61 54 64 55 65 57 C66 55 69 54 73 56 L73 64 C69 62 66 63 65 65 C64 63 61 62 57 64 Z" fill="url(#goldGradient)"/>
+
+    <!-- Cover Gold Lettering -->
+    <text x="65" y="98" font-family="'Outfit', 'Inter', -apple-system, sans-serif" font-weight="800" font-size="11.5" fill="url(#goldGradient)" text-anchor="middle" letter-spacing="1">REFERENCE</text>
+    <text x="65" y="112" font-family="'Outfit', 'Inter', -apple-system, sans-serif" font-weight="700" font-size="10" fill="#fef08a" text-anchor="middle" letter-spacing="1.5">LIBRARY</text>
+
+    <!-- Classical Shloka / Ayurvedic Iconography Subtext -->
+    <line x1="35" y1="124" x2="95" y2="124" stroke="url(#goldGradient)" stroke-width="1"/>
+    <text x="65" y="137" font-family="'Inter', -apple-system, sans-serif" font-weight="600" font-size="7.5" fill="#fca5a5" text-anchor="middle" letter-spacing="1">ARCHIVE · REPOSITORY</text>
+
+    <!-- Silk Bookmark Ribbon Hanging Below Book -->
+    <path d="M60 176 L60 200 L66 193 L72 200 L72 176 Z" fill="#d97706" filter="url(#bookShadow)"/>
+  </g>
+
+  <!-- Bottom Badge: "Google Drive Cloud Synchronized" -->
+  <g transform="translate(110, 224)">
+    <rect x="0" y="0" width="180" height="24" rx="12" fill="#0f172a" filter="url(#dropShadow)"/>
+    <circle cx="16" cy="12" r="5" fill="#10b981"/>
+    <text x="30" y="16" font-family="'Inter', -apple-system, sans-serif" font-weight="600" font-size="10" fill="#ffffff" letter-spacing="0.3">Live Drive Synchronized</text>
+  </g>
+</svg>
