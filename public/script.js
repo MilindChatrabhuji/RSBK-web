@@ -379,6 +379,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             document.body.classList.add('paywall-expired');
         }
+    } else {
+        document.documentElement.classList.add('auth-unverified');
+        document.body.classList.add('auth-unverified');
     }
 
     // Determine Page Type
@@ -386,7 +389,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const isHomepage = currentPath.endsWith('/') || currentPath.endsWith('index.html') || currentPath.endsWith('index');
     const isMembershipPage = currentPath.includes('membership');
     const isConfirmationPage = currentPath.includes('payment-confirmation');
-    const isProtectedContentPage = document.body.classList.contains('protected-page') && !isMembershipPage && !isConfirmationPage;
+    const isProtectedContentPage = document.body.classList.contains('protected-page') && !isConfirmationPage;
 
     // Helper: Build User Tier Pill HTML
     const buildUserTierPill = (type, trialDays, balance) => {
@@ -597,12 +600,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Render Paywall UI & Enforce Page Gating
     const renderPaywall = (accessInfo, onGoogleSignIn) => {
-        // Homepage and Wallet Management pages are never blocked
+        // Homepage and Payment Confirmation pages are never blocked
         if (!isProtectedContentPage) return;
 
         const gate = document.getElementById('authGate');
         const main = document.querySelector('.page-main');
 
+        // Case 1: Active access (trial, paid, VIP) -> Always show main
         if (accessInfo.hasAccess) {
             if (gate) gate.style.display = 'none';
             if (main) main.style.display = 'block';
@@ -611,7 +615,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // Access denied: hide page content and show appropriate paywall
+        // Case 2: On Membership page, signed-in users whose trial expired must access the recharge interface
+        if (isMembershipPage && accessInfo.status === 'expired') {
+            if (gate) gate.style.display = 'none';
+            if (main) main.style.display = 'block';
+            document.body.classList.add('paywall-expired');
+            document.body.classList.remove('auth-unverified');
+            return;
+        }
+
+        // Case 3: Access denied -> hide page content and show appropriate paywall
         if (main) main.style.display = 'none';
         if (gate) gate.style.display = 'flex';
         document.body.classList.remove('access-granted');
@@ -630,7 +643,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                     <h2 class="auth-gate-title">Sign In with Google for Instant Free Access</h2>
                     <p class="auth-gate-desc">
-                        Curriculum handbooks, cognitive assessment blueprints, ABQ question banks, and the complete reference books archive are completely free of charge for <strong>UG &amp; PG students, teachers, doctors, and everyone</strong>. Sign in with Google to read immediately.
+                        Curriculum handbooks, practical video demonstrations, peer-reviewed research papers, discussion forums, and the complete reference books archive are completely free of charge for <strong>UG &amp; PG students, teachers, doctors, researchers, and everyone</strong>. Sign in with Google to access immediately.
                     </p>
 
                     <div class="paywall-features-list">
@@ -644,7 +657,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         </div>
                         <div class="paywall-feature-item">
                             <ion-icon name="checkmark-circle"></ion-icon>
-                            <span><strong>For Students, Teachers &amp; Everyone</strong> — NCISM aligned study and pedagogy materials.</span>
+                            <span><strong>For Students, Teachers, Doctors &amp; Everyone</strong> — Video hub, research monographs, and NCISM study materials.</span>
                         </div>
                     </div>
 

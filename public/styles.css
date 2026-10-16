@@ -2420,14 +2420,29 @@ footer {
    =================================================== */
 /* Hide page-main on protected content pages if unverified or trial expired */
 body.protected-page.auth-unverified .page-main,
-body.protected-page.paywall-expired .page-main {
+body.protected-page.paywall-expired .page-main,
+html.auth-unverified body.protected-page .page-main {
     display: none !important;
 }
 
-/* Membership and Payment confirmation pages are never blocked */
-body.page-membership .page-main,
+/* Payment confirmation pages are never blocked */
 body.page-confirmation .page-main {
     display: block !important;
+}
+
+/* On membership page: allow main view when access-granted OR paywall-expired (so expired users can recharge) */
+body.page-membership.access-granted .page-main,
+body.page-membership.paywall-expired .page-main {
+    display: block !important;
+}
+
+/* If unauthenticated on membership page, hide page-main and show auth gate */
+body.page-membership.auth-unverified .page-main,
+html.auth-unverified body.page-membership .page-main {
+    display: none !important;
+}
+body.page-membership.auth-unverified .auth-gate {
+    display: flex !important;
 }
 
 /* When verified with active trial or wallet balance, always display page-main */
@@ -2451,10 +2466,10 @@ body.protected-page.paywall-expired .auth-gate {
     display: flex !important;
 }
 
-/* Hide auth gate when access is granted */
+/* Hide auth gate when access is granted or on membership page for expired users */
 html.access-granted .auth-gate,
 body.access-granted .auth-gate,
-body.page-membership .auth-gate,
+body.page-membership.paywall-expired .auth-gate,
 body.page-confirmation .auth-gate {
     display: none !important;
 }
