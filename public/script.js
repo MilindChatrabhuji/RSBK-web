@@ -1327,4 +1327,112 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (e) {
         console.error('Failed to load Firebase Auth:', e);
     }
+
+    // =========================================================================
+    // Homepage Showcase Carousel Auto-Scroll Engine & Controls
+    // =========================================================================
+    const initShowcaseCarousel = () => {
+        const viewport = document.getElementById('showcaseCarouselViewport');
+        const track = document.getElementById('showcaseCarouselTrack');
+        const prevBtn = document.getElementById('showcasePrevBtn');
+        const nextBtn = document.getElementById('showcaseNextBtn');
+        const playPauseBtn = document.getElementById('showcasePlayPauseBtn');
+        const playPauseIcon = document.getElementById('showcasePlayPauseIcon');
+        const playPauseText = document.getElementById('showcasePlayPauseText');
+
+        if (!viewport || !track) return;
+
+        // Duplicate the cards once to create an endless smooth loop
+        const cards = Array.from(track.children);
+        cards.forEach(card => {
+            const clone = card.cloneNode(true);
+            clone.setAttribute('aria-hidden', 'true');
+            track.appendChild(clone);
+        });
+
+        let isPlaying = true;
+        let isHovered = false;
+        let isManualScrolling = false;
+        let manualTimeout = null;
+        const scrollSpeed = 0.65; // pixels per frame
+
+        const getHalfWidth = () => track.scrollWidth / 2;
+
+        const animateLoop = () => {
+            if (isPlaying && !isHovered && !isManualScrolling) {
+                viewport.scrollLeft += scrollSpeed;
+                const half = getHalfWidth();
+                if (viewport.scrollLeft >= half) {
+                    viewport.scrollLeft -= half;
+                }
+            }
+            requestAnimationFrame(animateLoop);
+        };
+
+        requestAnimationFrame(animateLoop);
+
+        // Pause on mouse hover / touch
+        viewport.addEventListener('mouseenter', () => { isHovered = true; });
+        viewport.addEventListener('mouseleave', () => { isHovered = false; });
+        viewport.addEventListener('touchstart', () => { isHovered = true; }, { passive: true });
+        viewport.addEventListener('touchend', () => { 
+            setTimeout(() => { isHovered = false; }, 1000); 
+        }, { passive: true });
+
+        // Play / Pause Toggle
+        if (playPauseBtn) {
+            playPauseBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                isPlaying = !isPlaying;
+                if (isPlaying) {
+                    if (playPauseIcon) playPauseIcon.setAttribute('name', 'pause-outline');
+                    if (playPauseText) playPauseText.textContent = 'Pause';
+                    playPauseBtn.classList.remove('paused');
+                } else {
+                    if (playPauseIcon) playPauseIcon.setAttribute('name', 'play-outline');
+                    if (playPauseText) playPauseText.textContent = 'Play';
+                    playPauseBtn.classList.add('paused');
+                }
+            });
+        }
+
+        // Left / Right Manual Movement Buttons
+        const cardStep = 370; // card width (350px) + gap (20px)
+
+        const handleManualNavigation = (direction) => {
+            isManualScrolling = true;
+            clearTimeout(manualTimeout);
+
+            const half = getHalfWidth();
+            if (direction === 'prev' && viewport.scrollLeft <= 5) {
+                viewport.scrollLeft += half;
+            } else if (direction === 'next' && viewport.scrollLeft >= half) {
+                viewport.scrollLeft -= half;
+            }
+
+            const targetOffset = (direction === 'next') ? cardStep : -cardStep;
+            viewport.scrollBy({ left: targetOffset, behavior: 'smooth' });
+
+            manualTimeout = setTimeout(() => {
+                isManualScrolling = false;
+            }, 800);
+        };
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                handleManualNavigation('prev');
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                handleManualNavigation('next');
+            });
+        }
+    };
+
+    initShowcaseCarousel();
+
 });
