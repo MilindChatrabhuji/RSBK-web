@@ -1,7 +1,7 @@
 {
-  "name": "RSBK Online — Ayurvedic Pharmaceutical Sciences",
+  "name": "RSBK Online",
   "short_name": "RSBK Online",
-  "description": "Comprehensive digital gateway for BAMS & MD/MS scholars, faculty members, and researchers authored and curated by Dr. Milind Chatrabhuji.",
+  "description": "Comprehensive digital gateway for BAMS & MD/MS students, teachers, faculty members, and researchers authored and curated by Dr. Milind Chatrabhuji.",
   "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",
