@@ -1,15 +1,16 @@
 // Service Worker for RSBK Online PWA
-const CACHE_NAME = 'rsbk-online-v5.3';
+const CACHE_NAME = 'rsbk-online-v5.4';
 
 const PRECACHE_ASSETS = [
     '/',
     '/index.html',
     '/manifest.json',
-    '/styles.css?v=5.3',
-    '/features.css?v=5.3',
-    '/script.js?v=5.3',
-    '/features.js?v=5.3',
-    '/email-service.js?v=5.3',
+    '/styles.css?v=5.4',
+    '/features.css?v=5.4',
+    '/script.js?v=5.4',
+    '/features.js?v=5.4',
+    '/email-service.js?v=5.4',
+    '/assets/icons/logo.png',
     '/assets/icons/icon-192.png',
     '/assets/icons/icon-512.png',
     '/favicon.png',

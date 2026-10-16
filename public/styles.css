@@ -131,9 +131,26 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--text-color);
     display: inline-flex;
     align-items: center;
+    gap: 0.6rem;
     white-space: nowrap;
     flex-shrink: 0;
     letter-spacing: -0.01em;
+}
+
+.logo-img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: contain;
+    display: inline-block;
+    flex-shrink: 0;
+    vertical-align: middle;
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.08));
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.logo:hover .logo-img {
+    transform: scale(1.1) rotate(4deg);
 }
 
 .logo-dot {
@@ -1938,6 +1955,12 @@ footer {
 @media (max-width: 420px) {
     .logo {
         font-size: 1.12rem;
+        gap: 0.45rem;
+    }
+
+    .logo-img {
+        width: 30px;
+        height: 30px;
     }
 
     .nav-actions {
