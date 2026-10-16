@@ -158,7 +158,17 @@
         { title: "Sneha Paka Stages (Mridu, Madhyama, Khara) Video", category: "terms", url: "videos.html?search=Sneha", desc: "Practical testing for Sneha Siddhi Lakshana: Vartivat Kalka and Phenashanti." },
         { title: "Asava & Arishta Sandhana Kalpana Video", category: "terms", url: "videos.html?search=Asava", desc: "Vessel seasoning, Dhataki Pushpa inoculant, and fermentation setup." },
         { title: "Bhasma Pariksha (Classical Quality Control) Video", category: "terms", url: "videos.html?search=Bhasma", desc: "Varitaratva, Rekhapurnatva, Apunarbhava, and Niruttha tests." },
-        { title: "Classical Yantras & Puta System Video", category: "terms", url: "videos.html?search=Yantras", desc: "Exhibition and operation of Dola, Valuka, Damaru Yantras and Puta heating." }
+        { title: "Classical Yantras & Puta System Video", category: "terms", url: "videos.html?search=Yantras", desc: "Exhibition and operation of Dola, Valuka, Damaru Yantras and Puta heating." },
+        
+        // Research & Evidence Hub
+        { title: "Research & Evidence Hub: Peer-Reviewed RSBK Studies", category: "pages", url: "research.html", desc: "Curated peer-reviewed research papers, analytical monographs (XRD, SEM, ICP-MS), OECD toxicology, and clinical trials." },
+        { title: "Swarna Bhasma Nanocrystal Characterization (XRD, TEM, EDX)", category: "research", url: "research.html?search=Swarna", desc: "Face-centered cubic nano-gold (22-58 nm) embedded in organic herbal carrier." },
+        { title: "Tamra Bhasma 90-Day Oral Toxicity Assessment (OECD 407)", category: "research", url: "research.html?search=Tamra", desc: "Safety and histopathological evaluation in Sprague-Dawley rats at therapeutic and 10x doses." },
+        { title: "Kupipakwa Rasasindura Phase Spectroscopy (alpha-HgS Cinnabar)", category: "research", url: "research.html?search=Rasasindura", desc: "PXRD and Raman validation confirming cinnabar matrix without free elemental mercury." },
+        { title: "Lauha Bhasma Core-Shell Nanoparticle Speciation (Mossbauer)", category: "research", url: "research.html?search=Lauha", desc: "Mixed magnetic iron oxide nanoparticles (Fe2O3/Fe3O4) with high hematinic bioavailability." },
+        { title: "Arogyavardhini Vati Clinical Trial in NAFLD (Double-Blind RCT)", category: "research", url: "research.html?search=Arogyavardhini", desc: "Significant regression of hepatic steatosis, FibroScan CAP scores, and transaminases." },
+        { title: "Bhallataka Shodhana Detoxification Chemistry (Urushiol Reduction)", category: "research", url: "research.html?search=Bhallataka", desc: "84.7% reduction in hazardous anacardic acid and urushiol via brick powder and milk boiling." },
+        { title: "Classical Shodhana Protocols: Green Chemistry Parallels", category: "research", url: "research.html?search=Shodhana", desc: "Systematic classification across chelation, thermal stress cracking, and green nanotechnology." }
     ];
 
     function initGlobalSearch() {
@@ -208,6 +218,7 @@
                         <button type="button" class="search-cat-pill active" data-cat="all">All</button>
                         <button type="button" class="search-cat-pill" data-cat="handbooks">Handbooks</button>
                         <button type="button" class="search-cat-pill" data-cat="students">Student Books</button>
+                        <button type="button" class="search-cat-pill" data-cat="research">Research</button>
                         <button type="button" class="search-cat-pill" data-cat="terms">Drugs &amp; Terms</button>
                         <button type="button" class="search-cat-pill" data-cat="pages">Pages</button>
                     </div>
