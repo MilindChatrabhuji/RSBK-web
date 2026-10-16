@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let selectedUserForAction = null;
     let activeMemberFilter = 'all';
     let activeTxnFilter = 'all';
+    let currentMemberSort = localStorage.getItem('rsbk_admin_member_sort') || 'joined_desc';
 
     // State Elements
     const adminLoadingState = document.getElementById('adminLoadingState');
@@ -62,6 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Member Management Elements
     const memberSearchInput = document.getElementById('memberSearchInput');
+    const memberSortSelect = document.getElementById('memberSortSelect');
     const clearMemberSearch = document.getElementById('clearMemberSearch');
     const memberFilterChips = document.querySelectorAll('#memberFilterGroup .filter-chip');
     const membersTableBody = document.getElementById('membersTableBody');
@@ -680,6 +682,52 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     // -------------------------------------------------------------
+    // Sync Sort Header Indicators
+    // -------------------------------------------------------------
+    const updateSortHeaderIndicators = () => {
+        const sortableThs = document.querySelectorAll('#membersTable th.sortable-th');
+        if (!sortableThs || sortableThs.length === 0) return;
+
+        sortableThs.forEach(th => {
+            const key = th.dataset.sort;
+            const iconSpan = th.querySelector('.th-sort-icon');
+            th.classList.remove('sorted', 'asc', 'desc');
+
+            let isCurrent = false;
+            let isAsc = false;
+
+            if (key === 'joined') {
+                if (currentMemberSort === 'joined_asc') { isCurrent = true; isAsc = true; }
+                else if (currentMemberSort === 'joined_desc') { isCurrent = true; isAsc = false; }
+            } else if (key === 'name') {
+                if (currentMemberSort === 'name_asc') { isCurrent = true; isAsc = true; }
+                else if (currentMemberSort === 'name_desc') { isCurrent = true; isAsc = false; }
+            } else if (key === 'balance') {
+                if (currentMemberSort === 'balance_asc') { isCurrent = true; isAsc = true; }
+                else if (currentMemberSort === 'balance_desc') { isCurrent = true; isAsc = false; }
+            } else if (key === 'status') {
+                if (currentMemberSort === 'status_priority') { isCurrent = true; isAsc = false; }
+            } else if (key === 'expiry') {
+                if (currentMemberSort === 'expiry_asc') { isCurrent = true; isAsc = true; }
+                else if (currentMemberSort === 'expiry_desc') { isCurrent = true; isAsc = false; }
+            }
+
+            if (isCurrent) {
+                th.classList.add('sorted', isAsc ? 'asc' : 'desc');
+                if (iconSpan) {
+                    iconSpan.innerHTML = isAsc 
+                        ? '<ion-icon name="arrow-up-outline"></ion-icon>' 
+                        : '<ion-icon name="arrow-down-outline"></ion-icon>';
+                }
+            } else {
+                if (iconSpan) {
+                    iconSpan.innerHTML = '<ion-icon name="chevron-expand-outline"></ion-icon>';
+                }
+            }
+        });
+    };
+
+    // -------------------------------------------------------------
     // Render Members Table
     // -------------------------------------------------------------
     const renderMembersTable = () => {
@@ -715,10 +763,73 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </tr>
             `;
             if (memberCountSummary) memberCountSummary.textContent = `Showing 0 of ${allUsers.length} members`;
+            updateSortHeaderIndicators();
             return;
         }
 
-        membersTableBody.innerHTML = filtered.map(u => {
+        // Sort Members based on active currentMemberSort
+        const getEpoch = (val) => {
+            if (!val) return 0;
+            const t = new Date(val).getTime();
+            return isNaN(t) ? 0 : t;
+        };
+
+        const getName = (u) => (u.displayName || u.email || '').trim().toLowerCase();
+
+        const getBalance = (u) => {
+            if (u.isVip || u.status === 'vip') return 999999999;
+            return Number(u.balance) || 0;
+        };
+
+        const getStatusPriority = (u) => {
+            if (u.isVip || u.status === 'vip') return 4;
+            if (u.status === 'paid') return 3;
+            if (u.status === 'trial') return 2;
+            return 1; // expired
+        };
+
+        const getTrialExpiryEpoch = (u) => {
+            if (u.isVip || u.status === 'vip') return 9999999999999; // Lifetime VIP never expires
+            return getEpoch(u.trialEndDate);
+        };
+
+        const sorted = [...filtered].sort((a, b) => {
+            switch (currentMemberSort) {
+                case 'joined_asc':
+                    return getEpoch(a.createdAt) - getEpoch(b.createdAt);
+                case 'joined_desc':
+                    return getEpoch(b.createdAt) - getEpoch(a.createdAt);
+                case 'name_asc':
+                    return getName(a).localeCompare(getName(b), undefined, { numeric: true, sensitivity: 'base' });
+                case 'name_desc':
+                    return getName(b).localeCompare(getName(a), undefined, { numeric: true, sensitivity: 'base' });
+                case 'balance_desc':
+                    return getBalance(b) - getBalance(a);
+                case 'balance_asc':
+                    return getBalance(a) - getBalance(b);
+                case 'status_priority': {
+                    const diff = getStatusPriority(b) - getStatusPriority(a);
+                    if (diff !== 0) return diff;
+                    return getEpoch(b.createdAt) - getEpoch(a.createdAt);
+                }
+                case 'expiry_asc': {
+                    // Active trials ending soonest first, then expired, then paid, then VIP
+                    const getExpWeight = (u) => {
+                        if (u.isVip || u.status === 'vip') return 999999;
+                        if (u.status === 'trial') return (Number(u.trialDaysLeft) || 0);
+                        if (u.status === 'expired') return -100;
+                        return 50000;
+                    };
+                    return getExpWeight(a) - getExpWeight(b);
+                }
+                case 'expiry_desc':
+                    return getTrialExpiryEpoch(b) - getTrialExpiryEpoch(a);
+                default:
+                    return getEpoch(b.createdAt) - getEpoch(a.createdAt);
+            }
+        });
+
+        membersTableBody.innerHTML = sorted.map(u => {
             const avatar = u.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.displayName || 'U')}&background=059669&color=fff`;
             const joinedDateStr = formatISTDateOnly(u.createdAt);
             const trialEndStr = formatISTDateOnly(u.trialEndDate);
@@ -816,6 +927,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 openUserPassbookModal(uid);
             });
         });
+
+        updateSortHeaderIndicators();
     };
 
     // -------------------------------------------------------------
@@ -941,6 +1054,52 @@ document.addEventListener('DOMContentLoaded', async () => {
             chip.classList.add('active');
             activeMemberFilter = chip.dataset.filter;
             renderMembersTable();
+        });
+    });
+
+    // Member Sorting Controls
+    if (memberSortSelect) {
+        memberSortSelect.value = currentMemberSort;
+        memberSortSelect.addEventListener('change', (e) => {
+            currentMemberSort = e.target.value;
+            try {
+                localStorage.setItem('rsbk_admin_member_sort', currentMemberSort);
+            } catch (err) {}
+            renderMembersTable();
+        });
+    }
+
+    const sortableHeaders = document.querySelectorAll('#membersTable th.sortable-th');
+    sortableHeaders.forEach(th => {
+        const toggleSort = () => {
+            const key = th.dataset.sort;
+            if (key === 'joined') {
+                currentMemberSort = (currentMemberSort === 'joined_desc') ? 'joined_asc' : 'joined_desc';
+            } else if (key === 'name') {
+                currentMemberSort = (currentMemberSort === 'name_asc') ? 'name_desc' : 'name_asc';
+            } else if (key === 'balance') {
+                currentMemberSort = (currentMemberSort === 'balance_desc') ? 'balance_asc' : 'balance_desc';
+            } else if (key === 'status') {
+                currentMemberSort = 'status_priority';
+            } else if (key === 'expiry') {
+                currentMemberSort = (currentMemberSort === 'expiry_asc') ? 'expiry_desc' : 'expiry_asc';
+            }
+
+            if (memberSortSelect) {
+                memberSortSelect.value = currentMemberSort;
+            }
+            try {
+                localStorage.setItem('rsbk_admin_member_sort', currentMemberSort);
+            } catch (err) {}
+            renderMembersTable();
+        };
+
+        th.addEventListener('click', toggleSort);
+        th.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleSort();
+            }
         });
     });
 

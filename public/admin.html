@@ -324,12 +324,29 @@
 
                         <!-- Filters & Search Toolbar -->
                         <div class="admin-toolbar">
-                            <div class="search-input-wrapper">
-                                <ion-icon name="search-outline"></ion-icon>
-                                <input type="text" id="memberSearchInput" placeholder="Search by name, email, or User ID..." autocomplete="off">
-                                <button id="clearMemberSearch" class="btn-clear-search" type="button" style="display: none;">
-                                    <ion-icon name="close-circle"></ion-icon>
-                                </button>
+                            <div class="admin-toolbar-controls">
+                                <div class="search-input-wrapper">
+                                    <ion-icon name="search-outline"></ion-icon>
+                                    <input type="text" id="memberSearchInput" placeholder="Search by name, email, or User ID..." autocomplete="off">
+                                    <button id="clearMemberSearch" class="btn-clear-search" type="button" style="display: none;">
+                                        <ion-icon name="close-circle"></ion-icon>
+                                    </button>
+                                </div>
+
+                                <div class="sort-select-wrapper">
+                                    <ion-icon name="swap-vertical-outline" class="sort-icon"></ion-icon>
+                                    <select id="memberSortSelect" class="admin-sort-select" aria-label="Sort members">
+                                        <option value="joined_desc">Sort: Joined (Newest First)</option>
+                                        <option value="joined_asc">Sort: Joined (Oldest First)</option>
+                                        <option value="name_asc">Sort: Name (A &rarr; Z)</option>
+                                        <option value="name_desc">Sort: Name (Z &rarr; A)</option>
+                                        <option value="balance_desc">Sort: Wallet (Highest First)</option>
+                                        <option value="balance_asc">Sort: Wallet (Lowest First)</option>
+                                        <option value="status_priority">Sort: Status (VIP &amp; Active First)</option>
+                                        <option value="expiry_asc">Sort: Trial (Expiring Soonest)</option>
+                                        <option value="expiry_desc">Sort: Trial (Latest Expiry / VIP)</option>
+                                    </select>
+                                </div>
                             </div>
                             
                             <div class="filter-pills-row" id="memberFilterGroup">
@@ -346,11 +363,26 @@
                             <table class="admin-table" id="membersTable">
                                 <thead>
                                     <tr>
-                                        <th>Member Profile</th>
-                                        <th>Joined On</th>
-                                        <th>Status / Tier</th>
-                                        <th>Wallet Balance</th>
-                                        <th>Trial Expiry</th>
+                                        <th class="sortable-th" data-sort="name" role="button" tabindex="0" title="Click to sort by Member Name">
+                                            <span>Member Profile</span>
+                                            <span class="th-sort-icon"><ion-icon name="chevron-expand-outline"></ion-icon></span>
+                                        </th>
+                                        <th class="sortable-th sorted desc" data-sort="joined" role="button" tabindex="0" title="Click to sort by Joined Date">
+                                            <span>Joined On</span>
+                                            <span class="th-sort-icon"><ion-icon name="arrow-down-outline"></ion-icon></span>
+                                        </th>
+                                        <th class="sortable-th" data-sort="status" role="button" tabindex="0" title="Click to sort by Status / Tier">
+                                            <span>Status / Tier</span>
+                                            <span class="th-sort-icon"><ion-icon name="chevron-expand-outline"></ion-icon></span>
+                                        </th>
+                                        <th class="sortable-th" data-sort="balance" role="button" tabindex="0" title="Click to sort by Wallet Balance">
+                                            <span>Wallet Balance</span>
+                                            <span class="th-sort-icon"><ion-icon name="chevron-expand-outline"></ion-icon></span>
+                                        </th>
+                                        <th class="sortable-th" data-sort="expiry" role="button" tabindex="0" title="Click to sort by Trial Expiry">
+                                            <span>Trial Expiry</span>
+                                            <span class="th-sort-icon"><ion-icon name="chevron-expand-outline"></ion-icon></span>
+                                        </th>
                                         <th style="text-align: right;">Actions</th>
                                     </tr>
                                 </thead>
