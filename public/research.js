@@ -1,7 +1,7 @@
 /**
  * RSBK Online - Research & Evidence Hub Manager (research.js v2.0)
  * Digital PDF Repository for Rasashastra & Bhaishajya Kalpana
- * - Anyone can upload & add PDF research articles directly to Dr. Milind's Google Drive.
+ * - Anyone can upload & add PDF research articles directly to the dedicated Google Drive backend.
  * - Articles are synced in Realtime via Firebase Realtime Database.
  * - Only administrators can remove / delete articles.
  * - Features: Google Drive PDF Storage, In-Website PDF Reader Modal, Citation Generator (APA/Vancouver),
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (onProgress) onProgress(20, 'Reading PDF document into memory...');
         const base64 = await readFileAsBase64(file);
 
-        if (onProgress) onProgress(50, "Uploading PDF to Dr. Milind's dedicated Google Drive...");
+        if (onProgress) onProgress(50, "Uploading PDF document...");
         const payload = {
             fileName: file.name,
             mimeType: 'application/pdf',
@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     emptyStateDesc.textContent = `No articles matched "${searchQuery}". Try searching for another drug, author, or reset your filters.`;
                 } else {
                     emptyStateHeading.textContent = 'No Research Articles Added Yet';
-                    emptyStateDesc.textContent = "Anyone can add PDF articles! All uploaded files are saved directly in Dr. Milind's dedicated Google Drive folder. Only the platform administrator can remove articles.";
+                    emptyStateDesc.textContent = 'Be the first to enrich our academic repository! Contribute research papers, thesis publications, review articles, or analytical studies in RSBK to help students, researchers, teachers, and clinicians worldwide.';
                 }
             }
             return;
@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const fileSizeDisplay = article.pdfFileSize ? formatFileSize(article.pdfFileSize) : 'PDF Document';
             
             // Clean abstract snippet
-            let snippet = article.abstract || 'Research article uploaded to Google Drive. Click "Read PDF" to view full document in reader.';
+            let snippet = article.abstract || 'Full-text research article PDF available in repository. Click "Read PDF" to view in the in-website reader.';
             if (snippet.length > 200) snippet = snippet.substring(0, 195) + '...';
 
             return `
@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         </span>
                         <div class="header-pills-right">
                             <span class="research-badge-year">${article.year || new Date(article.createdAt || Date.now()).getFullYear()}</span>
-                            <span class="research-badge-pdf" title="Stored in Dr. Milind's Google Drive">
+                            <span class="research-badge-pdf" title="Full-text PDF document">
                                 <ion-icon name="document-text"></ion-icon> ${fileSizeDisplay}
                             </span>
                         </div>
@@ -340,8 +340,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <button class="btn-research-action btn-read-pdf" data-id="${article.id}" type="button" title="Read PDF Document inside website viewer">
                             <ion-icon name="eye-outline"></ion-icon> Read PDF
                         </button>
-                        <a href="${article.driveViewUrl || '#'}" target="_blank" rel="noopener noreferrer" class="btn-research-action btn-drive-ext" title="Open in Google Drive (External)">
-                            <ion-icon name="logo-google" style="color: #4285F4;"></ion-icon> Drive
+                        <a href="${article.driveViewUrl || '#'}" target="_blank" rel="noopener noreferrer" class="btn-research-action btn-drive-ext" title="Open PDF in new tab">
+                            <ion-icon name="open-outline"></ion-icon> Open
                         </a>
                         <button class="btn-research-action btn-cite" data-id="${article.id}" type="button" title="Generate APA & Vancouver Citations">
                             <ion-icon name="quote-outline"></ion-icon> Cite
@@ -496,13 +496,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const formatVancouverCitation = (p) => {
         const vol = p.volume ? ` ${p.volume}.` : '';
         const yr = p.year ? ` ${p.year};` : '';
-        return `${p.authors}. ${p.title}. ${p.journal}.${yr}${vol} Google Drive Storage ID: ${p.driveFileId || ''}.`;
+        const doiStr = p.doi ? ` doi: ${p.doi}.` : '';
+        return `${p.authors}. ${p.title}. ${p.journal}.${yr}${vol}${doiStr}`;
     };
 
     const formatApaCitation = (p) => {
         const yr = p.year ? ` (${p.year})` : '';
         const vol = p.volume ? `, ${p.volume}` : '';
-        return `${p.authors}${yr}. ${p.title}. ${p.journal}${vol}. Google Drive Archive: ${p.driveViewUrl || ''}`;
+        const doiStr = p.doi ? ` https://doi.org/${p.doi}` : (p.driveViewUrl ? ` ${p.driveViewUrl}` : '');
+        return `${p.authors}${yr}. ${p.title}. ${p.journal}${vol}.${doiStr}`;
     };
 
     const openCitationModal = (id) => {
@@ -727,10 +729,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             btnSubmitAddArticle.disabled = true;
             uploadProgressWrapper.style.display = 'block';
             uploadProgressBar.style.width = '10%';
-            uploadStatusText.textContent = 'Preparing PDF document for Google Drive...';
+            uploadStatusText.textContent = 'Preparing PDF document for upload...';
 
             try {
-                // 1. Upload PDF directly to Dr. Milind's Google Drive via Apps Script
+                // 1. Upload PDF to dedicated Google Drive backend via Apps Script
                 const driveResult = await uploadPdfToGoogleDrive(pendingPdfFile, (pct, status) => {
                     uploadProgressBar.style.width = `${pct}%`;
                     uploadStatusText.textContent = status;
@@ -779,7 +781,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 setTimeout(() => {
                     closeAddArticleModal();
-                    showToast(`"${title.substring(0, 30)}..." PDF uploaded successfully to Google Drive!`, 'success', 5000);
+                    showToast(`"${title.substring(0, 30)}..." PDF successfully added to Research Hub!`, 'success', 5000);
                 }, 400);
 
             } catch (err) {

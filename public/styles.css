@@ -11637,7 +11637,13 @@ body.auth-verified .guest-nudge-modal {
 .research-hub-section {
     max-width: 1280px;
     margin: 0 auto;
-    padding: 2.5rem 1.5rem 5rem;
+    padding: 6.5rem 1.5rem 5rem;
+}
+
+@media (max-width: 768px) {
+    .research-hub-section {
+        padding: 5.5rem 1.15rem 4rem;
+    }
 }
 
 .research-hub-trust-row {

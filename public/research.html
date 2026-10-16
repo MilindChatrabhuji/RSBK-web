@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>if(localStorage.getItem('rsbk_auth_cached')==='true'){document.documentElement.classList.add('auth-verified');if(localStorage.getItem('rsbk_access_valid')==='true'){document.documentElement.classList.add('access-granted');}else if(localStorage.getItem('rsbk_access_valid')==='false'){document.documentElement.classList.add('paywall-expired');}}</script>
     <title>Research &amp; Evidence Hub | RSBK Online — Suvarna Ayurveda</title>
-    <meta name="description" content="Research papers, analytical monographs, and clinical evidence repository for Rasashastra &amp; Bhaishajya Kalpana with direct PDF uploads stored in Google Drive — Suvarna Ayurveda">
+    <meta name="description" content="Peer-reviewed research papers, analytical monographs, and clinical evidence repository for Rasashastra &amp; Bhaishajya Kalpana — Suvarna Ayurveda">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -104,18 +104,16 @@
                 </div>
                 <h1 class="section-title">Research &amp; Evidence Hub</h1>
                 <p class="section-description">
-                    A dedicated academic repository for research papers, review articles, and scientific monographs in Rasashastra &amp; Bhaishajya Kalpana. Anyone can upload research article PDFs directly to Dr. Milind's dedicated Google Drive. Only administrators can delete or moderate articles.
+                    A collaborative digital repository of peer-reviewed research papers, review treatises, analytical monographs, and clinical evidence in Rasashastra &amp; Bhaishajya Kalpana. Designed to empower students, researchers, teachers, and clinicians to explore modern analytical characterizations (XRD, SEM, ICP-MS, HPTLC), cite benchmark studies, and share authentic scientific literature to advance evidence-based Ayurveda.
                 </p>
 
                 <!-- Academic Trust / Features Row -->
                 <div class="research-hub-trust-row">
-                    <span class="trust-pill"><ion-icon name="cloud-upload-outline"></ion-icon> Open Community PDF Uploads</span>
-                    <span class="trust-pill"><ion-icon name="shield-checkmark-outline"></ion-icon> Admin-Protected Removal</span>
-                    <a href="https://drive.google.com/drive/folders/1F-H-eGDWWiiAybYM9oXAh6Xnocuuhdj6?usp=sharing" target="_blank" rel="noopener noreferrer" class="trust-pill btn-drive-link" title="Open Dedicated Google Drive Research Folder">
-                        <ion-icon name="logo-google" style="color: #4285F4;"></ion-icon> Google Drive Storage
-                    </a>
+                    <span class="trust-pill"><ion-icon name="library-outline"></ion-icon> Open Academic Repository</span>
+                    <span class="trust-pill"><ion-icon name="cloud-upload-outline"></ion-icon> Community PDF Sharing</span>
+                    <span class="trust-pill"><ion-icon name="eye-outline"></ion-icon> In-Website PDF Reader</span>
                     <span class="trust-pill highlight" id="researchCountBadge">
-                        <ion-icon name="flask"></ion-icon> 0 Papers Available
+                        <ion-icon name="flask"></ion-icon> 0 Articles Available
                     </span>
                 </div>
             </div>
@@ -172,7 +170,7 @@
                                 <option value="journal">Journal Name</option>
                             </select>
                         </div>
-                        <button class="btn btn-primary btn-sm btn-add-pdf" id="btnOpenAddArticleModal" type="button" title="Upload a research article PDF to Dr. Milind's Google Drive">
+                        <button class="btn btn-primary btn-sm btn-add-pdf" id="btnOpenAddArticleModal" type="button" title="Contribute a research article PDF to the RSBK repository">
                             <ion-icon name="cloud-upload-outline"></ion-icon> Add Article PDF
                         </button>
                     </div>
@@ -182,7 +180,7 @@
             <!-- Loading State -->
             <div id="researchLoadingState" class="research-loading-wrapper">
                 <div class="mini-spinner large"></div>
-                <p>Loading research articles from Google Drive and Realtime Database...</p>
+                <p>Loading research articles from repository...</p>
             </div>
 
             <!-- Research Cards Grid -->
@@ -195,7 +193,7 @@
                 </div>
                 <h3 id="emptyStateHeading">No Research Articles Added Yet</h3>
                 <p id="emptyStateDesc">
-                    Anyone can add PDF articles. All uploaded files are saved directly in Dr. Milind's dedicated Google Drive folder. Only the platform administrator can remove articles.
+                    Be the first to enrich our academic repository! Contribute research papers, thesis publications, review articles, or analytical studies in RSBK to help students, researchers, and practitioners across the globe.
                 </p>
                 <button class="btn btn-primary" onclick="document.getElementById('btnOpenAddArticleModal').click();">
                     <ion-icon name="cloud-upload-outline"></ion-icon> Add Article PDF
@@ -210,9 +208,9 @@
         <div class="research-modal-dialog add-article-modal-dialog">
             <div class="research-modal-header">
                 <div>
-                    <span class="modal-badge-cite"><ion-icon name="cloud-upload"></ion-icon> Google Drive Storage</span>
-                    <h3 id="addArticleModalTitle" class="modal-title">Upload Research Article PDF</h3>
-                    <p class="modal-subtext">All articles are stored as PDF files in Dr. Milind's dedicated Google Drive folder.</p>
+                    <span class="modal-badge-cite"><ion-icon name="cloud-upload"></ion-icon> Academic Contribution</span>
+                    <h3 id="addArticleModalTitle" class="modal-title">Add Research Article PDF</h3>
+                    <p class="modal-subtext">Share published research papers, clinical reports, or dissertation studies with the global RSBK community.</p>
                 </div>
                 <button class="research-modal-close modal-close-trigger" type="button" title="Close (Esc)" aria-label="Close">
                     <ion-icon name="close-outline"></ion-icon>
@@ -258,7 +256,7 @@
                     <!-- Authors -->
                     <div class="form-group">
                         <label for="articleAuthors" class="field-label">Authors *</label>
-                        <input type="text" id="articleAuthors" class="form-input" placeholder="e.g. Dr. Milind Chatrabhuji, Dr. B.J. Patgiri, Dr. P.K. Prajapati" required>
+                        <input type="text" id="articleAuthors" class="form-input" placeholder="e.g. Dr. P.K. Prajapati, Dr. B.J. Patgiri, etc." required>
                     </div>
 
                     <!-- Journal & Category -->
@@ -320,7 +318,7 @@
                             <div id="uploadProgressBar" class="progress-bar-fill"></div>
                         </div>
                         <div class="progress-status-row">
-                            <span id="uploadStatusText">Uploading PDF to Google Drive...</span>
+                            <span id="uploadStatusText">Uploading PDF document...</span>
                             <div class="mini-spinner sm"></div>
                         </div>
                     </div>
@@ -336,7 +334,7 @@
         </div>
     </div>
 
-    <!-- Modal 2: In-Website Google Drive PDF Viewer Modal -->
+    <!-- Modal 2: In-Website Academic PDF Viewer Modal -->
     <div id="pdfViewerModal" class="research-modal-container" role="dialog" aria-modal="true" aria-labelledby="viewerModalTitle">
         <div class="research-modal-backdrop modal-close-trigger"></div>
         <div class="research-modal-dialog pdf-viewer-modal-dialog">
@@ -347,8 +345,8 @@
                     <span id="viewerAuthorsJournal" class="viewer-subtitle">Authors &middot; Journal</span>
                 </div>
                 <div class="viewer-actions-top">
-                    <a id="viewerDriveExternalBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="Open in Google Drive (New Tab)">
-                        <ion-icon name="logo-google" style="color: #4285F4;"></ion-icon> Open in Drive
+                    <a id="viewerDriveExternalBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="Open full document in new tab">
+                        <ion-icon name="open-outline"></ion-icon> Open in New Tab
                     </a>
                     <a id="viewerDownloadBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="Download PDF directly">
                         <ion-icon name="download-outline"></ion-icon> Download
@@ -361,12 +359,12 @@
 
             <div class="research-modal-body pdf-viewer-body">
                 <div id="pdfFrameWrapper" class="pdf-iframe-container">
-                    <iframe id="pdfViewerIframe" src="" class="pdf-viewer-frame" title="Google Drive PDF Reader" allow="autoplay" loading="lazy"></iframe>
+                    <iframe id="pdfViewerIframe" src="" class="pdf-viewer-frame" title="In-Website PDF Reader" allow="autoplay" loading="lazy"></iframe>
                 </div>
             </div>
 
             <div class="research-modal-footer viewer-footer">
-                <span class="viewer-note"><ion-icon name="lock-closed-outline"></ion-icon> Protected Google Drive PDF Stream &middot; RSBK Online</span>
+                <span class="viewer-note"><ion-icon name="document-text-outline"></ion-icon> In-Website Academic PDF Reader &middot; RSBK Online</span>
                 <button class="btn btn-primary btn-sm modal-close-trigger" type="button">Close Reader</button>
             </div>
         </div>
