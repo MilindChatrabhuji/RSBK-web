@@ -20,6 +20,10 @@
     "users": {
       ".read": true,
       ".write": true
+    },
+    "research": {
+      ".read": true,
+      ".write": true
     }
   }
 }

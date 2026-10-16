@@ -1,16 +1,44 @@
 /**
- * RSBK Online - Research & Evidence Hub Manager (research.js)
- * Comprehensive Digital Research Repository for Rasashastra & Bhaishajya Kalpana
- * Designed for UG & PG Students, Teachers, Doctors, and Researchers.
- * Features: Peer-Reviewed Articles, Analytical Monographs (XRD, SEM, ICP-MS, HPTLC),
- *           OECD Safety & Toxicology, Nanomedicine, Formatted Citations (Vancouver & APA),
- *           Live Search, Filter Categories, and Reading List Bookmarking.
+ * RSBK Online - Research & Evidence Hub Manager (research.js v2.0)
+ * Digital PDF Repository for Rasashastra & Bhaishajya Kalpana
+ * - Anyone can upload & add PDF research articles directly to Dr. Milind's Google Drive.
+ * - Articles are synced in Realtime via Firebase Realtime Database.
+ * - Only administrators can remove / delete articles.
+ * - Features: Google Drive PDF Storage, In-Website PDF Reader Modal, Citation Generator (APA/Vancouver),
+ *             Live Search, Category Filters, and Personal Reading List Bookmarking.
  * Copyright 2026 Suvarna Ayurveda.
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
     // -------------------------------------------------------------
-    // 1. DOM Elements
+    // 1. Configuration & Endpoints
+    // -------------------------------------------------------------
+    const GOOGLE_DRIVE_UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbythI1dm3szewe6sbnsA6M7gIfyLdNGAhPEvWIbFbniSOCJEU4KoUQ_zVDQnzS-3-1gpw/exec';
+    const GOOGLE_DRIVE_FOLDER_LINK = 'https://drive.google.com/drive/folders/1F-H-eGDWWiiAybYM9oXAh6Xnocuuhdj6?usp=sharing';
+
+    const ADMIN_EMAILS = [
+        'dr.milindchatrabhuji@gmail.com',
+        'milind.chatrabhuji@gmail.com'
+    ];
+
+    const checkIsAdmin = (email) => {
+        if (!email) return false;
+        const e = email.toLowerCase().trim();
+        return ADMIN_EMAILS.includes(e) || localStorage.getItem('rsbk_is_admin') === 'true';
+    };
+
+    const getUserEmail = () => {
+        return (localStorage.getItem('rsbk_user_email') || 
+                localStorage.getItem('rsbk_auth_email') || 
+                'guest').toLowerCase().trim();
+    };
+
+    const getUserDisplayName = () => {
+        return localStorage.getItem('rsbk_user_name') || 'Ayurveda Researcher';
+    };
+
+    // -------------------------------------------------------------
+    // 2. DOM Elements
     // -------------------------------------------------------------
     const researchGrid = document.getElementById('researchGrid');
     const researchLoadingState = document.getElementById('researchLoadingState');
@@ -25,60 +53,54 @@ document.addEventListener('DOMContentLoaded', async () => {
     const researchToastContainer = document.getElementById('researchToastContainer');
     const countReadingList = document.getElementById('countReadingList');
 
-    // Modals
-    const abstractModal = document.getElementById('abstractModal');
-    const citationModal = document.getElementById('citationModal');
-    const suggestModal = document.getElementById('suggestModal');
+    // Add Article Modal & Form Elements
+    const addArticleModal = document.getElementById('addArticleModal');
+    const btnOpenAddArticleModal = document.getElementById('btnOpenAddArticleModal');
+    const addArticleForm = document.getElementById('addArticleForm');
+    const pdfDropZone = document.getElementById('pdfDropZone');
+    const articlePdfInput = document.getElementById('articlePdfInput');
+    const selectedPdfCard = document.getElementById('selectedPdfCard');
+    const selectedPdfName = document.getElementById('selectedPdfName');
+    const selectedPdfSize = document.getElementById('selectedPdfSize');
+    const btnRemoveSelectedPdf = document.getElementById('btnRemoveSelectedPdf');
+    const uploadProgressWrapper = document.getElementById('uploadProgressWrapper');
+    const uploadProgressBar = document.getElementById('uploadProgressBar');
+    const uploadStatusText = document.getElementById('uploadStatusText');
+    const btnSubmitAddArticle = document.getElementById('btnSubmitAddArticle');
 
-    // Abstract Modal Elements
-    const modalAbstractTitle = document.getElementById('modalAbstractTitle');
-    const modalAbstractAuthors = document.getElementById('modalAbstractAuthors');
-    const modalAbstractJournal = document.getElementById('modalAbstractJournal');
-    const modalAbstractCategory = document.getElementById('modalAbstractCategory');
-    const modalAbstractDoiLink = document.getElementById('modalAbstractDoiLink');
-    const modalAbstractBody = document.getElementById('modalAbstractBody');
-    const modalClassicalBox = document.getElementById('modalClassicalBox');
-    const modalSignificanceBox = document.getElementById('modalSignificanceBox');
-    const modalMethodsRow = document.getElementById('modalMethodsRow');
-    const modalCiteQuickBtn = document.getElementById('modalCiteQuickBtn');
-    const modalSaveQuickBtn = document.getElementById('modalSaveQuickBtn');
+    // PDF Viewer Modal Elements
+    const pdfViewerModal = document.getElementById('pdfViewerModal');
+    const viewerModalTitle = document.getElementById('viewerModalTitle');
+    const viewerAuthorsJournal = document.getElementById('viewerAuthorsJournal');
+    const viewerCategoryBadge = document.getElementById('viewerCategoryBadge');
+    const viewerDriveExternalBtn = document.getElementById('viewerDriveExternalBtn');
+    const viewerDownloadBtn = document.getElementById('viewerDownloadBtn');
+    const pdfViewerIframe = document.getElementById('pdfViewerIframe');
 
     // Citation Modal Elements
+    const citationModal = document.getElementById('citationModal');
     const citationModalTitle = document.getElementById('citationModalTitle');
     const citationVancouverText = document.getElementById('citationVancouverText');
     const citationApaText = document.getElementById('citationApaText');
     const btnCopyVancouver = document.getElementById('btnCopyVancouver');
     const btnCopyApa = document.getElementById('btnCopyApa');
 
-    // Suggest Paper Modal Elements
-    const btnOpenSuggestModal = document.getElementById('btnOpenSuggestModal');
-    const suggestPaperForm = document.getElementById('suggestPaperForm');
-
-    // -------------------------------------------------------------
-    // 2. Curated Peer-Reviewed RSBK Research Dataset
-    // -------------------------------------------------------------
-    // Empty array: articles will be added through authentic submissions or direct curation.
-    const RESEARCH_PAPERS = [];
-
-    // -------------------------------------------------------------
-    // 3. User Account & Reading List Persistence
-    // -------------------------------------------------------------
+    // State Variables
+    let allArticles = [];
     let userSavedResearch = new Set();
     let currentFilter = 'all';
     let searchQuery = '';
-    let currentSort = 'featured';
-    let activePaperForAbstract = null;
+    let currentSort = 'newest';
+    let pendingPdfFile = null;
 
-    const getUserEmail = () => {
-        return localStorage.getItem('rsbk_user_email') || 
-               localStorage.getItem('rsbk_auth_email') || 
-               'guest';
-    };
+    // Check Admin Privileges
+    let currentUserEmail = getUserEmail();
+    let isUserAdmin = checkIsAdmin(currentUserEmail);
 
-    const getSanitizedEmail = (email) => {
-        return (email || 'guest').replace(/[.#$\[\]]/g, '_');
-    };
-
+    // -------------------------------------------------------------
+    // 3. User Saved Reading List Persistence
+    // -------------------------------------------------------------
+    const getSanitizedEmail = (email) => (email || 'guest').replace(/[.#$\[\]]/g, '_');
     const getStorageKey = (prefix) => {
         const email = getUserEmail();
         return email && email !== 'guest' ? `${prefix}_${getSanitizedEmail(email)}` : prefix;
@@ -88,7 +110,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             const rawSaved = localStorage.getItem(getStorageKey('rsbk_saved_research')) || 
                              localStorage.getItem('rsbk_saved_research');
-            userSavedResearch = new Set(rawSaved ? JSON.parse(rawSaved) : []);
+            let list = rawSaved ? JSON.parse(rawSaved) : [];
+            userSavedResearch = new Set(list);
         } catch (e) {
             console.error('Error loading saved research list:', e);
             userSavedResearch = new Set();
@@ -116,7 +139,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // -------------------------------------------------------------
     // 4. Toast Notification Utility
     // -------------------------------------------------------------
-    const showToast = (message, type = 'info', duration = 3000) => {
+    const showToast = (message, type = 'info', duration = 3500) => {
         if (!researchToastContainer) return;
 
         const toast = document.createElement('div');
@@ -126,6 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (type === 'success') iconName = 'checkmark-circle-outline';
         if (type === 'bookmark') iconName = 'bookmark-outline';
         if (type === 'copy') iconName = 'copy-outline';
+        if (type === 'error') iconName = 'alert-circle-outline';
 
         toast.innerHTML = `
             <ion-icon name="${iconName}"></ion-icon>
@@ -143,18 +167,80 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, duration);
     };
 
+    // Format File Size
+    const formatFileSize = (bytes) => {
+        if (!bytes || bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    };
+
     // -------------------------------------------------------------
-    // 5. Card Rendering and Dynamic Grid
+    // 5. Google Drive PDF Upload Helpers
+    // -------------------------------------------------------------
+    const readFileAsBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const res = reader.result;
+                const base64 = res.split(',')[1];
+                resolve(base64);
+            };
+            reader.onerror = (err) => reject(err);
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const uploadPdfToGoogleDrive = async (file, onProgress) => {
+        if (onProgress) onProgress(20, 'Reading PDF document into memory...');
+        const base64 = await readFileAsBase64(file);
+
+        if (onProgress) onProgress(50, "Uploading PDF to Dr. Milind's dedicated Google Drive...");
+        const payload = {
+            fileName: file.name,
+            mimeType: 'application/pdf',
+            base64: base64,
+            folderName: 'RSBK_Research_Articles'
+        };
+
+        const response = await fetch(GOOGLE_DRIVE_UPLOAD_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (onProgress) onProgress(85, 'Securing Google Drive view & preview permissions...');
+        const data = await response.json();
+
+        if (data.status !== 'success') {
+            throw new Error(data.message || 'Failed to upload PDF file to Google Drive');
+        }
+
+        return {
+            driveFileId: data.fileId,
+            driveViewUrl: data.viewUrl || `https://drive.google.com/file/d/${data.fileId}/view?usp=sharing`,
+            drivePreviewUrl: data.previewUrl || `https://drive.google.com/file/d/${data.fileId}/preview`,
+            driveDownloadUrl: data.downloadUrl || `https://drive.google.com/uc?export=download&id=${data.fileId}`,
+            fileSize: data.size || file.size,
+            fileName: data.fileName || file.name
+        };
+    };
+
+    // -------------------------------------------------------------
+    // 6. Category Badges & Helpers
     // -------------------------------------------------------------
     const getCategoryLabel = (category) => {
         switch (category) {
-            case 'analytical': return 'Analytical Standardization';
+            case 'analytical': return 'Analytical & Standardization';
             case 'toxicology': return 'Safety & Toxicology';
             case 'nanomedicine': return 'Nanomedicine & Bhasma';
             case 'reviews': return 'Systematic Review';
             case 'formulations': return 'Formulations & SOP';
             case 'clinical': return 'Clinical Evidence';
-            default: return 'Research Monograph';
+            default: return 'Research Article';
         }
     };
 
@@ -170,22 +256,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    const renderResearchCards = (papers) => {
+    // -------------------------------------------------------------
+    // 7. Render Research Articles Grid
+    // -------------------------------------------------------------
+    const renderResearchCards = (articles) => {
         if (!researchGrid) return;
 
-        if (papers.length === 0) {
+        if (articles.length === 0) {
             researchGrid.style.display = 'none';
             if (researchEmptyState) {
                 researchEmptyState.style.display = 'flex';
                 if (currentFilter === 'reading-list') {
                     emptyStateHeading.textContent = 'Your Reading List is Empty';
-                    emptyStateDesc.textContent = 'Bookmark research papers and monographs using the bookmark button on any paper card to save them here for quick study.';
+                    emptyStateDesc.textContent = 'Bookmark research articles using the bookmark icon on any paper card to save them here for quick study.';
                 } else if (searchQuery) {
-                    emptyStateHeading.textContent = 'No Matching Research Papers Found';
-                    emptyStateDesc.textContent = `No articles matched "${searchQuery}". Try searching for another drug (e.g. Parada, Swarna, Tamra), technique (XRD, SEM, OECD), or clear your filter.`;
+                    emptyStateHeading.textContent = 'No Matching Research Articles Found';
+                    emptyStateDesc.textContent = `No articles matched "${searchQuery}". Try searching for another drug, author, or reset your filters.`;
                 } else {
                     emptyStateHeading.textContent = 'No Research Articles Added Yet';
-                    emptyStateDesc.textContent = 'This section is ready for authentic RSBK publications and monographs. Click "Suggest Paper" above to submit an article.';
+                    emptyStateDesc.textContent = "Anyone can add PDF articles! All uploaded files are saved directly in Dr. Milind's dedicated Google Drive folder. Only the platform administrator can remove articles.";
                 }
             }
             return;
@@ -194,96 +283,101 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (researchEmptyState) researchEmptyState.style.display = 'none';
         researchGrid.style.display = 'grid';
 
-        researchGrid.innerHTML = papers.map(paper => {
-            const isSaved = userSavedResearch.has(paper.id);
-            const methodsBadges = (paper.methods || []).map(m => `<span class="method-badge">${m}</span>`).join('');
+        // Re-check admin status in case auth updated
+        isUserAdmin = checkIsAdmin(getUserEmail());
+
+        researchGrid.innerHTML = articles.map(article => {
+            const isSaved = userSavedResearch.has(article.id);
+            const methodsBadges = (article.methods || []).map(m => `<span class="method-badge">${m}</span>`).join('');
+            const fileSizeDisplay = article.pdfFileSize ? formatFileSize(article.pdfFileSize) : 'PDF Document';
             
-            // Generate clean abstract snippet (first 160 characters)
-            const abstractSnippet = paper.abstract.replace(/\n/g, ' ').substring(0, 195) + '...';
+            // Clean abstract snippet
+            let snippet = article.abstract || 'Research article uploaded to Google Drive. Click "Read PDF" to view full document in reader.';
+            if (snippet.length > 200) snippet = snippet.substring(0, 195) + '...';
 
             return `
-                <article class="research-card ${paper.featured ? 'is-featured' : ''}" data-id="${paper.id}">
+                <article class="research-card" data-id="${article.id}">
                     <div class="research-card-header">
-                        <span class="research-badge-category ${getCategoryBadgeClass(paper.category)}">
-                            ${getCategoryLabel(paper.category)}
+                        <span class="research-badge-category ${getCategoryBadgeClass(article.category)}">
+                            ${getCategoryLabel(article.category)}
                         </span>
                         <div class="header-pills-right">
-                            <span class="research-badge-year">${paper.year}</span>
-                            <span class="research-badge-oa" title="Open Access / Verified Academic Index">
-                                <ion-icon name="lock-open-outline"></ion-icon> Peer-Reviewed
+                            <span class="research-badge-year">${article.year || new Date(article.createdAt || Date.now()).getFullYear()}</span>
+                            <span class="research-badge-pdf" title="Stored in Dr. Milind's Google Drive">
+                                <ion-icon name="document-text"></ion-icon> ${fileSizeDisplay}
                             </span>
                         </div>
                     </div>
 
                     <h3 class="research-card-title">
-                        <a href="javascript:void(0);" class="paper-title-link" data-id="${paper.id}">
-                            ${paper.title}
+                        <a href="javascript:void(0);" class="paper-title-link" data-id="${article.id}">
+                            ${article.title}
                         </a>
                     </h3>
 
                     <div class="research-card-authors">
                         <ion-icon name="people-outline"></ion-icon>
-                        <span>${paper.authors}</span>
+                        <span>${article.authors}</span>
                     </div>
 
                     <div class="research-card-journal">
                         <ion-icon name="journal-outline"></ion-icon>
-                        <em>${paper.journal}</em> &middot; <strong>${paper.volume}</strong>: ${paper.pages}
+                        <em>${article.journal}</em> ${article.volume ? `&middot; <strong>${article.volume}</strong>` : ''}
                     </div>
 
-                    <div class="research-methods-row">
-                        ${methodsBadges}
-                    </div>
+                    ${methodsBadges ? `<div class="research-methods-row">${methodsBadges}</div>` : ''}
 
                     <p class="research-card-snippet">
-                        ${abstractSnippet}
+                        ${snippet}
                     </p>
 
+                    <div class="research-card-uploader-tag">
+                        <ion-icon name="cloud-done-outline"></ion-icon>
+                        <span>Uploaded by: <strong>${article.uploaderName || 'Ayurveda Researcher'}</strong></span>
+                    </div>
+
                     <div class="research-card-actions">
-                        <button class="btn-research-action btn-abstract" data-id="${paper.id}" type="button" title="Read Full Structured Abstract & Classical Context">
-                            <ion-icon name="document-text-outline"></ion-icon> Abstract
+                        <button class="btn-research-action btn-read-pdf" data-id="${article.id}" type="button" title="Read PDF Document inside website viewer">
+                            <ion-icon name="eye-outline"></ion-icon> Read PDF
                         </button>
-                        <button class="btn-research-action btn-cite" data-id="${paper.id}" type="button" title="Generate APA & Vancouver Citations">
+                        <a href="${article.driveViewUrl || '#'}" target="_blank" rel="noopener noreferrer" class="btn-research-action btn-drive-ext" title="Open in Google Drive (External)">
+                            <ion-icon name="logo-google" style="color: #4285F4;"></ion-icon> Drive
+                        </a>
+                        <button class="btn-research-action btn-cite" data-id="${article.id}" type="button" title="Generate APA & Vancouver Citations">
                             <ion-icon name="quote-outline"></ion-icon> Cite
                         </button>
-                        <button class="btn-research-action btn-save ${isSaved ? 'active' : ''}" data-id="${paper.id}" type="button" title="${isSaved ? 'Remove from Reading List' : 'Save to Reading List'}">
+                        <button class="btn-research-action btn-save ${isSaved ? 'active' : ''}" data-id="${article.id}" type="button" title="${isSaved ? 'Remove from Reading List' : 'Save to Reading List'}">
                             <ion-icon name="${isSaved ? 'bookmark' : 'bookmark-outline'}"></ion-icon>
                             <span class="save-label">${isSaved ? 'Saved' : 'Save'}</span>
                         </button>
-                        <a href="${paper.url}" target="_blank" rel="noopener noreferrer" class="btn-research-action btn-doi" title="Open Official DOI / PubMed Publisher Article">
-                            <ion-icon name="open-outline"></ion-icon> DOI
-                        </a>
+
+                        ${isUserAdmin ? `
+                        <button class="btn-research-action btn-delete-article" data-id="${article.id}" type="button" title="Administrator Only: Delete this article">
+                            <ion-icon name="trash-outline"></ion-icon>
+                        </button>
+                        ` : ''}
                     </div>
                 </article>
             `;
         }).join('');
 
-        // Attach event listeners to card buttons
         attachCardListeners();
     };
 
     // -------------------------------------------------------------
-    // 6. Event Listeners for Grid Cards
+    // 8. Card Action Listeners
     // -------------------------------------------------------------
     const attachCardListeners = () => {
-        // Title click -> Open Abstract
-        document.querySelectorAll('.paper-title-link').forEach(link => {
-            link.addEventListener('click', (e) => {
+        // Title click & Read PDF button -> Open PDF Viewer Modal
+        document.querySelectorAll('.paper-title-link, .btn-read-pdf').forEach(el => {
+            el.addEventListener('click', (e) => {
                 e.preventDefault();
-                const id = link.dataset.id;
-                openAbstractModal(id);
+                const id = el.dataset.id;
+                openPdfViewerModal(id);
             });
         });
 
-        // Abstract button click
-        document.querySelectorAll('.btn-abstract').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.dataset.id;
-                openAbstractModal(id);
-            });
-        });
-
-        // Cite button click
+        // Cite button
         document.querySelectorAll('.btn-cite').forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = btn.dataset.id;
@@ -291,20 +385,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
 
-        // Save / Bookmark button click
+        // Save / Bookmark button
         document.querySelectorAll('.btn-save').forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = btn.dataset.id;
                 toggleSaveResearch(id, btn);
             });
         });
+
+        // Admin Delete Button (Only active for Admin)
+        document.querySelectorAll('.btn-delete-article').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.dataset.id;
+                await handleAdminDeleteArticle(id);
+            });
+        });
     };
 
     // -------------------------------------------------------------
-    // 7. Filtering & Sorting Logic
+    // 9. Filtering & Sorting Logic
     // -------------------------------------------------------------
-    const filterAndSortPapers = () => {
-        let results = [...RESEARCH_PAPERS];
+    const filterAndSortArticles = () => {
+        let results = [...allArticles];
 
         // 1. Category Filter
         if (currentFilter === 'reading-list') {
@@ -317,37 +419,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (searchQuery.trim()) {
             const q = searchQuery.toLowerCase().trim();
             results = results.filter(p => {
-                const matchTitle = p.title.toLowerCase().includes(q);
-                const matchAuthors = p.authors.toLowerCase().includes(q);
-                const matchJournal = p.journal.toLowerCase().includes(q);
-                const matchAbstract = p.abstract.toLowerCase().includes(q);
+                const matchTitle = (p.title || '').toLowerCase().includes(q);
+                const matchAuthors = (p.authors || '').toLowerCase().includes(q);
+                const matchJournal = (p.journal || '').toLowerCase().includes(q);
+                const matchAbstract = (p.abstract || '').toLowerCase().includes(q);
+                const matchUploader = (p.uploaderName || '').toLowerCase().includes(q);
                 const matchMethods = (p.methods || []).some(m => m.toLowerCase().includes(q));
-                const matchClassics = (p.classicalCorrelation || '').toLowerCase().includes(q);
-                return matchTitle || matchAuthors || matchJournal || matchAbstract || matchMethods || matchClassics;
+                return matchTitle || matchAuthors || matchJournal || matchAbstract || matchUploader || matchMethods;
             });
         }
 
         // 3. Sorting
         switch (currentSort) {
             case 'year-new':
-                results.sort((a, b) => b.year - a.year);
+                results.sort((a, b) => (b.year || 0) - (a.year || 0));
                 break;
             case 'year-old':
-                results.sort((a, b) => a.year - b.year);
+                results.sort((a, b) => (a.year || 0) - (b.year || 0));
                 break;
             case 'az':
-                results.sort((a, b) => a.title.localeCompare(b.title));
+                results.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
                 break;
             case 'journal':
-                results.sort((a, b) => a.journal.localeCompare(b.journal));
+                results.sort((a, b) => (a.journal || '').localeCompare(b.journal || ''));
                 break;
-            case 'featured':
+            case 'newest':
             default:
-                results.sort((a, b) => {
-                    if (a.featured && !b.featured) return -1;
-                    if (!a.featured && b.featured) return 1;
-                    return b.year - a.year;
-                });
+                results.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                 break;
         }
 
@@ -355,107 +453,65 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Update count badge
         if (researchCountBadge) {
-            researchCountBadge.innerHTML = `<ion-icon name="flask"></ion-icon> ${results.length} Papers Available`;
+            researchCountBadge.innerHTML = `<ion-icon name="flask"></ion-icon> ${results.length} ${results.length === 1 ? 'Article' : 'Articles'} Available`;
         }
     };
 
     // -------------------------------------------------------------
-    // 8. Abstract Modal Handler
+    // 10. In-Website PDF Viewer Modal
     // -------------------------------------------------------------
-    const openAbstractModal = (id) => {
-        const paper = RESEARCH_PAPERS.find(p => p.id === id);
-        if (!paper || !abstractModal) return;
+    const openPdfViewerModal = (id) => {
+        const article = allArticles.find(a => a.id === id);
+        if (!article || !pdfViewerModal) return;
 
-        activePaperForAbstract = paper;
+        viewerModalTitle.textContent = article.title;
+        viewerAuthorsJournal.innerHTML = `${article.authors} &middot; <em>${article.journal}</em> (${article.year || ''})`;
+        viewerCategoryBadge.textContent = getCategoryLabel(article.category);
+        viewerCategoryBadge.className = `research-badge-category ${getCategoryBadgeClass(article.category)}`;
 
-        modalAbstractTitle.textContent = paper.title;
-        modalAbstractAuthors.textContent = paper.authors;
-        modalAbstractJournal.textContent = `${paper.journal} (${paper.year}) ${paper.volume}: ${paper.pages}`;
-        modalAbstractCategory.textContent = getCategoryLabel(paper.category);
-        modalAbstractCategory.className = `research-badge-category ${getCategoryBadgeClass(paper.category)}`;
-        
-        modalAbstractDoiLink.href = paper.url;
-        modalAbstractDoiLink.innerHTML = `<ion-icon name="open-outline"></ion-icon> DOI: ${paper.doi}`;
+        const previewSrc = article.drivePreviewUrl || `https://drive.google.com/file/d/${article.driveFileId}/preview`;
+        pdfViewerIframe.src = previewSrc;
 
-        // Structured Abstract with highlight styling
-        const paragraphs = paper.abstract.split('\n').filter(p => p.trim());
-        modalAbstractBody.innerHTML = paragraphs.map(p => {
-            const colonIndex = p.indexOf(':');
-            if (colonIndex > -1 && colonIndex < 25) {
-                const heading = p.substring(0, colonIndex);
-                const content = p.substring(colonIndex + 1);
-                return `<p class="abstract-section"><strong class="abstract-section-heading">${heading}:</strong> ${content}</p>`;
-            }
-            return `<p>${p}</p>`;
-        }).join('');
-
-        // Classical context box
-        if (modalClassicalBox) {
-            modalClassicalBox.innerHTML = `
-                <div class="context-box classical">
-                    <div class="context-header">
-                        <ion-icon name="book-outline"></ion-icon> Classical Shloka / Treatise Correlation
-                    </div>
-                    <p class="context-text">${paper.classicalCorrelation || 'Classical correlation available in handbooks.'}</p>
-                </div>
-            `;
+        if (viewerDriveExternalBtn) {
+            viewerDriveExternalBtn.href = article.driveViewUrl || `https://drive.google.com/file/d/${article.driveFileId}/view?usp=sharing`;
+        }
+        if (viewerDownloadBtn) {
+            viewerDownloadBtn.href = article.driveDownloadUrl || `https://drive.google.com/uc?export=download&id=${article.driveFileId}`;
         }
 
-        // Clinical & Practical significance box
-        if (modalSignificanceBox) {
-            modalSignificanceBox.innerHTML = `
-                <div class="context-box practical">
-                    <div class="context-header">
-                        <ion-icon name="bulb-outline"></ion-icon> Pharmaceutical &amp; Clinical Implication
-                    </div>
-                    <p class="context-text">${paper.significance || 'Valuable reference for RSBK formulation development.'}</p>
-                </div>
-            `;
-        }
-
-        // Method badges in modal
-        if (modalMethodsRow) {
-            modalMethodsRow.innerHTML = (paper.methods || []).map(m => `<span class="method-badge">${m}</span>`).join('');
-        }
-
-        // Update save button inside abstract modal
-        const isSaved = userSavedResearch.has(paper.id);
-        if (modalSaveQuickBtn) {
-            modalSaveQuickBtn.innerHTML = `
-                <ion-icon name="${isSaved ? 'bookmark' : 'bookmark-outline'}"></ion-icon>
-                <span>${isSaved ? 'Saved in Reading List' : 'Save to Reading List'}</span>
-            `;
-            modalSaveQuickBtn.classList.toggle('active', isSaved);
-        }
-
-        abstractModal.classList.add('open');
+        pdfViewerModal.classList.add('open');
         document.body.style.overflow = 'hidden';
     };
 
-    const closeAbstractModal = () => {
-        if (!abstractModal) return;
-        abstractModal.classList.remove('open');
+    const closePdfViewerModal = () => {
+        if (!pdfViewerModal) return;
+        pdfViewerModal.classList.remove('open');
+        pdfViewerIframe.src = '';
         document.body.style.overflow = '';
     };
 
     // -------------------------------------------------------------
-    // 9. Citation Modal & Formatter (Vancouver & APA 7th)
+    // 11. Citation Modal & Formatter
     // -------------------------------------------------------------
     const formatVancouverCitation = (p) => {
-        return `${p.authors}. ${p.title}. ${p.journal}. ${p.year};${p.volume}:${p.pages}. doi:${p.doi}`;
+        const vol = p.volume ? ` ${p.volume}.` : '';
+        const yr = p.year ? ` ${p.year};` : '';
+        return `${p.authors}. ${p.title}. ${p.journal}.${yr}${vol} Google Drive Storage ID: ${p.driveFileId || ''}.`;
     };
 
     const formatApaCitation = (p) => {
-        return `${p.authors} (${p.year}). ${p.title}. ${p.journal}, ${p.volume}, ${p.pages}. https://doi.org/${p.doi}`;
+        const yr = p.year ? ` (${p.year})` : '';
+        const vol = p.volume ? `, ${p.volume}` : '';
+        return `${p.authors}${yr}. ${p.title}. ${p.journal}${vol}. Google Drive Archive: ${p.driveViewUrl || ''}`;
     };
 
     const openCitationModal = (id) => {
-        const paper = RESEARCH_PAPERS.find(p => p.id === id);
-        if (!paper || !citationModal) return;
+        const article = allArticles.find(a => a.id === id);
+        if (!article || !citationModal) return;
 
-        citationModalTitle.textContent = paper.title;
-        citationVancouverText.textContent = formatVancouverCitation(paper);
-        citationApaText.textContent = formatApaCitation(paper);
+        citationModalTitle.textContent = article.title;
+        citationVancouverText.textContent = formatVancouverCitation(article);
+        citationApaText.textContent = formatApaCitation(article);
 
         // Reset button states
         btnCopyVancouver.innerHTML = `<ion-icon name="copy-outline"></ion-icon> Copy Vancouver`;
@@ -470,129 +526,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         citationModal.classList.remove('open');
         document.body.style.overflow = '';
     };
-
-    // -------------------------------------------------------------
-    // 10. Bookmark / Reading List Toggle
-    // -------------------------------------------------------------
-    const toggleSaveResearch = (id, btnElement = null) => {
-        const isSaved = userSavedResearch.has(id);
-        const paper = RESEARCH_PAPERS.find(p => p.id === id);
-        const paperTitle = paper ? paper.title.substring(0, 35) + '...' : 'Paper';
-
-        if (isSaved) {
-            userSavedResearch.delete(id);
-            showToast(`Removed "${paperTitle}" from Reading List`, 'bookmark');
-        } else {
-            userSavedResearch.add(id);
-            showToast(`Saved "${paperTitle}" to your Reading List!`, 'success');
-        }
-
-        persistUserSavedResearch();
-
-        // Update triggering button UI
-        if (btnElement) {
-            btnElement.classList.toggle('active', !isSaved);
-            const icon = btnElement.querySelector('ion-icon');
-            const label = btnElement.querySelector('.save-label');
-            if (icon) icon.setAttribute('name', !isSaved ? 'bookmark' : 'bookmark-outline');
-            if (label) label.textContent = !isSaved ? 'Saved' : 'Save';
-        }
-
-        // If currently on reading-list filter, refresh view
-        if (currentFilter === 'reading-list') {
-            filterAndSortPapers();
-        }
-    };
-
-    // -------------------------------------------------------------
-    // 11. Suggest / Submit Paper Modal
-    // -------------------------------------------------------------
-    const openSuggestModal = () => {
-        if (!suggestModal) return;
-        suggestModal.classList.add('open');
-        document.body.style.overflow = 'hidden';
-    };
-
-    const closeSuggestModal = () => {
-        if (!suggestModal) return;
-        suggestModal.classList.remove('open');
-        document.body.style.overflow = '';
-    };
-
-    // -------------------------------------------------------------
-    // 12. Setup Controls & Global Event Listeners
-    // -------------------------------------------------------------
-    // Category pills
-    categoryFilterPills.forEach(pill => {
-        pill.addEventListener('click', () => {
-            categoryFilterPills.forEach(p => p.classList.remove('active'));
-            pill.classList.add('active');
-            currentFilter = pill.dataset.filter || 'all';
-            filterAndSortPapers();
-        });
-    });
-
-    // Real-time search with debounce
-    let searchDebounceTimer = null;
-    if (researchSearchInput) {
-        researchSearchInput.addEventListener('input', (e) => {
-            searchQuery = e.target.value;
-            if (clearResearchSearch) {
-                clearResearchSearch.style.display = searchQuery ? 'inline-flex' : 'none';
-            }
-            clearTimeout(searchDebounceTimer);
-            searchDebounceTimer = setTimeout(() => {
-                filterAndSortPapers();
-            }, 150);
-        });
-    }
-
-    if (clearResearchSearch) {
-        clearResearchSearch.addEventListener('click', () => {
-            if (researchSearchInput) {
-                researchSearchInput.value = '';
-                searchQuery = '';
-                clearResearchSearch.style.display = 'none';
-                filterAndSortPapers();
-                researchSearchInput.focus();
-            }
-        });
-    }
-
-    // Sort select
-    if (researchSortSelect) {
-        researchSortSelect.addEventListener('change', (e) => {
-            currentSort = e.target.value;
-            filterAndSortPapers();
-        });
-    }
-
-    // Modal Close buttons
-    document.querySelectorAll('.modal-close-trigger').forEach(btn => {
-        btn.addEventListener('click', () => {
-            closeAbstractModal();
-            closeCitationModal();
-            closeSuggestModal();
-        });
-    });
-
-    // Close on backdrop click
-    document.querySelectorAll('.research-modal-backdrop').forEach(bd => {
-        bd.addEventListener('click', () => {
-            closeAbstractModal();
-            closeCitationModal();
-            closeSuggestModal();
-        });
-    });
-
-    // Close on ESC key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            closeAbstractModal();
-            closeCitationModal();
-            closeSuggestModal();
-        }
-    });
 
     // Copy Citation Handlers
     if (btnCopyVancouver) {
@@ -627,74 +560,346 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Quick action buttons inside Abstract Modal
-    if (modalCiteQuickBtn) {
-        modalCiteQuickBtn.addEventListener('click', () => {
-            if (activePaperForAbstract) {
-                closeAbstractModal();
-                openCitationModal(activePaperForAbstract.id);
-            }
+    // -------------------------------------------------------------
+    // 12. Bookmark / Reading List Toggle
+    // -------------------------------------------------------------
+    const toggleSaveResearch = (id, btnElement = null) => {
+        const isSaved = userSavedResearch.has(id);
+        const article = allArticles.find(a => a.id === id);
+        const paperTitle = article ? article.title.substring(0, 35) + '...' : 'Article';
+
+        if (isSaved) {
+            userSavedResearch.delete(id);
+            showToast(`Removed "${paperTitle}" from Reading List`, 'bookmark');
+        } else {
+            userSavedResearch.add(id);
+            showToast(`Saved "${paperTitle}" to your Reading List!`, 'success');
+        }
+
+        persistUserSavedResearch();
+
+        if (btnElement) {
+            btnElement.classList.toggle('active', !isSaved);
+            const icon = btnElement.querySelector('ion-icon');
+            const label = btnElement.querySelector('.save-label');
+            if (icon) icon.setAttribute('name', !isSaved ? 'bookmark' : 'bookmark-outline');
+            if (label) label.textContent = !isSaved ? 'Saved' : 'Save';
+        }
+
+        if (currentFilter === 'reading-list') {
+            filterAndSortArticles();
+        }
+    };
+
+    // -------------------------------------------------------------
+    // 13. Add Article Modal & PDF Drag/Drop Upload Form
+    // -------------------------------------------------------------
+    const openAddArticleModal = () => {
+        if (!addArticleModal) return;
+        addArticleForm.reset();
+        pendingPdfFile = null;
+        selectedPdfCard.style.display = 'none';
+        pdfDropZone.style.display = 'flex';
+        uploadProgressWrapper.style.display = 'none';
+        btnSubmitAddArticle.disabled = false;
+        btnSubmitAddArticle.innerHTML = `<ion-icon name="cloud-upload-outline"></ion-icon> <span>Upload &amp; Save PDF</span>`;
+        
+        // Auto-fill user name if logged in
+        const uploaderInput = document.getElementById('articleUploaderName');
+        if (uploaderInput) {
+            uploaderInput.value = getUserDisplayName();
+        }
+
+        addArticleModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    };
+
+    const closeAddArticleModal = () => {
+        if (!addArticleModal) return;
+        addArticleModal.classList.remove('open');
+        document.body.style.overflow = '';
+    };
+
+    if (btnOpenAddArticleModal) {
+        btnOpenAddArticleModal.addEventListener('click', openAddArticleModal);
+    }
+
+    // PDF File Selection Handler
+    const handleFileSelected = (file) => {
+        if (!file) return;
+
+        if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+            showToast('Please select an Adobe PDF document (.pdf)', 'error');
+            return;
+        }
+
+        // Limit to 50 MB
+        if (file.size > 50 * 1024 * 1024) {
+            showToast('PDF file is too large. Maximum supported size is 50 MB.', 'error');
+            return;
+        }
+
+        pendingPdfFile = file;
+        selectedPdfName.textContent = file.name;
+        selectedPdfSize.textContent = formatFileSize(file.size);
+        pdfDropZone.style.display = 'none';
+        selectedPdfCard.style.display = 'flex';
+
+        // Auto-populate Title if empty
+        const titleInput = document.getElementById('articleTitle');
+        if (titleInput && !titleInput.value.trim()) {
+            const cleanTitle = file.name.replace(/\.pdf$/i, '').replace(/[_-]/g, ' ');
+            titleInput.value = cleanTitle;
+        }
+    };
+
+    // Dropzone Click
+    if (pdfDropZone) {
+        pdfDropZone.addEventListener('click', () => {
+            if (articlePdfInput) articlePdfInput.click();
         });
-    }
 
-    if (modalSaveQuickBtn) {
-        modalSaveQuickBtn.addEventListener('click', () => {
-            if (activePaperForAbstract) {
-                toggleSaveResearch(activePaperForAbstract.id);
-                const isSaved = userSavedResearch.has(activePaperForAbstract.id);
-                modalSaveQuickBtn.innerHTML = `
-                    <ion-icon name="${isSaved ? 'bookmark' : 'bookmark-outline'}"></ion-icon>
-                    <span>${isSaved ? 'Saved in Reading List' : 'Save to Reading List'}</span>
-                `;
-                modalSaveQuickBtn.classList.toggle('active', isSaved);
-            }
-        });
-    }
-
-    // Suggest paper button & form
-    if (btnOpenSuggestModal) {
-        btnOpenSuggestModal.addEventListener('click', openSuggestModal);
-    }
-
-    if (suggestPaperForm) {
-        suggestPaperForm.addEventListener('submit', (e) => {
+        // Drag & Drop Listeners
+        pdfDropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
-            const title = document.getElementById('suggestTitle').value.trim();
-            const authors = document.getElementById('suggestAuthors').value.trim();
-            const journal = document.getElementById('suggestJournal').value.trim();
-            const doi = document.getElementById('suggestDoi').value.trim();
-            const category = document.getElementById('suggestCategory').value;
+            pdfDropZone.classList.add('drag-active');
+        });
 
-            if (!title || !authors || !journal) {
-                showToast('Please fill in the required article details.', 'info');
+        pdfDropZone.addEventListener('dragleave', () => {
+            pdfDropZone.classList.remove('drag-active');
+        });
+
+        pdfDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            pdfDropZone.classList.remove('drag-active');
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                handleFileSelected(e.dataTransfer.files[0]);
+            }
+        });
+    }
+
+    if (articlePdfInput) {
+        articlePdfInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                handleFileSelected(e.target.files[0]);
+            }
+        });
+    }
+
+    if (btnRemoveSelectedPdf) {
+        btnRemoveSelectedPdf.addEventListener('click', () => {
+            pendingPdfFile = null;
+            if (articlePdfInput) articlePdfInput.value = '';
+            selectedPdfCard.style.display = 'none';
+            pdfDropZone.style.display = 'flex';
+        });
+    }
+
+    // Submit Add Article Form (Uploads PDF to Google Drive + Stores in Realtime Database)
+    if (addArticleForm) {
+        addArticleForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!pendingPdfFile) {
+                showToast('Please select a PDF file to upload.', 'error');
                 return;
             }
 
-            // Save suggestion to local queue or dispatch notification
-            try {
-                const storedSubmissions = JSON.parse(localStorage.getItem('rsbk_research_submissions') || '[]');
-                storedSubmissions.push({
-                    title,
-                    authors,
-                    journal,
-                    doi,
-                    category,
-                    submittedAt: new Date().toISOString(),
-                    submittedBy: getUserEmail()
-                });
-                localStorage.setItem('rsbk_research_submissions', JSON.stringify(storedSubmissions));
-            } catch (err) {
-                console.error('Error recording paper suggestion:', err);
+            const title = document.getElementById('articleTitle').value.trim();
+            const authors = document.getElementById('articleAuthors').value.trim();
+            const journal = document.getElementById('articleJournal').value.trim();
+            const category = document.getElementById('articleCategory').value;
+            const year = document.getElementById('articleYear').value.trim();
+            const volume = document.getElementById('articleVolume').value.trim();
+            const doi = document.getElementById('articleDoi').value.trim();
+            const methodsRaw = document.getElementById('articleMethods').value.trim();
+            const abstract = document.getElementById('articleAbstract').value.trim();
+            const uploaderName = document.getElementById('articleUploaderName').value.trim() || getUserDisplayName();
+
+            if (!title || !authors || !journal) {
+                showToast('Please fill in all required fields.', 'error');
+                return;
             }
 
-            suggestPaperForm.reset();
-            closeSuggestModal();
-            showToast('Thank you! Your research paper suggestion has been submitted for peer curation.', 'success', 5000);
+            const methodsList = methodsRaw ? methodsRaw.split(',').map(m => m.trim()).filter(Boolean) : [];
+
+            // UI: Show Progress
+            btnSubmitAddArticle.disabled = true;
+            uploadProgressWrapper.style.display = 'block';
+            uploadProgressBar.style.width = '10%';
+            uploadStatusText.textContent = 'Preparing PDF document for Google Drive...';
+
+            try {
+                // 1. Upload PDF directly to Dr. Milind's Google Drive via Apps Script
+                const driveResult = await uploadPdfToGoogleDrive(pendingPdfFile, (pct, status) => {
+                    uploadProgressBar.style.width = `${pct}%`;
+                    uploadStatusText.textContent = status;
+                });
+
+                uploadProgressBar.style.width = '90%';
+                uploadStatusText.textContent = 'Saving article metadata to Realtime Database...';
+
+                // 2. Save Article Metadata to Firebase Realtime Database
+                const now = Date.now();
+                const newArticle = {
+                    title: title,
+                    authors: authors,
+                    journal: journal,
+                    year: year ? parseInt(year, 10) : new Date().getFullYear(),
+                    volume: volume || '',
+                    category: category || 'analytical',
+                    methods: methodsList,
+                    abstract: abstract || '',
+                    doi: doi || '',
+                    uploaderName: uploaderName,
+                    uploaderEmail: getUserEmail(),
+                    pdfFileName: driveResult.fileName,
+                    pdfFileSize: driveResult.fileSize,
+                    driveFileId: driveResult.driveFileId,
+                    driveViewUrl: driveResult.driveViewUrl,
+                    drivePreviewUrl: driveResult.drivePreviewUrl,
+                    driveDownloadUrl: driveResult.driveDownloadUrl,
+                    createdAt: now
+                };
+
+                if (db && fbPush && fbRef && fbSet) {
+                    const articleRef = fbPush(fbRef(db, 'research/articles'));
+                    newArticle.id = articleRef.key;
+                    await fbSet(articleRef, newArticle);
+                } else {
+                    // Fallback to local storage if database offline
+                    newArticle.id = 'art_' + now;
+                    allArticles.unshift(newArticle);
+                    localStorage.setItem('rsbk_offline_articles', JSON.stringify(allArticles));
+                    filterAndSortArticles();
+                }
+
+                uploadProgressBar.style.width = '100%';
+                uploadStatusText.textContent = 'Upload Complete!';
+
+                setTimeout(() => {
+                    closeAddArticleModal();
+                    showToast(`"${title.substring(0, 30)}..." PDF uploaded successfully to Google Drive!`, 'success', 5000);
+                }, 400);
+
+            } catch (err) {
+                console.error('Error uploading article PDF to Google Drive:', err);
+                uploadProgressWrapper.style.display = 'none';
+                btnSubmitAddArticle.disabled = false;
+                btnSubmitAddArticle.innerHTML = `<ion-icon name="cloud-upload-outline"></ion-icon> <span>Upload &amp; Save PDF</span>`;
+                showToast(`Upload failed: ${err.message || 'Please check your connection and try again.'}`, 'error', 6000);
+            }
         });
     }
 
     // -------------------------------------------------------------
-    // 13. Back to Top Floating Button Handler
+    // 14. Admin Only Article Removal
+    // -------------------------------------------------------------
+    const handleAdminDeleteArticle = async (articleId) => {
+        currentUserEmail = getUserEmail();
+        isUserAdmin = checkIsAdmin(currentUserEmail);
+
+        if (!isUserAdmin) {
+            alert('Access Denied: Only platform administrators can remove research articles.');
+            return;
+        }
+
+        const article = allArticles.find(a => a.id === articleId);
+        const articleTitle = article ? article.title : 'this article';
+
+        const confirmed = confirm(`Administrator Action:\n\nAre you sure you want to permanently delete:\n"${articleTitle}"?\n\nThis will remove the publication from the public RSBK Research Hub.`);
+        if (!confirmed) return;
+
+        try {
+            if (db && fbRef && fbRemove) {
+                await fbRemove(fbRef(db, `research/articles/${articleId}`));
+            } else {
+                allArticles = allArticles.filter(a => a.id !== articleId);
+                localStorage.setItem('rsbk_offline_articles', JSON.stringify(allArticles));
+                filterAndSortArticles();
+            }
+            showToast('Research article successfully deleted by administrator.', 'success');
+        } catch (err) {
+            console.error('Error deleting article:', err);
+            showToast('Failed to delete article. Please try again.', 'error');
+        }
+    };
+
+    // -------------------------------------------------------------
+    // 15. Controls & Filter Listeners
+    // -------------------------------------------------------------
+    // Category pills
+    categoryFilterPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+            categoryFilterPills.forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            currentFilter = pill.dataset.filter || 'all';
+            filterAndSortArticles();
+        });
+    });
+
+    // Real-time search with debounce
+    let searchDebounceTimer = null;
+    if (researchSearchInput) {
+        researchSearchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            if (clearResearchSearch) {
+                clearResearchSearch.style.display = searchQuery ? 'inline-flex' : 'none';
+            }
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => {
+                filterAndSortArticles();
+            }, 150);
+        });
+    }
+
+    if (clearResearchSearch) {
+        clearResearchSearch.addEventListener('click', () => {
+            if (researchSearchInput) {
+                researchSearchInput.value = '';
+                searchQuery = '';
+                clearResearchSearch.style.display = 'none';
+                filterAndSortArticles();
+                researchSearchInput.focus();
+            }
+        });
+    }
+
+    // Sort select
+    if (researchSortSelect) {
+        researchSortSelect.addEventListener('change', (e) => {
+            currentSort = e.target.value;
+            filterAndSortArticles();
+        });
+    }
+
+    // Modal close triggers
+    document.querySelectorAll('.modal-close-trigger').forEach(btn => {
+        btn.addEventListener('click', () => {
+            closeAddArticleModal();
+            closePdfViewerModal();
+            closeCitationModal();
+        });
+    });
+
+    document.querySelectorAll('.research-modal-backdrop').forEach(bd => {
+        bd.addEventListener('click', () => {
+            closeAddArticleModal();
+            closePdfViewerModal();
+            closeCitationModal();
+        });
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeAddArticleModal();
+            closePdfViewerModal();
+            closeCitationModal();
+        }
+    });
+
+    // -------------------------------------------------------------
+    // 16. Back to Top Floating Button Handler
     // -------------------------------------------------------------
     const backToTopBtn = document.getElementById('backToTopBtn');
     if (backToTopBtn && !backToTopBtn.dataset.bound) {
@@ -730,44 +935,81 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // -------------------------------------------------------------
-    // 14. URL Query Params Handler (?search=... & ?category=...)
+    // 17. Firebase Realtime Database Integration
     // -------------------------------------------------------------
-    const handleUrlQueryParams = () => {
-        try {
-            const params = new URLSearchParams(window.location.search);
-            const searchParam = params.get('search');
-            const categoryParam = params.get('category');
+    let db = null;
+    let fbRef = null;
+    let fbPush = null;
+    let fbSet = null;
+    let fbRemove = null;
 
-            if (categoryParam) {
-                const targetPill = document.querySelector(`.research-filter-pill[data-filter="${categoryParam}"]`);
-                if (targetPill) {
-                    categoryFilterPills.forEach(p => p.classList.remove('active'));
-                    targetPill.classList.add('active');
-                    currentFilter = categoryParam;
-                }
-            }
-
-            if (searchParam) {
-                searchQuery = searchParam;
-                if (researchSearchInput) {
-                    researchSearchInput.value = searchParam;
-                }
-                if (clearResearchSearch) {
-                    clearResearchSearch.style.display = 'inline-flex';
-                }
-            }
-        } catch (e) {
-            console.error('Error parsing URL query params:', e);
-        }
-    };
-
-    // -------------------------------------------------------------
-    // 15. Initialize Hub
-    // -------------------------------------------------------------
     loadUserSavedResearch();
-    handleUrlQueryParams();
 
-    // Hide loader and render papers
-    if (researchLoadingState) researchLoadingState.style.display = 'none';
-    filterAndSortPapers();
+    try {
+        const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+        const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+        const { getDatabase, ref, onValue, push, set, remove } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCZQqKCURGqMQ2LUl_XHOgscBmjs7Vj7ps",
+            authDomain: "rsbk-online.firebaseapp.com",
+            projectId: "rsbk-online",
+            storageBucket: "rsbk-online.appspot.com",
+            messagingSenderId: "362985180438",
+            appId: "1:362985180438:web:9802e4253a5f6b329ad437",
+            databaseURL: "https://rsbk-online-default-rtdb.firebaseio.com"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        db = getDatabase(app);
+        fbRef = ref;
+        fbPush = push;
+        fbSet = set;
+        fbRemove = remove;
+
+        // Listen for Authentication state change
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUserEmail = (user.email || '').toLowerCase().trim();
+                isUserAdmin = checkIsAdmin(currentUserEmail);
+            } else {
+                currentUserEmail = getUserEmail();
+                isUserAdmin = checkIsAdmin(currentUserEmail);
+            }
+            // Re-render to show/hide admin delete buttons
+            filterAndSortArticles();
+        });
+
+        // Realtime Listener for Research Articles
+        const articlesRef = ref(db, 'research/articles');
+        onValue(articlesRef, (snapshot) => {
+            const data = snapshot.val() || {};
+            allArticles = Object.values(data).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+            // Hide initial loader
+            if (researchLoadingState) researchLoadingState.style.display = 'none';
+
+            filterAndSortArticles();
+        }, (error) => {
+            console.error('Error fetching articles from Realtime Database:', error);
+            if (researchLoadingState) researchLoadingState.style.display = 'none';
+            // Fallback to local storage if available
+            try {
+                const cached = localStorage.getItem('rsbk_offline_articles');
+                if (cached) allArticles = JSON.parse(cached);
+            } catch (e) {}
+            filterAndSortArticles();
+        });
+
+    } catch (err) {
+        console.error('Firebase initialization error in research.js:', err);
+        if (researchLoadingState) researchLoadingState.style.display = 'none';
+        // Offline / Local storage fallback
+        try {
+            const cached = localStorage.getItem('rsbk_offline_articles');
+            if (cached) allArticles = JSON.parse(cached);
+        } catch (e) {}
+        filterAndSortArticles();
+    }
 });

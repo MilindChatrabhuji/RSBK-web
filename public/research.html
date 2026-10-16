@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>if(localStorage.getItem('rsbk_auth_cached')==='true'){document.documentElement.classList.add('auth-verified');if(localStorage.getItem('rsbk_access_valid')==='true'){document.documentElement.classList.add('access-granted');}else if(localStorage.getItem('rsbk_access_valid')==='false'){document.documentElement.classList.add('paywall-expired');}}</script>
     <title>Research &amp; Evidence Hub | RSBK Online — Suvarna Ayurveda</title>
-    <meta name="description" content="Peer-reviewed research papers, analytical monographs (XRD, SEM-EDX, ICP-MS, HPTLC), OECD safety &amp; toxicology studies, and clinical evidence in Rasashastra &amp; Bhaishajya Kalpana — Suvarna Ayurveda">
+    <meta name="description" content="Research papers, analytical monographs, and clinical evidence repository for Rasashastra &amp; Bhaishajya Kalpana with direct PDF uploads stored in Google Drive — Suvarna Ayurveda">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -104,15 +104,19 @@
                 </div>
                 <h1 class="section-title">Research &amp; Evidence Hub</h1>
                 <p class="section-description">
-                    A comprehensive digital repository of peer-reviewed research papers, systematic reviews, analytical monographs (XRD, SEM-EDX, ICP-MS, HPLC, HPTLC), safety &amp; toxicological evaluations (OECD 407/423), nanomedicine characterizations, and clinical trials in Rasashastra &amp; Bhaishajya Kalpana.
+                    A dedicated academic repository for research papers, review articles, and scientific monographs in Rasashastra &amp; Bhaishajya Kalpana. Anyone can upload research article PDFs directly to Dr. Milind's dedicated Google Drive. Only administrators can delete or moderate articles.
                 </p>
 
                 <!-- Academic Trust / Features Row -->
                 <div class="research-hub-trust-row">
-                    <span class="trust-pill"><ion-icon name="checkmark-circle"></ion-icon> 100% Peer-Reviewed</span>
-                    <span class="trust-pill"><ion-icon name="checkmark-circle"></ion-icon> Instrumental Profiles (XRD &middot; SEM &middot; ICP-MS)</span>
-                    <span class="trust-pill"><ion-icon name="checkmark-circle"></ion-icon> Standardized OECD Toxicology</span>
-                    <span class="trust-pill highlight" id="researchCountBadge"><ion-icon name="flask"></ion-icon> 0 Papers Available</span>
+                    <span class="trust-pill"><ion-icon name="cloud-upload-outline"></ion-icon> Open Community PDF Uploads</span>
+                    <span class="trust-pill"><ion-icon name="shield-checkmark-outline"></ion-icon> Admin-Protected Removal</span>
+                    <a href="https://drive.google.com/drive/folders/1F-H-eGDWWiiAybYM9oXAh6Xnocuuhdj6?usp=sharing" target="_blank" rel="noopener noreferrer" class="trust-pill btn-drive-link" title="Open Dedicated Google Drive Research Folder">
+                        <ion-icon name="logo-google" style="color: #4285F4;"></ion-icon> Google Drive Storage
+                    </a>
+                    <span class="trust-pill highlight" id="researchCountBadge">
+                        <ion-icon name="flask"></ion-icon> 0 Papers Available
+                    </span>
                 </div>
             </div>
 
@@ -120,7 +124,7 @@
             <div class="research-toolbar">
                 <div class="research-search-box">
                     <ion-icon name="search-outline"></ion-icon>
-                    <input type="text" id="researchSearchInput" placeholder="Search papers by drug (Swarna, Tamra, Parada), technique (XRD, SEM, OECD), author, journal, or topic..." autocomplete="off">
+                    <input type="text" id="researchSearchInput" placeholder="Search uploaded articles by drug (Parada, Swarna), author, journal, technique, or title..." autocomplete="off">
                     <button id="clearResearchSearch" class="btn-clear-search" type="button" style="display: none;" title="Clear search">
                         <ion-icon name="close-circle"></ion-icon>
                     </button>
@@ -129,7 +133,7 @@
                 <div class="research-controls-row">
                     <div class="research-filter-pills" id="researchCategoryFilters">
                         <button class="research-filter-pill active" data-filter="all" type="button">
-                            <ion-icon name="grid-outline"></ion-icon> All Papers
+                            <ion-icon name="grid-outline"></ion-icon> All Articles
                         </button>
                         <button class="research-filter-pill" data-filter="analytical" type="button">
                             <ion-icon name="hardware-chip-outline"></ion-icon> Analytical &amp; Standardization
@@ -152,7 +156,7 @@
                         
                         <div class="research-filter-divider"></div>
                         
-                        <button class="research-filter-pill pill-saved" data-filter="reading-list" type="button" title="View papers bookmarked in your reading list">
+                        <button class="research-filter-pill pill-saved" data-filter="reading-list" type="button" title="View articles saved in your personal reading list">
                             <ion-icon name="bookmark"></ion-icon> Reading List (<span id="countReadingList">0</span>)
                         </button>
                     </div>
@@ -161,15 +165,15 @@
                         <div class="research-sort-box">
                             <label for="researchSortSelect" class="sort-label">Sort:</label>
                             <select id="researchSortSelect" class="research-sort-dropdown">
-                                <option value="featured">Featured / Curated</option>
+                                <option value="newest">Recently Uploaded</option>
                                 <option value="year-new">Year (Newest First)</option>
                                 <option value="year-old">Year (Oldest First)</option>
                                 <option value="az">Title (A to Z)</option>
                                 <option value="journal">Journal Name</option>
                             </select>
                         </div>
-                        <button class="btn btn-primary btn-sm btn-suggest-paper" id="btnOpenSuggestModal" type="button" title="Suggest or submit a published RSBK research paper">
-                            <ion-icon name="add-circle-outline"></ion-icon> Suggest Paper
+                        <button class="btn btn-primary btn-sm btn-add-pdf" id="btnOpenAddArticleModal" type="button" title="Upload a research article PDF to Dr. Milind's Google Drive">
+                            <ion-icon name="cloud-upload-outline"></ion-icon> Add Article PDF
                         </button>
                     </div>
                 </div>
@@ -178,7 +182,7 @@
             <!-- Loading State -->
             <div id="researchLoadingState" class="research-loading-wrapper">
                 <div class="mini-spinner large"></div>
-                <p>Loading curated RSBK peer-reviewed papers and analytical monographs...</p>
+                <p>Loading research articles from Google Drive and Realtime Database...</p>
             </div>
 
             <!-- Research Cards Grid -->
@@ -189,67 +193,186 @@
                 <div class="empty-icon-wrap">
                     <ion-icon name="document-text-outline"></ion-icon>
                 </div>
-                <h3 id="emptyStateHeading">No Matching Research Papers Found</h3>
-                <p id="emptyStateDesc">Try searching for a different drug name, analytical technique, or reset your category filter.</p>
-                <button class="btn btn-secondary" onclick="document.getElementById('researchSearchInput').value=''; document.querySelector('.research-filter-pill[data-filter=\'all\']').click();">
-                    <ion-icon name="refresh-outline"></ion-icon> Reset Search &amp; Filters
+                <h3 id="emptyStateHeading">No Research Articles Added Yet</h3>
+                <p id="emptyStateDesc">
+                    Anyone can add PDF articles. All uploaded files are saved directly in Dr. Milind's dedicated Google Drive folder. Only the platform administrator can remove articles.
+                </p>
+                <button class="btn btn-primary" onclick="document.getElementById('btnOpenAddArticleModal').click();">
+                    <ion-icon name="cloud-upload-outline"></ion-icon> Add Article PDF
                 </button>
             </div>
         </section>
     </main>
 
-    <!-- Modal 1: Structured Abstract & Classical Context Modal -->
-    <div id="abstractModal" class="research-modal-container" role="dialog" aria-modal="true" aria-labelledby="modalAbstractTitle">
+    <!-- Modal 1: Add Article PDF Modal (Open to Anyone) -->
+    <div id="addArticleModal" class="research-modal-container" role="dialog" aria-modal="true" aria-labelledby="addArticleModalTitle">
         <div class="research-modal-backdrop modal-close-trigger"></div>
-        <div class="research-modal-dialog abstract-modal-dialog">
+        <div class="research-modal-dialog add-article-modal-dialog">
             <div class="research-modal-header">
-                <div class="modal-header-meta">
-                    <span id="modalAbstractCategory" class="research-badge-category">Category</span>
-                    <a id="modalAbstractDoiLink" href="#" target="_blank" rel="noopener noreferrer" class="modal-doi-pill" title="Open Publisher DOI Link">
-                        <ion-icon name="open-outline"></ion-icon> DOI
-                    </a>
+                <div>
+                    <span class="modal-badge-cite"><ion-icon name="cloud-upload"></ion-icon> Google Drive Storage</span>
+                    <h3 id="addArticleModalTitle" class="modal-title">Upload Research Article PDF</h3>
+                    <p class="modal-subtext">All articles are stored as PDF files in Dr. Milind's dedicated Google Drive folder.</p>
                 </div>
-                <h2 id="modalAbstractTitle" class="modal-title">Paper Title</h2>
-                <div class="modal-sub-meta">
-                    <span id="modalAbstractAuthors" class="modal-authors">Authors</span>
-                    <span class="meta-separator">&middot;</span>
-                    <span id="modalAbstractJournal" class="modal-journal">Journal</span>
-                </div>
-                <button class="research-modal-close modal-close-trigger" type="button" title="Close (Esc)" aria-label="Close Abstract">
+                <button class="research-modal-close modal-close-trigger" type="button" title="Close (Esc)" aria-label="Close">
                     <ion-icon name="close-outline"></ion-icon>
                 </button>
             </div>
 
             <div class="research-modal-body">
-                <div class="methods-section-wrap">
-                    <span class="methods-label">Methods &amp; Analytical Tools:</span>
-                    <div id="modalMethodsRow" class="research-methods-row"></div>
-                </div>
+                <form id="addArticleForm" class="add-article-form">
+                    
+                    <!-- PDF File Drag and Drop Zone -->
+                    <div class="form-group">
+                        <label class="field-label">Research Article PDF File *</label>
+                        <div class="pdf-drop-zone" id="pdfDropZone">
+                            <ion-icon name="cloud-upload-outline" class="drop-icon"></ion-icon>
+                            <div class="drop-text-group">
+                                <span class="drop-main-text">Click to browse or drag &amp; drop PDF file here</span>
+                                <span class="drop-sub-text">Supported: Adobe PDF documents (.pdf) up to 50 MB</span>
+                            </div>
+                            <input type="file" id="articlePdfInput" accept=".pdf,application/pdf" style="display: none;" required>
+                        </div>
 
-                <div class="abstract-content-wrap">
-                    <h4 class="abstract-heading">
-                        <ion-icon name="document-text-outline"></ion-icon> Structured Abstract
-                    </h4>
-                    <div id="modalAbstractBody" class="modal-abstract-text"></div>
-                </div>
+                        <!-- Selected File Preview Card -->
+                        <div id="selectedPdfCard" class="selected-pdf-card" style="display: none;">
+                            <div class="pdf-card-info">
+                                <ion-icon name="document-text" class="pdf-badge-icon"></ion-icon>
+                                <div class="pdf-file-details">
+                                    <strong id="selectedPdfName">filename.pdf</strong>
+                                    <span id="selectedPdfSize">0 KB</span>
+                                </div>
+                            </div>
+                            <button type="button" id="btnRemoveSelectedPdf" class="btn-remove-pdf" title="Remove / choose different PDF">
+                                <ion-icon name="close-circle-outline"></ion-icon> Change
+                            </button>
+                        </div>
+                    </div>
 
-                <div id="modalClassicalBox" class="context-box-container"></div>
-                <div id="modalSignificanceBox" class="context-box-container"></div>
-            </div>
+                    <!-- Article Title -->
+                    <div class="form-group">
+                        <label for="articleTitle" class="field-label">Article Title *</label>
+                        <input type="text" id="articleTitle" class="form-input" placeholder="e.g. Physicochemical characterization and particle size analysis of Swarna Bhasma" required>
+                    </div>
 
-            <div class="research-modal-footer">
-                <button id="modalSaveQuickBtn" class="btn btn-secondary btn-sm" type="button">
-                    <ion-icon name="bookmark-outline"></ion-icon> <span>Save to Reading List</span>
-                </button>
-                <button id="modalCiteQuickBtn" class="btn btn-secondary btn-sm" type="button">
-                    <ion-icon name="quote-outline"></ion-icon> <span>Cite This Paper</span>
-                </button>
-                <button class="btn btn-primary btn-sm modal-close-trigger" type="button">Close</button>
+                    <!-- Authors -->
+                    <div class="form-group">
+                        <label for="articleAuthors" class="field-label">Authors *</label>
+                        <input type="text" id="articleAuthors" class="form-input" placeholder="e.g. Dr. Milind Chatrabhuji, Dr. B.J. Patgiri, Dr. P.K. Prajapati" required>
+                    </div>
+
+                    <!-- Journal & Category -->
+                    <div class="form-row">
+                        <div class="form-group flex-2">
+                            <label for="articleJournal" class="field-label">Journal / Book / Publisher *</label>
+                            <input type="text" id="articleJournal" class="form-input" placeholder="e.g. Journal of Ayurveda and Integrative Medicine" required>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="articleCategory" class="field-label">Category</label>
+                            <select id="articleCategory" class="form-input">
+                                <option value="analytical">Analytical &amp; Standardization</option>
+                                <option value="toxicology">Safety &amp; Toxicology</option>
+                                <option value="nanomedicine">Nanomedicine &amp; Bhasma</option>
+                                <option value="reviews">Systematic Review</option>
+                                <option value="formulations">Formulations &amp; SOP</option>
+                                <option value="clinical">Clinical Evidence</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Year, Volume, DOI -->
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="articleYear" class="field-label">Publication Year</label>
+                            <input type="number" id="articleYear" class="form-input" placeholder="2024" min="1950" max="2030">
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="articleVolume" class="field-label">Volume / Issue / Pages</label>
+                            <input type="text" id="articleVolume" class="form-input" placeholder="e.g. Vol 15(2): 100-112">
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="articleDoi" class="field-label">DOI / URL (Optional)</label>
+                            <input type="text" id="articleDoi" class="form-input" placeholder="e.g. 10.1016/j.jaim.2023.100724">
+                        </div>
+                    </div>
+
+                    <!-- Analytical Methods / Tags -->
+                    <div class="form-group">
+                        <label for="articleMethods" class="field-label">Analytical Methods / Keywords (Comma-separated)</label>
+                        <input type="text" id="articleMethods" class="form-input" placeholder="e.g. XRD, TEM, SEM-EDX, Shodhana, OECD 407">
+                    </div>
+
+                    <!-- Abstract / Summary -->
+                    <div class="form-group">
+                        <label for="articleAbstract" class="field-label">Abstract / Summary Notes (Optional)</label>
+                        <textarea id="articleAbstract" class="form-input form-textarea" rows="4" placeholder="Brief summary, key findings, classical shloka references, or conclusion..."></textarea>
+                    </div>
+
+                    <!-- Uploader Credit -->
+                    <div class="form-group">
+                        <label for="articleUploaderName" class="field-label">Contributed By (Your Name / Designation)</label>
+                        <input type="text" id="articleUploaderName" class="form-input" placeholder="e.g. Dr. Smita Chatrabhuji, Assistant Professor">
+                    </div>
+
+                    <!-- Upload Progress Bar (Visible while uploading) -->
+                    <div id="uploadProgressWrapper" class="upload-progress-wrapper" style="display: none;">
+                        <div class="progress-bar-container">
+                            <div id="uploadProgressBar" class="progress-bar-fill"></div>
+                        </div>
+                        <div class="progress-status-row">
+                            <span id="uploadStatusText">Uploading PDF to Google Drive...</span>
+                            <div class="mini-spinner sm"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary modal-close-trigger" id="btnCancelAddArticle">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btnSubmitAddArticle">
+                            <ion-icon name="cloud-upload-outline"></ion-icon> <span>Upload &amp; Save PDF</span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- Modal 2: Citation Generator Modal (Vancouver & APA 7th) -->
+    <!-- Modal 2: In-Website Google Drive PDF Viewer Modal -->
+    <div id="pdfViewerModal" class="research-modal-container" role="dialog" aria-modal="true" aria-labelledby="viewerModalTitle">
+        <div class="research-modal-backdrop modal-close-trigger"></div>
+        <div class="research-modal-dialog pdf-viewer-modal-dialog">
+            <div class="research-modal-header pdf-viewer-header">
+                <div class="viewer-meta-group">
+                    <span id="viewerCategoryBadge" class="research-badge-category">Category</span>
+                    <h3 id="viewerModalTitle" class="modal-title viewer-title">Article Title</h3>
+                    <span id="viewerAuthorsJournal" class="viewer-subtitle">Authors &middot; Journal</span>
+                </div>
+                <div class="viewer-actions-top">
+                    <a id="viewerDriveExternalBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="Open in Google Drive (New Tab)">
+                        <ion-icon name="logo-google" style="color: #4285F4;"></ion-icon> Open in Drive
+                    </a>
+                    <a id="viewerDownloadBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="Download PDF directly">
+                        <ion-icon name="download-outline"></ion-icon> Download
+                    </a>
+                    <button class="research-modal-close modal-close-trigger" type="button" title="Close Reader (Esc)" aria-label="Close Reader">
+                        <ion-icon name="close-outline"></ion-icon>
+                    </button>
+                </div>
+            </div>
+
+            <div class="research-modal-body pdf-viewer-body">
+                <div id="pdfFrameWrapper" class="pdf-iframe-container">
+                    <iframe id="pdfViewerIframe" src="" class="pdf-viewer-frame" title="Google Drive PDF Reader" allow="autoplay" loading="lazy"></iframe>
+                </div>
+            </div>
+
+            <div class="research-modal-footer viewer-footer">
+                <span class="viewer-note"><ion-icon name="lock-closed-outline"></ion-icon> Protected Google Drive PDF Stream &middot; RSBK Online</span>
+                <button class="btn btn-primary btn-sm modal-close-trigger" type="button">Close Reader</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Citation Generator Modal (Vancouver & APA 7th) -->
     <div id="citationModal" class="research-modal-container" role="dialog" aria-modal="true" aria-labelledby="citationModalTitle">
         <div class="research-modal-backdrop modal-close-trigger"></div>
         <div class="research-modal-dialog citation-modal-dialog">
@@ -292,70 +415,6 @@
 
             <div class="research-modal-footer">
                 <button class="btn btn-secondary btn-sm modal-close-trigger" type="button">Done</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal 3: Suggest / Submit Paper Modal -->
-    <div id="suggestModal" class="research-modal-container" role="dialog" aria-modal="true" aria-labelledby="suggestModalTitle">
-        <div class="research-modal-backdrop modal-close-trigger"></div>
-        <div class="research-modal-dialog suggest-modal-dialog">
-            <div class="research-modal-header">
-                <div>
-                    <span class="modal-badge-cite">Peer Academic Contribution</span>
-                    <h3 id="suggestModalTitle" class="modal-title">Suggest a Research Paper</h3>
-                </div>
-                <button class="research-modal-close modal-close-trigger" type="button" title="Close (Esc)" aria-label="Close">
-                    <ion-icon name="close-outline"></ion-icon>
-                </button>
-            </div>
-
-            <div class="research-modal-body">
-                <p class="suggest-intro">
-                    Are you an author of a peer-reviewed research study on Rasashastra &amp; Bhaishajya Kalpana, or did you discover a benchmark publication? Submit the bibliographic citation details below for addition to the RSBK Online Research Hub.
-                </p>
-
-                <form id="suggestPaperForm" class="suggest-paper-form">
-                    <div class="form-group">
-                        <label for="suggestTitle">Paper Title *</label>
-                        <input type="text" id="suggestTitle" class="form-input" placeholder="e.g. Physicochemical and safety study of..." required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="suggestAuthors">Authors (Full names or standard abbreviations) *</label>
-                        <input type="text" id="suggestAuthors" class="form-input" placeholder="e.g. Chatrabhuji M., Patgiri B. J., Prajapati P. K." required>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group flex-1">
-                            <label for="suggestJournal">Journal Name *</label>
-                            <input type="text" id="suggestJournal" class="form-input" placeholder="e.g. Journal of Ayurveda and Integrative Medicine" required>
-                        </div>
-                        <div class="form-group flex-1">
-                            <label for="suggestCategory">Category</label>
-                            <select id="suggestCategory" class="form-input">
-                                <option value="analytical">Analytical &amp; Standardization</option>
-                                <option value="toxicology">Safety &amp; Toxicology</option>
-                                <option value="nanomedicine">Nanomedicine &amp; Bhasma</option>
-                                <option value="reviews">Systematic Review</option>
-                                <option value="formulations">Formulations &amp; SOP</option>
-                                <option value="clinical">Clinical Evidence</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="suggestDoi">DOI String or Publisher URL</label>
-                        <input type="text" id="suggestDoi" class="form-input" placeholder="e.g. 10.1016/j.jaim.2023.100724 or https://pubmed.ncbi.nlm.nih.gov/...">
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary modal-close-trigger">Cancel</button>
-                        <button type="submit" class="btn btn-primary">
-                            <ion-icon name="send-outline"></ion-icon> Submit for Curation
-                        </button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
@@ -404,7 +463,7 @@
     </footer>
 
     <script src="features.js?v=5.2"></script>
-    <script src="research.js?v=1.0"></script>
+    <script src="research.js?v=2.0"></script>
     <script src="email-service.js?v=5.2"></script>
     <script src="script.js?v=5.2"></script>
 </body>
