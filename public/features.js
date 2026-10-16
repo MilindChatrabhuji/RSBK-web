@@ -161,14 +161,7 @@
         { title: "Classical Yantras & Puta System Video", category: "terms", url: "videos.html?search=Yantras", desc: "Exhibition and operation of Dola, Valuka, Damaru Yantras and Puta heating." },
         
         // Research & Evidence Hub
-        { title: "Research & Evidence Hub: Peer-Reviewed RSBK Studies", category: "pages", url: "research.html", desc: "Curated peer-reviewed research papers, analytical monographs (XRD, SEM, ICP-MS), OECD toxicology, and clinical trials." },
-        { title: "Swarna Bhasma Nanocrystal Characterization (XRD, TEM, EDX)", category: "research", url: "research.html?search=Swarna", desc: "Face-centered cubic nano-gold (22-58 nm) embedded in organic herbal carrier." },
-        { title: "Tamra Bhasma 90-Day Oral Toxicity Assessment (OECD 407)", category: "research", url: "research.html?search=Tamra", desc: "Safety and histopathological evaluation in Sprague-Dawley rats at therapeutic and 10x doses." },
-        { title: "Kupipakwa Rasasindura Phase Spectroscopy (alpha-HgS Cinnabar)", category: "research", url: "research.html?search=Rasasindura", desc: "PXRD and Raman validation confirming cinnabar matrix without free elemental mercury." },
-        { title: "Lauha Bhasma Core-Shell Nanoparticle Speciation (Mossbauer)", category: "research", url: "research.html?search=Lauha", desc: "Mixed magnetic iron oxide nanoparticles (Fe2O3/Fe3O4) with high hematinic bioavailability." },
-        { title: "Arogyavardhini Vati Clinical Trial in NAFLD (Double-Blind RCT)", category: "research", url: "research.html?search=Arogyavardhini", desc: "Significant regression of hepatic steatosis, FibroScan CAP scores, and transaminases." },
-        { title: "Bhallataka Shodhana Detoxification Chemistry (Urushiol Reduction)", category: "research", url: "research.html?search=Bhallataka", desc: "84.7% reduction in hazardous anacardic acid and urushiol via brick powder and milk boiling." },
-        { title: "Classical Shodhana Protocols: Green Chemistry Parallels", category: "research", url: "research.html?search=Shodhana", desc: "Systematic classification across chelation, thermal stress cracking, and green nanotechnology." }
+        { title: "Research & Evidence Hub", category: "pages", url: "research.html", desc: "Digital repository for research papers, review articles, and evidence in RSBK." }
     ];
 
     function initGlobalSearch() {
