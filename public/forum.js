@@ -364,7 +364,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Initialize Firebase Realtime Database
     try {
-        const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+        const { initializeApp, getApps, getApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
         const { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
         const { getDatabase, ref, onValue, set, push, update, remove, runTransaction } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
 
@@ -378,7 +378,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             databaseURL: "https://rsbk-online-default-rtdb.firebaseio.com"
         };
 
-        const app = initializeApp(firebaseConfig);
+        const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
         const auth = getAuth(app);
         db = getDatabase(app);
 

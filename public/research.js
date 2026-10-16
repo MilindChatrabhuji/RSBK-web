@@ -948,7 +948,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadUserSavedResearch();
 
     try {
-        const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+        const { initializeApp, getApps, getApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
         const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
         const { getDatabase, ref, onValue, push, set, remove } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
 
@@ -956,13 +956,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             apiKey: "AIzaSyCZQqKCURGqMQ2LUl_XHOgscBmjs7Vj7ps",
             authDomain: "rsbk-online.firebaseapp.com",
             projectId: "rsbk-online",
-            storageBucket: "rsbk-online.appspot.com",
+            storageBucket: "rsbk-online.firebasestorage.app",
             messagingSenderId: "362985180438",
             appId: "1:362985180438:web:9802e4253a5f6b329ad437",
             databaseURL: "https://rsbk-online-default-rtdb.firebaseio.com"
         };
 
-        const app = initializeApp(firebaseConfig);
+        const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
         const auth = getAuth(app);
         db = getDatabase(app);
         fbRef = ref;
