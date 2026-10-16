@@ -142,7 +142,20 @@
         { title: "User Profile & Voluntary Academic Focus", category: "pages", url: "profile.html", desc: "Manage academic designation, university affiliation, and Doctor Verification badge." },
         { title: "Books Archive & Treatise Showcase", category: "pages", url: "books.html", desc: "Comprehensive catalog of classical treatises, textbooks, and research reference handbooks." },
         { title: "Undergraduate (UG) Handbooks Portal", category: "pages", url: "teachers-ug.html", desc: "Second Professional BAMS pedagogical handbooks mapped to NCISM curricula." },
-        { title: "Postgraduate (PG) Handbooks Portal", category: "pages", url: "teachers-pg.html", desc: "MD/MS Ayurveda curriculum taxonomy handbooks for faculty and researchers." }
+        { title: "Postgraduate (PG) Handbooks Portal", category: "pages", url: "teachers-pg.html", desc: "MD/MS Ayurveda curriculum taxonomy handbooks for faculty and researchers." },
+        
+        // Video Hub & Practical Demonstrations
+        { title: "Video Hub: Visual Learning & Practicals", category: "pages", url: "videos.html", desc: "Curated practical demonstrations, standard operating procedures, and expert lectures for RSBK." },
+        { title: "Abhraka Shodhana & Dhanyabhraka Nirmana Video", category: "terms", url: "videos.html?search=Abhraka", desc: "Practical demonstration of Dhanyabhraka Nirmana and Shodhana using Triphala Kwatha." },
+        { title: "Sphatika Shodhana (Alum Roasting) Video", category: "terms", url: "videos.html?search=Sphatika", desc: "Dehydration and Phullana of Sphatika in an earthen vessel." },
+        { title: "Gandhaka Shodhana (Godugdha Method) Video", category: "terms", url: "videos.html?search=Gandhaka", desc: "Sulfur purification using Cow's Milk and Ghee via Kurma Puta / Dola Yantra." },
+        { title: "Hingulottha Parada Extraction Video", category: "terms", url: "videos.html?search=Hingulottha", desc: "Mercury extraction from Cinnabar using Damaru Yantra and distillation." },
+        { title: "Kajjali Nirmana (Black Sulfide of Mercury) Video", category: "terms", url: "videos.html?search=Kajjali", desc: "Trituration of Shuddha Parada and Gandhaka in Khalva Yantra until Rekhapurna." },
+        { title: "Taila Murchana & Sneha Murchana Procedure Video", category: "terms", url: "videos.html?search=Murchana", desc: "Standard seasoning of Til Taila with Manjistha, Haridra, and Musta." },
+        { title: "Sneha Paka Stages (Mridu, Madhyama, Khara) Video", category: "terms", url: "videos.html?search=Sneha", desc: "Practical testing for Sneha Siddhi Lakshana: Vartivat Kalka and Phenashanti." },
+        { title: "Asava & Arishta Sandhana Kalpana Video", category: "terms", url: "videos.html?search=Asava", desc: "Vessel seasoning, Dhataki Pushpa inoculant, and fermentation setup." },
+        { title: "Bhasma Pariksha (Classical Quality Control) Video", category: "terms", url: "videos.html?search=Bhasma", desc: "Varitaratva, Rekhapurnatva, Apunarbhava, and Niruttha tests." },
+        { title: "Classical Yantras & Puta System Video", category: "terms", url: "videos.html?search=Yantras", desc: "Exhibition and operation of Dola, Valuka, Damaru Yantras and Puta heating." }
     ];
 
     function initGlobalSearch() {

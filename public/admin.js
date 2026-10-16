@@ -2072,6 +2072,351 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // =========================================================================
+    // VIDEO HUB MANAGEMENT (ADMIN PANEL)
+    // =========================================================================
+    let adminBuiltInVideos = [];
+    let adminCustomVideos = [];
+    let adminAllVideos = [];
+    let activeAdminVideoFilter = 'all';
+
+    const tabBadgeVideos = document.getElementById('tabBadgeVideos');
+    const adminVideoUrl = document.getElementById('adminVideoUrl');
+    const adminVideoTitle = document.getElementById('adminVideoTitle');
+    const adminVideoCategory = document.getElementById('adminVideoCategory');
+    const adminVideoReference = document.getElementById('adminVideoReference');
+    const adminVideoDesc = document.getElementById('adminVideoDesc');
+    const adminVideoTags = document.getElementById('adminVideoTags');
+    const adminVideoDuration = document.getElementById('adminVideoDuration');
+    const btnPublishAdminVideo = document.getElementById('btnPublishAdminVideo');
+    const adminVideoLiveThumb = document.getElementById('adminVideoLiveThumb');
+    const adminVideoPreviewPlaceholder = document.getElementById('adminVideoPreviewPlaceholder');
+    const adminVideoDetectedId = document.getElementById('adminVideoDetectedId');
+    const adminVideoSearchInput = document.getElementById('adminVideoSearchInput');
+    const adminVideoFilterChips = document.querySelectorAll('#adminVideoFilterGroup .filter-chip');
+    const adminVideosTableBody = document.getElementById('adminVideosTableBody');
+    const countAdminVideosAll = document.getElementById('countAdminVideosAll');
+    const countAdminVideosCustom = document.getElementById('countAdminVideosCustom');
+    const countAdminVideosRasa = document.getElementById('countAdminVideosRasa');
+    const countAdminVideosBhaishajya = document.getElementById('countAdminVideosBhaishajya');
+
+    const extractYouTubeId = (input) => {
+        if (!input) return null;
+        input = input.trim();
+        if (/^[a-zA-Z0-9_-]{11}$/.test(input)) return input;
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/;
+        const match = input.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    };
+
+    // Live YouTube link preview
+    if (adminVideoUrl) {
+        const updateThumbPreview = () => {
+            const ytId = extractYouTubeId(adminVideoUrl.value);
+            if (ytId) {
+                if (adminVideoLiveThumb) {
+                    adminVideoLiveThumb.src = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+                    adminVideoLiveThumb.style.display = 'block';
+                }
+                if (adminVideoPreviewPlaceholder) adminVideoPreviewPlaceholder.style.display = 'none';
+                if (adminVideoDetectedId) adminVideoDetectedId.textContent = `Detected YouTube ID: ${ytId}`;
+            } else {
+                if (adminVideoLiveThumb) {
+                    adminVideoLiveThumb.src = '';
+                    adminVideoLiveThumb.style.display = 'none';
+                }
+                if (adminVideoPreviewPlaceholder) adminVideoPreviewPlaceholder.style.display = 'flex';
+                if (adminVideoDetectedId) adminVideoDetectedId.textContent = '';
+            }
+        };
+
+        adminVideoUrl.addEventListener('input', updateThumbPreview);
+        adminVideoUrl.addEventListener('paste', () => setTimeout(updateThumbPreview, 100));
+    }
+
+    const loadAdminVideos = async () => {
+        try {
+            const resp = await fetch('videos-data.json?v=' + Date.now());
+            if (resp.ok) {
+                adminBuiltInVideos = await resp.json();
+            }
+        } catch (e) {
+            adminBuiltInVideos = [];
+        }
+
+        try {
+            const raw = localStorage.getItem('rsbk_custom_videos');
+            adminCustomVideos = raw ? JSON.parse(raw) : [];
+            if (!Array.isArray(adminCustomVideos)) adminCustomVideos = [];
+        } catch (e) {
+            adminCustomVideos = [];
+        }
+
+        combineAdminVideos();
+    };
+
+    const syncFirebaseVideos = () => {
+        if (window.firebaseDb && window.firebaseRef && window.firebaseOnValue) {
+            try {
+                const vRef = window.firebaseRef(window.firebaseDb, 'videos');
+                window.firebaseOnValue(vRef, (snapshot) => {
+                    const data = snapshot.val();
+                    if (data && typeof data === 'object') {
+                        const fbVideos = Object.keys(data).map(k => ({
+                            id: k,
+                            ...data[k]
+                        }));
+
+                        const map = new Map();
+                        adminCustomVideos.forEach(v => { if (v && v.id) map.set(v.id, v); });
+                        fbVideos.forEach(v => { if (v && v.id) map.set(v.id, v); });
+
+                        adminCustomVideos = Array.from(map.values());
+                        localStorage.setItem('rsbk_custom_videos', JSON.stringify(adminCustomVideos));
+                        combineAdminVideos();
+                    }
+                });
+            } catch (err) {
+                console.warn('Firebase videos sync warning:', err);
+            }
+        }
+    };
+
+    const combineAdminVideos = () => {
+        const map = new Map();
+        adminBuiltInVideos.forEach(v => {
+            if (v && v.id) map.set(v.id, { ...v, isBuiltIn: true });
+        });
+        adminCustomVideos.forEach(v => {
+            if (v && (v.id || v.youtubeId)) {
+                const key = v.id || ('vid_custom_' + v.youtubeId);
+                map.set(key, { ...v, isCustom: true });
+            }
+        });
+        adminAllVideos = Array.from(map.values());
+        renderAdminVideos();
+    };
+
+    const renderAdminVideos = () => {
+        const total = adminAllVideos.length;
+        const customCount = adminAllVideos.filter(v => v.isCustom).length;
+        const rasaCount = adminAllVideos.filter(v => v.category === 'rasashastra').length;
+        const bhaishajyaCount = adminAllVideos.filter(v => v.category === 'bhaishajya-kalpana').length;
+
+        if (tabBadgeVideos) tabBadgeVideos.textContent = total;
+        if (countAdminVideosAll) countAdminVideosAll.textContent = total;
+        if (countAdminVideosCustom) countAdminVideosCustom.textContent = customCount;
+        if (countAdminVideosRasa) countAdminVideosRasa.textContent = rasaCount;
+        if (countAdminVideosBhaishajya) countAdminVideosBhaishajya.textContent = bhaishajyaCount;
+
+        if (!adminVideosTableBody) return;
+
+        const query = (adminVideoSearchInput ? adminVideoSearchInput.value : '').toLowerCase().trim();
+
+        const filtered = adminAllVideos.filter(v => {
+            if (activeAdminVideoFilter === 'custom' && !v.isCustom) return false;
+            if (activeAdminVideoFilter === 'rasashastra' && v.category !== 'rasashastra') return false;
+            if (activeAdminVideoFilter === 'bhaishajya-kalpana' && v.category !== 'bhaishajya-kalpana') return false;
+
+            if (query) {
+                const title = (v.title || '').toLowerCase();
+                const desc = (v.description || '').toLowerCase();
+                const tags = Array.isArray(v.tags) ? v.tags.join(' ').toLowerCase() : '';
+                return title.includes(query) || desc.includes(query) || tags.includes(query);
+            }
+            return true;
+        });
+
+        if (filtered.length === 0) {
+            adminVideosTableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                        <ion-icon name="videocam-off-outline" style="font-size: 2rem; color: #ef4444; display: block; margin: 0 auto 0.5rem;"></ion-icon>
+                        No videos matching current search or filter.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        adminVideosTableBody.innerHTML = filtered.map(v => {
+            const ytId = v.youtubeId || extractYouTubeId(v.youtubeUrl);
+            const thumbUrl = v.thumbnail || `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+            const isCustom = !!v.isCustom;
+
+            let catLabel = 'Rasashastra';
+            if (v.category === 'bhaishajya-kalpana') catLabel = 'Bhaishajya Kalpana';
+            else if (v.category === 'equipment') catLabel = 'Yantras & Quality';
+            else if (v.category === 'lectures') catLabel = 'Theory / Lectures';
+
+            return `
+                <tr>
+                    <td>
+                        <a href="https://youtu.be/${ytId}" target="_blank" title="Watch on YouTube" style="display: block; width: 84px; aspect-ratio: 16/9; border-radius: 6px; overflow: hidden; background: #000; position: relative;">
+                            <img src="${thumbUrl}" alt="${v.title}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://img.youtube.com/vi/${ytId}/0.jpg'">
+                            <span style="position: absolute; inset: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: #fff;">
+                                <ion-icon name="play" style="font-size: 1.2rem;"></ion-icon>
+                            </span>
+                        </a>
+                    </td>
+                    <td>
+                        <strong style="color: var(--text-color); font-size: 0.95rem; display: block;">${v.title}</strong>
+                        ${v.reference ? `<span style="font-size: 0.78rem; color: var(--text-muted);"><ion-icon name="bookmark-outline" style="vertical-align: -1px;"></ion-icon> ${v.reference}</span>` : ''}
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">
+                            <code>ID: ${ytId}</code> ${v.duration ? `· <ion-icon name="time-outline" style="vertical-align: -1px;"></ion-icon> ${v.duration}` : ''}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="video-category-badge cat-${v.category || 'rasashastra'}">${catLabel}</span>
+                    </td>
+                    <td>
+                        ${isCustom 
+                            ? `<span class="admin-video-pill-custom"><ion-icon name="star"></ion-icon> Custom Added</span>` 
+                            : `<span class="admin-video-pill-builtin">Built-In Dataset</span>`}
+                    </td>
+                    <td style="text-align: right; white-space: nowrap;">
+                        <a href="videos.html?v=${v.id || ytId}" target="_blank" class="btn-table-action" title="View in Video Hub" style="display: inline-flex; align-items: center; gap: 0.25rem;">
+                            <ion-icon name="eye-outline"></ion-icon> Preview
+                        </a>
+                        ${isCustom ? `
+                            <button class="btn-table-action danger btn-delete-custom-video" data-id="${v.id}" type="button" title="Remove Video" style="margin-left: 0.35rem;">
+                                <ion-icon name="trash-outline"></ion-icon>
+                            </button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    };
+
+    // Filter chip clicks
+    adminVideoFilterChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            adminVideoFilterChips.forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            activeAdminVideoFilter = chip.getAttribute('data-filter') || 'all';
+            renderAdminVideos();
+        });
+    });
+
+    if (adminVideoSearchInput) {
+        adminVideoSearchInput.addEventListener('input', () => {
+            renderAdminVideos();
+        });
+    }
+
+    // Publish New Video Click Handler
+    if (btnPublishAdminVideo) {
+        btnPublishAdminVideo.addEventListener('click', async () => {
+            const rawUrl = (adminVideoUrl ? adminVideoUrl.value : '').trim();
+            const title = (adminVideoTitle ? adminVideoTitle.value : '').trim();
+            const category = adminVideoCategory ? adminVideoCategory.value : 'rasashastra';
+            const reference = (adminVideoReference ? adminVideoReference.value : '').trim();
+            const description = (adminVideoDesc ? adminVideoDesc.value : '').trim();
+            const rawTags = (adminVideoTags ? adminVideoTags.value : '').trim();
+            const duration = (adminVideoDuration ? adminVideoDuration.value : '').trim();
+
+            const ytId = extractYouTubeId(rawUrl);
+            if (!ytId) {
+                alert('Please provide a valid YouTube video link or 11-character video ID.');
+                if (adminVideoUrl) adminVideoUrl.focus();
+                return;
+            }
+
+            if (!title) {
+                alert('Please enter a descriptive title for this practical video.');
+                if (adminVideoTitle) adminVideoTitle.focus();
+                return;
+            }
+
+            const tags = rawTags ? rawTags.split(',').map(t => t.trim()).filter(Boolean) : [];
+            const newVideoId = 'vid_custom_' + Date.now();
+
+            const newVideo = {
+                id: newVideoId,
+                youtubeId: ytId,
+                youtubeUrl: `https://www.youtube.com/watch?v=${ytId}`,
+                title: title,
+                category: category,
+                categoryLabel: (category === 'rasashastra') ? 'Rasashastra Practicals' :
+                               (category === 'bhaishajya-kalpana') ? 'Bhaishajya Kalpana Practicals' :
+                               (category === 'equipment') ? 'Yantras & Quality Control' : 'Theory & Expert Lectures',
+                reference: reference,
+                description: description,
+                tags: tags,
+                duration: duration || '',
+                source: 'Added by Administrator',
+                dateAdded: new Date().toISOString(),
+                addedBy: currentAdminUser ? (currentAdminUser.email || 'Admin') : 'Admin',
+                isCustom: true
+            };
+
+            // 1. Add to local list & save to localStorage
+            adminCustomVideos.unshift(newVideo);
+            localStorage.setItem('rsbk_custom_videos', JSON.stringify(adminCustomVideos));
+
+            // 2. Persist to Firebase Realtime Database cloud
+            if (window.firebaseDb && window.firebaseRef && window.firebaseUpdate) {
+                try {
+                    const vRef = window.firebaseRef(window.firebaseDb, 'videos/' + newVideoId);
+                    await window.firebaseUpdate(vRef, newVideo);
+                } catch (fbErr) {
+                    console.warn('Firebase video sync notice:', fbErr);
+                }
+            }
+
+            // 3. Clear form and update UI
+            if (adminVideoUrl) adminVideoUrl.value = '';
+            if (adminVideoTitle) adminVideoTitle.value = '';
+            if (adminVideoReference) adminVideoReference.value = '';
+            if (adminVideoDesc) adminVideoDesc.value = '';
+            if (adminVideoTags) adminVideoTags.value = '';
+            if (adminVideoDuration) adminVideoDuration.value = '';
+            if (adminVideoLiveThumb) {
+                adminVideoLiveThumb.src = '';
+                adminVideoLiveThumb.style.display = 'none';
+            }
+            if (adminVideoPreviewPlaceholder) adminVideoPreviewPlaceholder.style.display = 'flex';
+            if (adminVideoDetectedId) adminVideoDetectedId.textContent = '';
+
+            combineAdminVideos();
+            alert(`Video "${title}" successfully added!\nIt is now live on our website's Video Hub.`);
+        });
+    }
+
+    // Table action: Delete Custom Video delegation
+    if (adminVideosTableBody) {
+        adminVideosTableBody.addEventListener('click', async (e) => {
+            const delBtn = e.target.closest('.btn-delete-custom-video');
+            if (delBtn) {
+                const vidId = delBtn.getAttribute('data-id');
+                const target = adminCustomVideos.find(v => v.id === vidId);
+                const title = target ? target.title : 'this video';
+
+                const confirmed = confirm(`Are you sure you want to remove "${title}" from the website's Video Hub?`);
+                if (!confirmed) return;
+
+                // 1. Remove from local list & localStorage
+                adminCustomVideos = adminCustomVideos.filter(v => v.id !== vidId);
+                localStorage.setItem('rsbk_custom_videos', JSON.stringify(adminCustomVideos));
+
+                // 2. Remove from Firebase Realtime Database
+                if (window.firebaseDb && window.firebaseRef && window.firebaseSet) {
+                    try {
+                        const vRef = window.firebaseRef(window.firebaseDb, 'videos/' + vidId);
+                        await window.firebaseSet(vRef, null);
+                    } catch (fbErr) {
+                        console.warn('Firebase video delete notice:', fbErr);
+                    }
+                }
+
+                combineAdminVideos();
+                alert('Video has been removed from the live Video Hub.');
+            }
+        });
+    }
+
+
     // -------------------------------------------------------------
     // Authentication & Access Verification Logic
     // -------------------------------------------------------------
@@ -2116,6 +2461,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderTransactionsTable();
         syncFirebaseUsers();
         syncFirebaseVerifications();
+        loadAdminVideos();
+        syncFirebaseVideos();
     };
 
     // Listen for Firebase Auth event dispatched from script.js

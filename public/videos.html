@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('rsbk_auth_cached')==='true'){document.documentElement.classList.add('auth-verified');if(localStorage.getItem('rsbk_access_valid')==='true'){document.documentElement.classList.add('access-granted');}else if(localStorage.getItem('rsbk_access_valid')==='false'){document.documentElement.classList.add('paywall-expired');}}</script>
+    <title>Video Hub | RSBK Online — Suvarna Ayurveda</title>
+    <meta name="description" content="Authentic practical demonstrations, standard operating procedures (SOPs), and expert lectures on Rasashastra and Bhaishajya Kalpana — Suvarna Ayurveda">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>if(localStorage.getItem('rsbk_theme')==='dark'||(!localStorage.getItem('rsbk_theme')&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.setAttribute('data-theme','dark');}</script>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta name="theme-color" content="#059669">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="features.css?v=5.2">
+    <link rel="stylesheet" href="styles.css?v=5.2">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body>
+    <div class="background-effects">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+    </div>
+
+    <!-- Top Navbar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <span class="logo-text">RSBK Online</span><span class="logo-dot">.</span>
+            </a>
+
+            <div class="nav-overlay" id="navOverlay"></div>
+
+            <nav class="nav-links" id="navLinks"></nav>
+
+            <div class="nav-actions">
+                <button class="nav-action-btn search-trigger-btn" id="navGlobalSearchBtn" type="button" title="Quick Search (Ctrl + K)" aria-label="Quick Search">
+                    <ion-icon name="search-outline"></ion-icon>
+                    <span class="search-trigger-label">Search</span>
+                    <span class="search-key-badge">Ctrl K</span>
+                </button>
+                <div class="auth-widget" id="authWidget"></div>
+                <button class="nav-action-btn theme-toggle-btn" id="navThemeToggleBtn" type="button" title="Toggle Dark / Light Mode (Alt + T)" aria-label="Toggle Theme">
+                    <ion-icon name="moon-outline" id="themeToggleIcon"></ion-icon>
+                </button>
+                <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false">
+                    <span class="bar bar-1"></span>
+                    <span class="bar bar-2"></span>
+                    <span class="bar bar-3"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Right-Side Vertical Menubar -->
+    <aside class="right-vertical-menubar" id="rightVerticalMenubar" aria-label="Right Navigation Menubar">
+        <div class="vmenu-header">
+            <span class="vmenu-badge">MENU</span>
+        </div>
+        <nav class="vmenu-nav">
+            <a href="index.html" class="vmenu-item" title="Home">
+                <ion-icon name="home-outline"></ion-icon>
+                <span class="vmenu-text">Home</span>
+            </a>
+            <a href="books.html" class="vmenu-item" title="Books Archive">
+                <ion-icon name="library-outline"></ion-icon>
+                <span class="vmenu-text">Books</span>
+            </a>
+            <a href="videos.html" class="vmenu-item active" title="Video Hub">
+                <ion-icon name="videocam-outline"></ion-icon>
+                <span class="vmenu-text">Videos</span>
+            </a>
+            <a href="membership.html" class="vmenu-item" title="Membership &amp; Wallet">
+                <ion-icon name="ribbon-outline"></ion-icon>
+                <span class="vmenu-text">Membership</span>
+            </a>
+            <a href="profile.html" class="vmenu-item" title="User Profile">
+                <ion-icon name="person-outline"></ion-icon>
+                <span class="vmenu-text">Profile</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="page-main">
+        <section class="videos-hub-section">
+            <!-- Section Header -->
+            <div class="section-header">
+                <div class="badge">
+                    <ion-icon name="videocam-outline" style="vertical-align: -2px; margin-right: 4px;"></ion-icon> Educational Video Hub · RSBK
+                </div>
+                <h1 class="section-title">Visual Learning &amp; Practicals</h1>
+                <p class="section-description">
+                    Curated practical demonstrations, standard operating procedures (SOPs), classical pharmaceutical preparations, and expert lectures for UG &amp; PG students, teachers, doctors, and everyone passionate about Ayurveda.
+                </p>
+
+                <!-- Academic Trust / Features Row -->
+                <div class="video-hub-trust-row">
+                    <span class="trust-pill"><ion-icon name="checkmark-circle"></ion-icon> 100% Free Access</span>
+                    <span class="trust-pill"><ion-icon name="checkmark-circle"></ion-icon> NCISM Curriculum Aligned</span>
+                    <span class="trust-pill"><ion-icon name="checkmark-circle"></ion-icon> Classical Treatises Linked</span>
+                    <span class="trust-pill highlight" id="videoCountBadge"><ion-icon name="videocam"></ion-icon> Loading Videos...</span>
+                </div>
+            </div>
+
+            <!-- Toolbar: Real-Time Search & Category Filters -->
+            <div class="videos-toolbar">
+                <div class="videos-search-box">
+                    <ion-icon name="search-outline"></ion-icon>
+                    <input type="text" id="videoSearchInput" placeholder="Search practicals by drug, formulation, or process (e.g. Abhraka, Sneha Murchana, Kajjali)..." autocomplete="off">
+                    <button id="clearVideoSearch" class="btn-clear-search" type="button" style="display: none;" title="Clear search">
+                        <ion-icon name="close-circle"></ion-icon>
+                    </button>
+                </div>
+
+                <div class="videos-controls-row">
+                    <div class="video-filter-pills" id="videoCategoryFilters">
+                        <button class="video-filter-pill active" data-filter="all" type="button">
+                            <ion-icon name="grid-outline"></ion-icon> All Videos
+                        </button>
+                        <button class="video-filter-pill" data-filter="rasashastra" type="button">
+                            <ion-icon name="flask-outline"></ion-icon> Rasashastra Practicals
+                        </button>
+                        <button class="video-filter-pill" data-filter="bhaishajya-kalpana" type="button">
+                            <ion-icon name="leaf-outline"></ion-icon> Bhaishajya Kalpana
+                        </button>
+                        <button class="video-filter-pill" data-filter="equipment" type="button">
+                            <ion-icon name="construct-outline"></ion-icon> Yantras &amp; Testing
+                        </button>
+                        <button class="video-filter-pill" data-filter="lectures" type="button">
+                            <ion-icon name="school-outline"></ion-icon> Theory &amp; Lectures
+                        </button>
+                    </div>
+
+                    <div class="video-sort-box">
+                        <label for="videoSortSelect" class="sort-label">Sort:</label>
+                        <select id="videoSortSelect" class="video-sort-dropdown">
+                            <option value="default">Curated Order</option>
+                            <option value="newest">Recently Added</option>
+                            <option value="az">Title (A to Z)</option>
+                            <option value="za">Title (Z to A)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="videosLoadingState" class="videos-loading-wrapper">
+                <div class="mini-spinner large"></div>
+                <p>Loading curated RSBK practical demonstrations and lectures...</p>
+            </div>
+
+            <!-- Video Cards Grid -->
+            <div id="videosGrid" class="videos-cards-grid" style="display: none;"></div>
+
+            <!-- Empty State -->
+            <div id="videosEmptyState" class="videos-empty-wrapper" style="display: none;">
+                <div class="empty-icon-wrap">
+                    <ion-icon name="videocam-off-outline"></ion-icon>
+                </div>
+                <h3>No Matching Videos Found</h3>
+                <p>Try searching for a different drug name, classical process, or reset your category filter.</p>
+                <button class="btn btn-secondary" onclick="document.getElementById('videoSearchInput').value=''; document.querySelector('.video-filter-pill[data-filter=\'all\']').click();">
+                    <ion-icon name="refresh-outline"></ion-icon> Reset Search &amp; Filters
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Distraction-Free In-Website Modal Video Player -->
+    <div id="videoModal" class="video-modal-container" role="dialog" aria-modal="true" aria-labelledby="modalVideoTitle">
+        <div class="video-modal-backdrop" id="modalBackdrop"></div>
+        <div class="video-modal-dialog">
+            <div class="video-modal-header">
+                <div class="modal-title-group">
+                    <span class="modal-category-tag" id="modalVideoCategory">Rasashastra Practical</span>
+                    <h3 class="modal-video-title" id="modalVideoTitle">Video Title</h3>
+                    <span class="modal-ref-tag" id="modalVideoReference"></span>
+                </div>
+                <button class="video-modal-close" id="modalCloseBtn" type="button" title="Close Video (Esc)" aria-label="Close Video">
+                    <ion-icon name="close-outline"></ion-icon>
+                </button>
+            </div>
+
+            <div class="video-modal-body">
+                <div class="video-iframe-responsive" id="modalIframeContainer">
+                    <!-- YouTube iframe injected on open -->
+                </div>
+            </div>
+
+            <div class="video-modal-footer">
+                <p class="modal-video-desc" id="modalVideoDesc"></p>
+                <div class="modal-footer-actions">
+                    <a id="modalOpenYouTubeBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="Watch on YouTube">
+                        <ion-icon name="logo-youtube" style="color: #ef4444;"></ion-icon> Open in YouTube
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Semi-Transparent Floating Menu Bar for Mobile Mode -->
+    <nav class="mobile-menu-bar" aria-label="Mobile Navigation">
+        <a href="index.html">
+            <ion-icon name="home-outline"></ion-icon>
+            <span>Home</span>
+        </a>
+        <a href="students.html">
+            <ion-icon name="school-outline"></ion-icon>
+            <span>Students</span>
+        </a>
+        <a href="teachers.html">
+            <ion-icon name="easel-outline"></ion-icon>
+            <span>Teachers</span>
+        </a>
+        <a href="books.html">
+            <ion-icon name="library-outline"></ion-icon>
+            <span>Books</span>
+        </a>
+        <a href="videos.html" class="active">
+            <ion-icon name="videocam-outline"></ion-icon>
+            <span>Videos</span>
+        </a>
+        <a href="profile.html">
+            <ion-icon name="person-outline"></ion-icon>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2026 Suvarna Ayurveda. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="features.js?v=5.2"></script>
+    <script src="videos.js?v=1.0"></script>
+    <script src="email-service.js?v=5.2"></script>
+    <script src="script.js?v=5.2"></script>
+</body>
+</html>

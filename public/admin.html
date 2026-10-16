@@ -80,6 +80,10 @@
                 <ion-icon name="library-outline"></ion-icon>
                 <span class="vmenu-text">Books</span>
             </a>
+            <a href="videos.html" class="vmenu-item" title="Video Hub">
+                <ion-icon name="videocam-outline"></ion-icon>
+                <span class="vmenu-text">Videos</span>
+            </a>
             <a href="membership.html" class="vmenu-item" title="Membership &amp; Wallet">
                 <ion-icon name="ribbon-outline"></ion-icon>
                 <span class="vmenu-text">Membership</span>
@@ -287,6 +291,11 @@
                     <button class="admin-tab-btn" data-tab="tabCatalog" type="button" role="tab">
                         <ion-icon name="book-outline"></ion-icon>
                         <span>Curriculum Handbooks</span>
+                    </button>
+                    <button class="admin-tab-btn" data-tab="tabVideos" type="button" role="tab">
+                        <ion-icon name="videocam-outline"></ion-icon>
+                        <span>Video Hub Manager</span>
+                        <span class="tab-badge" id="tabBadgeVideos" style="background: #ef4444; color: #fff;">0</span>
                     </button>
                     <button class="admin-tab-btn" data-tab="tabSettings" type="button" role="tab">
                         <ion-icon name="settings-outline"></ion-icon>
@@ -772,6 +781,136 @@
                             </div>
                         </div>
 
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- TAB 6: VIDEO HUB MANAGER                     -->
+                <!-- ============================================ -->
+                <div id="tabVideos" class="admin-tab-content" role="tabpanel">
+                    <div class="admin-panel-card">
+                        <div class="panel-card-header">
+                            <div>
+                                <h2 class="panel-card-title">Rasashastra &amp; Bhaishajya Kalpana Video Hub Manager</h2>
+                                <p class="panel-card-desc">Paste any YouTube video link here to automatically add practical demonstrations or lectures to the live website. Videos are saved permanently and sync live for all visitors.</p>
+                            </div>
+                            <div class="panel-header-actions">
+                                <a href="videos.html" target="_blank" class="btn-admin-action" title="View Public Video Hub">
+                                    <ion-icon name="open-outline"></ion-icon>
+                                    <span>Open Video Hub</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Form Card: Add YouTube Video -->
+                        <div class="admin-video-form-card">
+                            <h3 class="admin-video-form-title">
+                                <ion-icon name="add-circle" style="color: #ef4444; font-size: 1.3rem;"></ion-icon>
+                                Add YouTube Video to Hub
+                            </h3>
+                            <p class="admin-video-form-desc">Paste any standard YouTube link, short link (youtu.be), or YouTube Shorts URL. The system will automatically detect the video ID and fetch the thumbnail.</p>
+
+                            <form id="adminAddVideoForm" class="admin-video-form-grid" onsubmit="return false;">
+                                <div class="admin-video-inputs">
+                                    <div class="admin-input-group">
+                                        <label for="adminVideoUrl">YouTube Video Link / URL *</label>
+                                        <input type="text" id="adminVideoUrl" class="admin-input" placeholder="e.g. https://www.youtube.com/watch?v=... or https://youtu.be/..." required autocomplete="off">
+                                        <small style="color: var(--text-muted); font-size: 0.78rem;">Supports full URL, youtu.be, embed, shorts, or raw 11-char Video ID.</small>
+                                    </div>
+
+                                    <div class="admin-input-group">
+                                        <label for="adminVideoTitle">Video Title *</label>
+                                        <input type="text" id="adminVideoTitle" class="admin-input" placeholder="e.g. Abhraka Shodhana &amp; Dhanyabhraka Nirmana" required autocomplete="off">
+                                    </div>
+
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                        <div class="admin-input-group">
+                                            <label for="adminVideoCategory">Subject Category *</label>
+                                            <select id="adminVideoCategory" class="admin-select" required>
+                                                <option value="rasashastra">Rasashastra Practicals (Shodhana &amp; Marana)</option>
+                                                <option value="bhaishajya-kalpana">Bhaishajya Kalpana (Sneha, Asava, Avaleha)</option>
+                                                <option value="equipment">Classical Yantras &amp; Quality Control (Bhasma Pariksha)</option>
+                                                <option value="lectures">NCISM Theory &amp; Expert Faculty Lectures</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="admin-input-group">
+                                            <label for="adminVideoReference">Classical Reference / Syllabus</label>
+                                            <input type="text" id="adminVideoReference" class="admin-input" placeholder="e.g. Rasatarangini Taranga 10 / BAMS 2nd Prof" autocomplete="off">
+                                        </div>
+                                    </div>
+
+                                    <div class="admin-input-group">
+                                        <label for="adminVideoDesc">Procedure Summary / Learning Notes</label>
+                                        <textarea id="adminVideoDesc" class="admin-textarea" rows="2" placeholder="Brief explanation of the procedure demonstrated in this video..."></textarea>
+                                    </div>
+
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                        <div class="admin-input-group">
+                                            <label for="adminVideoTags">Search Keywords / Tags</label>
+                                            <input type="text" id="adminVideoTags" class="admin-input" placeholder="Comma separated: Abhraka, Shodhana, Mica" autocomplete="off">
+                                        </div>
+
+                                        <div class="admin-input-group">
+                                            <label for="adminVideoDuration">Duration (Optional)</label>
+                                            <input type="text" id="adminVideoDuration" class="admin-input" placeholder="e.g. 14:20" autocomplete="off">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <button id="btnPublishAdminVideo" class="btn-admin-primary" type="button" style="background: #ef4444; border-color: #ef4444;">
+                                            <ion-icon name="cloud-upload"></ion-icon>
+                                            <span>Add &amp; Publish Video to Website</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="admin-video-preview-col">
+                                    <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Live YouTube Preview</label>
+                                    <div class="admin-video-thumb-preview" id="adminVideoThumbContainer">
+                                        <div class="admin-video-preview-placeholder" id="adminVideoPreviewPlaceholder">
+                                            <ion-icon name="logo-youtube"></ion-icon>
+                                            <span>Paste a YouTube link to see video preview</span>
+                                        </div>
+                                        <img id="adminVideoLiveThumb" src="" alt="Thumbnail Preview" style="display: none;">
+                                    </div>
+                                    <div id="adminVideoDetectedId" style="font-size: 0.78rem; color: var(--text-muted); font-family: monospace;"></div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Video Library Table Toolbar -->
+                        <div class="admin-toolbar" style="margin-top: 1rem;">
+                            <div class="search-input-wrapper">
+                                <ion-icon name="search-outline"></ion-icon>
+                                <input type="text" id="adminVideoSearchInput" placeholder="Search videos by title or tags..." autocomplete="off">
+                            </div>
+                            
+                            <div class="filter-pills-row" id="adminVideoFilterGroup">
+                                <button class="filter-chip active" data-filter="all" type="button">All Videos (<span id="countAdminVideosAll">0</span>)</button>
+                                <button class="filter-chip" data-filter="custom" type="button"><ion-icon name="star" style="color: #f59e0b; vertical-align: -1px; margin-right: 2px;"></ion-icon> Custom Added (<span id="countAdminVideosCustom">0</span>)</button>
+                                <button class="filter-chip" data-filter="rasashastra" type="button">Rasashastra (<span id="countAdminVideosRasa">0</span>)</button>
+                                <button class="filter-chip" data-filter="bhaishajya-kalpana" type="button">Bhaishajya Kalpana (<span id="countAdminVideosBhaishajya">0</span>)</button>
+                            </div>
+                        </div>
+
+                        <!-- Videos Table -->
+                        <div class="admin-table-responsive">
+                            <table class="admin-table" id="adminVideosTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 100px;">Preview</th>
+                                        <th>Video Title &amp; Details</th>
+                                        <th>Category</th>
+                                        <th>Source / Type</th>
+                                        <th style="text-align: right;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminVideosTableBody">
+                                    <!-- Populated dynamically via admin.js -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
