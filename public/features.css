@@ -536,8 +536,8 @@
 
 /* Verification Application Card on Profile */
 .doctor-verification-card {
-    background: linear-gradient(135deg, rgba(5, 150, 105, 0.06), rgba(14, 165, 233, 0.06));
-    border: 2px dashed rgba(5, 150, 105, 0.3);
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.06), rgba(2, 132, 199, 0.06));
+    border: 2px dashed rgba(37, 99, 235, 0.3);
     border-radius: 16px;
     padding: 1.5rem;
     margin-bottom: 2rem;
@@ -560,13 +560,13 @@
     width: 56px;
     height: 56px;
     border-radius: 14px;
-    background: linear-gradient(135deg, #059669 0%, #0d9488 100%);
+    background: linear-gradient(135deg, #1d4ed8 0%, #0284c7 100%);
     color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.85rem;
-    box-shadow: 0 6px 16px rgba(5, 150, 105, 0.25);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
     flex-shrink: 0;
 }
 
@@ -590,21 +590,21 @@
     gap: 0.65rem;
     padding: 0.9rem 1.6rem;
     border-radius: 12px;
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 60%, #0284c7 100%);
     color: #ffffff;
     border: none;
     font-size: 0.95rem;
     font-weight: 800;
     cursor: pointer;
-    box-shadow: 0 8px 20px rgba(5, 150, 105, 0.25);
+    box-shadow: 0 8px 20px rgba(29, 78, 216, 0.25);
     transition: all 0.25s ease;
     white-space: nowrap;
 }
 
 .btn-apply-doctor-badge:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 25px rgba(5, 150, 105, 0.35);
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 12px 25px rgba(29, 78, 216, 0.35);
+    background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
 }
 
 /* Modal for Doctor Verification Application */
