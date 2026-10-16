@@ -120,7 +120,10 @@
         { title: "Volume 5: Bloom's Taxonomy — AYPG-RB", category: "handbooks", url: "teachers-pg-sem3-6.html", desc: "Specialty volumes across Semesters III–VI covering Papers I to IV (32 Modules · 577 Objectives)." },
         { title: "Volume 6: Miller's Pyramid — AYPG-RB", category: "handbooks", url: "teachers-pg-sem3-6.html", desc: "Instrumental methods, research protocols, XRD, SEM-EDX, and OECD safety studies." },
         
-        // Student Books
+        // Student Books & Official NCISM Curricula
+        { title: "NCISM UG Curriculum — AyUG-RB (BAMS Second Professional)", category: "students", url: "students.html", desc: "Official 118-page NCISM syllabus, course outcomes, theoretical blueprint and practical training." },
+        { title: "NCISM PG Curriculum — AYPG-AB-RB (MD/MS Sem II)", category: "students", url: "students.html", desc: "Official 102-page NCISM curriculum covering 8 modules, 42 units, 16 credits and 47 practical competencies." },
+        { title: "NCISM PG Curriculum — AYPG-RB (MD/MS Sem III–VI)", category: "students", url: "students.html", desc: "Official 309-page NCISM advanced PG curriculum across Papers I to IV and drug standardization protocols." },
         { title: "PG Sem II Textbook — Applied Basics of RSBK", category: "students", url: "students.html", desc: "Module-wise & Unit-wise study notes for MD/MS Ayurveda Semester II." },
         { title: "ABQ Question Bank — Applied Basics of RSBK", category: "students", url: "students.html", desc: "53 Case-based ABQs, 10 Analytical LAQs & 1 fully solved university question paper." },
         { title: "Companion Workbook — Applied Basics of RSBK", category: "students", url: "students.html", desc: "Structured self-assessment worksheets, laboratory protocols, and viva prep." },

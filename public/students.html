@@ -88,16 +88,123 @@
     <main class="page-main">
         <section class="books-section">
             <div class="section-header">
-                <div class="badge"><ion-icon name="school-outline" style="vertical-align: -2px; margin-right: 4px;"></ion-icon> Student Resources · AYPG-AB-RB</div>
+                <div class="badge"><ion-icon name="school-outline" style="vertical-align: -2px; margin-right: 4px;"></ion-icon> Academic Hub · Undergraduate &amp; Postgraduate Resources</div>
                 <h1 class="section-title">For Students</h1>
-                <p class="section-description">Comprehensive textbook, case-based ABQ question bank, and printable practical training proformas prepared strictly as per the NCISM curriculum for MD/MS Ayurveda Semester II.</p>
+                <p class="section-description">Official NCISM curricula, core academic textbooks, case-based ABQ question banks, and practical training proformas for BAMS (AyUG-RB) and MD/MS Ayurveda (AYPG-AB-RB &amp; AYPG-RB) learners.</p>
             </div>
 
-            <div class="books-grid">
-                <!-- Book 1: Textbook -->
-                <article class="book-card">
+            <!-- Filter Category Pills -->
+            <div class="student-filter-bar" id="studentFilterBar" role="tablist" aria-label="Filter student resources">
+                <button type="button" class="student-filter-pill active" data-filter="all" role="tab" aria-selected="true">
+                    <ion-icon name="grid-outline"></ion-icon> All Resources (6)
+                </button>
+                <button type="button" class="student-filter-pill" data-filter="curricula" role="tab" aria-selected="false">
+                    <ion-icon name="document-text-outline"></ion-icon> NCISM Curricula (3)
+                </button>
+                <button type="button" class="student-filter-pill" data-filter="ug" role="tab" aria-selected="false">
+                    <ion-icon name="school-outline"></ion-icon> Undergraduate · AyUG-RB (1)
+                </button>
+                <button type="button" class="student-filter-pill" data-filter="pg" role="tab" aria-selected="false">
+                    <ion-icon name="ribbon-outline"></ion-icon> Postgraduate · MD/MS (5)
+                </button>
+                <button type="button" class="student-filter-pill" data-filter="books" role="tab" aria-selected="false">
+                    <ion-icon name="book-outline"></ion-icon> Textbooks &amp; Question Banks (3)
+                </button>
+            </div>
+
+            <!-- SECTION 1: OFFICIAL NCISM CURRICULA -->
+            <div class="student-section-header group-curricula-header">
+                <span class="sub-badge curricula-badge"><ion-icon name="shield-checkmark-outline"></ion-icon> National Commission for Indian System of Medicine</span>
+                <h2 class="student-section-title">Official NCISM Curricula &amp; Syllabi</h2>
+                <p class="student-section-desc">Official curricula prescribed by the Board of Ayurveda (NCISM), featuring complete course outcomes, instructional hours, chapter-wise learning objectives, and clinical &amp; laboratory competency blueprints.</p>
+            </div>
+
+            <div class="books-grid" id="curriculaGrid">
+                <!-- Curriculum 1: Undergraduate (AyUG-RB) -->
+                <article class="book-card student-resource-card" data-category="curricula ug">
                     <div class="book-cover-wrapper">
-                        <img src="assets/covers/Front-Cover-300dpi.png" alt="Applied Basics of Rasashastra and Bhaishajya Kalpana Textbook Cover" class="book-cover">
+                        <img src="assets/covers/cover-ncism-ug-ayug-rb.png" alt="NCISM Course Curriculum AyUG-RB Cover" class="book-cover" loading="lazy">
+                        <div class="book-overlay">
+                            <a href="assets/curriculum/NCISM_II_BAMS_AyUG-RB.pdf" target="_blank" class="btn btn-icon" aria-label="Read Online PDF">
+                                <ion-icon name="book-outline"></ion-icon> Read
+                            </a>
+                            <a href="assets/curriculum/NCISM_II_BAMS_AyUG-RB.pdf" download="NCISM_II_BAMS_AyUG-RB.pdf" class="btn btn-icon btn-secondary" aria-label="Download PDF">
+                                <ion-icon name="download-outline"></ion-icon> Download
+                            </a>
+                        </div>
+                    </div>
+                    <div class="book-info">
+                        <div class="book-meta">
+                            <span class="book-tag tag-curriculum">AyUG-RB · BAMS II Prof</span>
+                            <span class="book-pages-badge"><ion-icon name="document-text-outline"></ion-icon> 118 Pages</span>
+                        </div>
+                        <h3 class="book-title">Course Curriculum for Second Professional BAMS</h3>
+                        <p class="book-subtitle">Rasashastra evam Bhaishajyakalpana · Complete Course Outcomes (CO1–CO4), 36 Units, Practical Blueprints &amp; Assessment Schemes</p>
+                        <p class="book-author"><ion-icon name="shield-checkmark-outline"></ion-icon> Board of Ayurveda, NCISM New Delhi</p>
+                    </div>
+                </article>
+
+                <!-- Curriculum 2: Postgraduate Semester II (AYPG-AB-RB) -->
+                <article class="book-card student-resource-card" data-category="curricula pg">
+                    <div class="book-cover-wrapper">
+                        <img src="assets/covers/cover-ncism-pg-aypg-ab-rb.png" alt="NCISM Curriculum AYPG-AB-RB Cover" class="book-cover" loading="lazy">
+                        <div class="book-overlay">
+                            <a href="assets/curriculum/NCISM-AYPG-AB-RB.pdf" target="_blank" class="btn btn-icon" aria-label="Read Online PDF">
+                                <ion-icon name="book-outline"></ion-icon> Read
+                            </a>
+                            <a href="assets/curriculum/NCISM-AYPG-AB-RB.pdf" download="NCISM-AYPG-AB-RB.pdf" class="btn btn-icon btn-secondary" aria-label="Download PDF">
+                                <ion-icon name="download-outline"></ion-icon> Download
+                            </a>
+                        </div>
+                    </div>
+                    <div class="book-info">
+                        <div class="book-meta">
+                            <span class="book-tag tag-curriculum">AYPG-AB-RB · MD/MS Sem II</span>
+                            <span class="book-pages-badge"><ion-icon name="document-text-outline"></ion-icon> 102 Pages</span>
+                        </div>
+                        <h3 class="book-title">Curriculum for MD/MS Ayurveda Semester II</h3>
+                        <p class="book-subtitle">Applied Basics of Rasashastra and Bhaishajya Kalpana · 8 Modules · 42 Units · 16 Credits · 47 Practical Training Competencies</p>
+                        <p class="book-author"><ion-icon name="shield-checkmark-outline"></ion-icon> Board of Ayurveda, NCISM New Delhi</p>
+                    </div>
+                </article>
+
+                <!-- Curriculum 3: Postgraduate Semesters III–VI (AYPG-RB) -->
+                <article class="book-card student-resource-card" data-category="curricula pg">
+                    <div class="book-cover-wrapper">
+                        <img src="assets/covers/cover-ncism-pg-aypg-rb.png" alt="NCISM Curriculum AYPG-RB Cover" class="book-cover" loading="lazy">
+                        <div class="book-overlay">
+                            <a href="assets/curriculum/NCISM_Sem3-6_AYPG-RB.pdf" target="_blank" class="btn btn-icon" aria-label="Read Online PDF">
+                                <ion-icon name="book-outline"></ion-icon> Read
+                            </a>
+                            <a href="assets/curriculum/NCISM_Sem3-6_AYPG-RB.pdf" download="NCISM_Sem3-6_AYPG-RB.pdf" class="btn btn-icon btn-secondary" aria-label="Download PDF">
+                                <ion-icon name="download-outline"></ion-icon> Download
+                            </a>
+                        </div>
+                    </div>
+                    <div class="book-info">
+                        <div class="book-meta">
+                            <span class="book-tag tag-curriculum">AYPG-RB · MD/MS Sem III–VI</span>
+                            <span class="book-pages-badge"><ion-icon name="document-text-outline"></ion-icon> 309 Pages</span>
+                        </div>
+                        <h3 class="book-title">Curriculum for MD/MS Ayurveda Semesters III–VI</h3>
+                        <p class="book-subtitle">Advanced Specialty RSBK across Papers I to IV · Research Methodology, Drug Standardization &amp; Clinical Pharmaceutics</p>
+                        <p class="book-author"><ion-icon name="shield-checkmark-outline"></ion-icon> Board of Ayurveda, NCISM New Delhi</p>
+                    </div>
+                </article>
+            </div>
+
+            <!-- SECTION 2: CORE TEXTBOOKS & QUESTION BANKS -->
+            <div class="student-section-header group-books-header">
+                <span class="sub-badge"><ion-icon name="book-outline"></ion-icon> Authored Reference Volumes</span>
+                <h2 class="student-section-title">Textbooks &amp; Self-Assessment Study Material</h2>
+                <p class="student-section-desc">Comprehensive pedagogical textbooks, case-based ABQ banks, and practical companion workbooks authored by Dr. Milind Chatrabhuji, mapped unit-by-unit with NCISM competencies.</p>
+            </div>
+
+            <div class="books-grid" id="booksGrid">
+                <!-- Book 1: Textbook -->
+                <article class="book-card student-resource-card" data-category="books pg">
+                    <div class="book-cover-wrapper">
+                        <img src="assets/covers/Front-Cover-300dpi.png" alt="Applied Basics of Rasashastra and Bhaishajya Kalpana Textbook Cover" class="book-cover" loading="lazy">
                         <div class="book-overlay">
                             <a href="assets/books/Applied Basics of Rasashastra and Bhaishajya Kalpana.pdf" target="_blank" class="btn btn-icon" aria-label="Read PDF">
                                 <ion-icon name="book-outline"></ion-icon> Read
@@ -109,7 +216,7 @@
                     </div>
                     <div class="book-info">
                         <div class="book-meta">
-                            <span class="book-tag">PG Sem II · Textbook</span>
+                            <span class="book-tag">PG Sem II · Core Textbook</span>
                         </div>
                         <h3 class="book-title">Applied Basics of Rasashastra and Bhaishajya Kalpana</h3>
                         <p class="book-subtitle">Module-wise &amp; Unit-wise Study Notes · 8 Modules · 42 Units · 16 Credits</p>
@@ -118,9 +225,9 @@
                 </article>
 
                 <!-- Book 2: ABQ Question Bank -->
-                <article class="book-card">
+                <article class="book-card student-resource-card" data-category="books pg">
                     <div class="book-cover-wrapper">
-                        <img src="assets/covers/cover-abq-question-bank.png" alt="ABQ Question Bank for Applied Basics of Rasashastra and Bhaishajya Kalpana Cover" class="book-cover">
+                        <img src="assets/covers/cover-abq-question-bank.png" alt="ABQ Question Bank for Applied Basics of Rasashastra and Bhaishajya Kalpana Cover" class="book-cover" loading="lazy">
                         <div class="book-overlay">
                             <a href="assets/books/ABQ Question Bank for Applied Basics of RSBK.pdf" target="_blank" class="btn btn-icon" aria-label="Read PDF">
                                 <ion-icon name="book-outline"></ion-icon> Read
@@ -141,9 +248,9 @@
                 </article>
 
                 <!-- Book 3: Practical Training Proformas -->
-                <article class="book-card">
+                <article class="book-card student-resource-card" data-category="books pg">
                     <div class="book-cover-wrapper">
-                        <img src="assets/covers/cover-practical-training-proformas.png" alt="Practical Training Proformas for Applied Basics of Rasashastra and Bhaishajya Kalpana Cover" class="book-cover">
+                        <img src="assets/covers/cover-practical-training-proformas.png" alt="Practical Training Proformas for Applied Basics of Rasashastra and Bhaishajya Kalpana Cover" class="book-cover" loading="lazy">
                         <div class="book-overlay">
                             <a href="assets/books/Practical Training Proformas for AyPG-AB-RB.pdf" target="_blank" class="btn btn-icon" aria-label="Read PDF">
                                 <ion-icon name="book-outline"></ion-icon> Read
@@ -162,6 +269,20 @@
                         <p class="book-author">Dr. Milind Chatrabhuji</p>
                     </div>
                 </article>
+            </div>
+
+            <!-- SECTION 3: LEARNING ECOSYSTEM BANNER -->
+            <div class="student-ecosystem-banner">
+                <div class="eco-banner-text">
+                    <span class="eco-banner-badge"><ion-icon name="sparkles-outline"></ion-icon> Complete Learning Ecosystem</span>
+                    <h3 class="eco-banner-title">Advance Your Academic Preparation</h3>
+                    <p class="eco-banner-desc">Complement your curriculum studies with interactive Bloom's &amp; Miller's handbooks, 258+ video demonstrations of pharmaceutical preparation techniques, and digitized classical Ayurvedic treatises.</p>
+                </div>
+                <div class="eco-banner-actions">
+                    <a href="teachers.html" class="eco-action-btn"><ion-icon name="easel-outline"></ion-icon> Faculty Handbooks</a>
+                    <a href="videos.html" class="eco-action-btn secondary"><ion-icon name="videocam-outline"></ion-icon> Video Hub (258+)</a>
+                    <a href="books.html" class="eco-action-btn secondary"><ion-icon name="library-outline"></ion-icon> Reference Treatises</a>
+                </div>
             </div>
         </section>
     </main>
@@ -199,6 +320,51 @@
     <script src="features.js?v=5.2"></script>
     <script src="email-service.js?v=5.2"></script>
     <script src="script.js?v=5.2"></script>
+    <script>
+        // Interactive Filter Tabs for Students Section
+        document.addEventListener('DOMContentLoaded', () => {
+            const pills = document.querySelectorAll('.student-filter-pill');
+            const cards = document.querySelectorAll('.student-resource-card');
+            const curriculaHeader = document.querySelector('.group-curricula-header');
+            const booksHeader = document.querySelector('.group-books-header');
+
+            pills.forEach(pill => {
+                pill.addEventListener('click', () => {
+                    pills.forEach(p => {
+                        p.classList.remove('active');
+                        p.setAttribute('aria-selected', 'false');
+                    });
+                    pill.classList.add('active');
+                    pill.setAttribute('aria-selected', 'true');
+
+                    const filter = pill.dataset.filter;
+                    let visibleCurricula = 0;
+                    let visibleBooks = 0;
+
+                    cards.forEach(card => {
+                        const categories = (card.dataset.category || '').split(' ');
+                        const isMatch = (filter === 'all') || categories.includes(filter);
+
+                        if (isMatch) {
+                            card.classList.remove('hidden');
+                            if (categories.includes('curricula')) visibleCurricula++;
+                            if (categories.includes('books')) visibleBooks++;
+                        } else {
+                            card.classList.add('hidden');
+                        }
+                    });
+
+                    // Hide section headers if no matching cards exist in that section
+                    if (curriculaHeader) {
+                        curriculaHeader.style.display = (visibleCurricula > 0) ? '' : 'none';
+                    }
+                    if (booksHeader) {
+                        booksHeader.style.display = (visibleBooks > 0) ? '' : 'none';
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
 
