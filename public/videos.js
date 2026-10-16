@@ -128,6 +128,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         allVideos = Array.from(map.values());
+        allVideos.sort((a, b) => (a.srNo || 9999) - (b.srNo || 9999));
 
         // Update total count badge
         if (videoCountBadge) {
@@ -164,10 +165,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             list = list.filter(v => {
                 const title = (v.title || '').toLowerCase();
                 const desc = (v.description || '').toLowerCase();
+                const catLabel = (v.categoryLabel || '').toLowerCase();
                 const refText = (v.reference || '').toLowerCase();
                 const source = (v.source || '').toLowerCase();
                 const tags = Array.isArray(v.tags) ? v.tags.join(' ').toLowerCase() : '';
-                return title.includes(q) || desc.includes(q) || refText.includes(q) || tags.includes(q) || source.includes(q);
+                return title.includes(q) || desc.includes(q) || catLabel.includes(q) || refText.includes(q) || tags.includes(q) || source.includes(q);
             });
         }
 
