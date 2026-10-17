@@ -22,6 +22,28 @@
     <meta name="twitter:title" content="Reference Books Archive | RSBK Online">
     <meta name="twitter:description" content="Browse classical Ayurvedic treatises, research volumes, and textbooks.">
     <meta name="twitter:image" content="https://rsbk-online.web.app/assets/icons/logo.png">
+
+    <!-- Schema.org Paywall & CollectionPage Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Reference Books Archive | RSBK Online",
+      "description": "Comprehensive digital archive of classical Ayurvedic treatises, textbooks, monographs, and research volumes on Rasashastra and Bhaishajya Kalpana.",
+      "url": "https://rsbk-online.web.app/books.html",
+      "isAccessibleForFree": "false",
+      "hasPart": {
+        "@type": "WebPageElement",
+        "isAccessibleForFree": "false",
+        "cssSelector": ".academic-preview-banner"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "RSBK Online",
+        "url": "https://rsbk-online.web.app/"
+      }
+    }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -82,6 +104,14 @@
                 <ion-icon name="home-outline"></ion-icon>
                 <span class="vmenu-text">Home</span>
             </a>
+            <a href="students.html" class="vmenu-item" title="For Students">
+                <ion-icon name="school-outline"></ion-icon>
+                <span class="vmenu-text">Students</span>
+            </a>
+            <a href="teachers.html" class="vmenu-item" title="For Teachers">
+                <ion-icon name="easel-outline"></ion-icon>
+                <span class="vmenu-text">Teachers</span>
+            </a>
             <a href="books.html" class="vmenu-item active" title="Books Archive">
                 <ion-icon name="library-outline"></ion-icon>
                 <span class="vmenu-text">Books</span>
@@ -93,6 +123,10 @@
             <a href="research.html" class="vmenu-item" title="Research &amp; Publications">
                 <ion-icon name="flask-outline"></ion-icon>
                 <span class="vmenu-text">Research</span>
+            </a>
+            <a href="glossary.html" class="vmenu-item" title="RSBK Encyclopedia &amp; Master Glossary">
+                <ion-icon name="book-outline"></ion-icon>
+                <span class="vmenu-text">Glossary</span>
             </a>
             <a href="forum.html" class="vmenu-item" title="Discussion Forum">
                 <ion-icon name="chatbubbles-outline"></ion-icon>
@@ -138,9 +172,17 @@
             <ion-icon name="easel-outline"></ion-icon>
             <span>Teachers</span>
         </a>
+        <a href="glossary.html">
+            <ion-icon name="book-outline"></ion-icon>
+            <span>Glossary</span>
+        </a>
         <a href="books.html" class="active">
             <ion-icon name="library-outline"></ion-icon>
             <span>Books</span>
+        </a>
+        <a href="videos.html">
+            <ion-icon name="videocam-outline"></ion-icon>
+            <span>Videos</span>
         </a>
         <a href="profile.html">
             <ion-icon name="person-outline"></ion-icon>
@@ -150,7 +192,7 @@
 
     <footer>
         <div class="footer-content">
-            <p>&copy; 2026 Suvarna Ayurveda. All rights reserved.</p>
+            <p>&copy; 2026 Suvarna Ayurveda. All rights reserved. | <a href="glossary.html" style="color: inherit; text-decoration: underline;">RSBK Master Encyclopedia</a> | <a href="books.html" style="color: inherit; text-decoration: underline;">Books Archive</a> | <a href="videos.html" style="color: inherit; text-decoration: underline;">Video Hub</a> | <a href="research.html" style="color: inherit; text-decoration: underline;">Research Hub</a> | <a href="students.html" style="color: inherit; text-decoration: underline;">Students</a></p>
         </div>
     </footer>
 

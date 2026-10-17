@@ -126,12 +126,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const path = window.location.pathname.toLowerCase();
-        const isHome = path.endsWith('/') || path.endsWith('index.html') || path.endsWith('index') || (!path.includes('students') && !path.includes('teachers') && !path.includes('books') && !path.includes('videos') && !path.includes('research') && !path.includes('forum') && !path.includes('membership') && !path.includes('profile') && !path.includes('payment') && !path.includes('admin'));
+        const isHome = path.endsWith('/') || path.endsWith('index.html') || path.endsWith('index') || (!path.includes('students') && !path.includes('teachers') && !path.includes('books') && !path.includes('videos') && !path.includes('research') && !path.includes('forum') && !path.includes('membership') && !path.includes('profile') && !path.includes('payment') && !path.includes('admin') && !path.includes('glossary'));
         const isStudents = path.includes('students');
         const isTeachers = path.includes('teachers');
         const isBooks = path.includes('books');
         const isVideos = path.includes('videos');
         const isResearch = path.includes('research');
+        const isGlossary = path.includes('glossary');
         const isForum = path.includes('forum');
         const isMembership = path.includes('membership');
         const isProfile = path.includes('profile');
@@ -165,6 +166,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <a href="research.html" class="vmenu-item ${isResearch ? 'active' : ''}" title="Research &amp; Publications">
                     <ion-icon name="flask-outline"></ion-icon>
                     <span class="vmenu-text">Research</span>
+                </a>
+                <a href="glossary.html" class="vmenu-item ${isGlossary ? 'active' : ''}" title="RSBK Encyclopedia &amp; Master Glossary">
+                    <ion-icon name="book-outline"></ion-icon>
+                    <span class="vmenu-text">Glossary</span>
                 </a>
                 <a href="forum.html" class="vmenu-item ${isForum ? 'active' : ''}" title="Discussion Forum">
                     <ion-icon name="chatbubbles-outline"></ion-icon>
@@ -670,66 +675,60 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // Case 3: Access denied -> hide page content and show appropriate paywall
-        if (main) main.style.display = 'none';
-        if (gate) gate.style.display = 'flex';
-        document.body.classList.remove('access-granted');
-
         if (accessInfo.status === 'unauthenticated') {
             document.body.classList.add('auth-unverified');
             document.body.classList.remove('paywall-expired');
+            if (gate) gate.style.display = 'none';
+            if (main) main.style.display = 'block';
 
-            gate.innerHTML = `
-                <div class="auth-gate-card paywall-card-trial">
-                    <div class="paywall-trial-badge" style="background: rgba(16, 185, 129, 0.15); color: #059669; border-color: rgba(16, 185, 129, 0.3);">
-                        <ion-icon name="sparkles"></ion-icon> 100% Free Academic Access
+            // Ensure Academic Preview Banner is mounted at the top of page-main
+            let previewBanner = document.getElementById('academicPreviewBanner');
+            if (!previewBanner && main) {
+                previewBanner = document.createElement('div');
+                previewBanner.id = 'academicPreviewBanner';
+                previewBanner.className = 'academic-preview-banner';
+                previewBanner.innerHTML = `
+                    <div class="preview-banner-content">
+                        <span class="preview-banner-badge"><ion-icon name="sparkles"></ion-icon> 100% Free Academic Access</span>
+                        <h3 class="preview-banner-title">Sign In with Google for Full Academic Access</h3>
+                        <p class="preview-banner-text">You are browsing in Academic Preview Mode. Sign in with your Google account (100% Free) to read complete textbooks, stream practical video SOPs, and access peer-reviewed research papers.</p>
                     </div>
-                    <div class="auth-gate-icon">
-                        <ion-icon name="lock-open-outline" style="color: #059669;"></ion-icon>
-                    </div>
-                    <h2 class="auth-gate-title">Sign In with Google for Instant Free Access</h2>
-                    <p class="auth-gate-desc">
-                        Curriculum handbooks, practical video demonstrations, peer-reviewed research papers, discussion forums, and the complete reference books archive are completely free of charge for <strong>UG &amp; PG students, teachers, doctors, researchers, and everyone</strong>. Sign in with Google to access immediately.
-                    </p>
-
-                    <div class="paywall-features-list">
-                        <div class="paywall-feature-item">
-                            <ion-icon name="checkmark-circle"></ion-icon>
-                            <span><strong>100% Free of Charge</strong> — Free registration with your Google account.</span>
-                        </div>
-                        <div class="paywall-feature-item">
-                            <ion-icon name="checkmark-circle"></ion-icon>
-                            <span><strong>Instant 1-Click Access</strong> — No passwords, forms, or payment details required.</span>
-                        </div>
-                        <div class="paywall-feature-item">
-                            <ion-icon name="checkmark-circle"></ion-icon>
-                            <span><strong>For Students, Teachers, Doctors &amp; Everyone</strong> — Video hub, research monographs, and NCISM study materials.</span>
-                        </div>
-                    </div>
-
-                    <button id="gateGoogleSignInBtn" class="btn-google-gate" type="button" title="Sign in with Google">
+                    <button class="btn-preview-google" id="previewGoogleSignInBtn" type="button" title="Sign in with Google">
                         <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20">
                             <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
                             <path fill="#34A853" d="M12 24c3.3 0 6.08-1.09 8.1-2.96l-3.88-3.05c-1.08.72-2.45 1.16-4.22 1.16-3.24 0-5.98-2.18-6.96-5.11H1.05v3.14C3.06 21.2 7.22 24 12 24z"/>
                             <path fill="#FBBC05" d="M5.04 14.04c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.32H1.05C.38 7.66 0 9.16 0 10.75s.38 3.09 1.05 4.43l3.99-3.14z"/>
                             <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.22 0 3.06 2.8 1.05 6.82l3.99 3.14c.98-2.93 3.72-5.21 6.96-5.21z"/>
                         </svg>
-                        <span>Continue with Google (Instant Free Access)</span>
+                        <span>Continue with Google</span>
                     </button>
+                `;
+                main.insertBefore(previewBanner, main.firstChild);
+                const bannerBtn = previewBanner.querySelector('#previewGoogleSignInBtn');
+                if (bannerBtn && onGoogleSignIn) {
+                    bannerBtn.addEventListener('click', onGoogleSignIn);
+                }
+            }
 
-                    <div class="auth-gate-footer">
-                        <a href="index.html" class="auth-gate-back-link">
-                            <ion-icon name="arrow-back-outline"></ion-icon> Return to Homepage
-                        </a>
-                    </div>
-                </div>
-            `;
-
-            const gateBtn = document.getElementById('gateGoogleSignInBtn');
-            if (gateBtn && onGoogleSignIn) {
-                gateBtn.addEventListener('click', onGoogleSignIn);
+            // High-value action interceptor for unauthenticated visitors
+            if (!window.__rsbk_action_gate_bound) {
+                window.__rsbk_action_gate_bound = true;
+                document.addEventListener('click', (e) => {
+                    if (document.body.classList.contains('auth-unverified')) {
+                        const target = e.target.closest(
+                            '.btn-read-pdf, .paper-title-link, .btn-add-pdf, .book-card-btn, .btn-play-video, .video-play-overlay, .btn-download, a[href*="drive.google.com/file"], a[href$=".pdf"]'
+                        );
+                        if (target) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (onGoogleSignIn) onGoogleSignIn();
+                        }
+                    }
+                }, true);
             }
         } else if (accessInfo.status === 'expired') {
+            if (main) main.style.display = 'none';
+            if (gate) gate.style.display = 'flex';
             document.body.classList.add('paywall-expired');
             document.body.classList.remove('auth-unverified');
 

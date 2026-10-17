@@ -7,7 +7,15 @@
     <!-- Homepage / Central Academic Portal -->
     <url>
         <loc>https://rsbk-online.web.app/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+
+    <!-- RSBK Classical Subject Encyclopedia & Master Terminology Compendium -->
+    <url>
+        <loc>https://rsbk-online.web.app/glossary.html</loc>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
     </url>
@@ -15,7 +23,7 @@
     <!-- Research & Evidence Hub -->
     <url>
         <loc>https://rsbk-online.web.app/research.html</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>

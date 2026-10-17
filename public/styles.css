@@ -2418,11 +2418,15 @@ footer {
 /* ===================================================
    Paywall & Access Gate: 30-Day Free Trial & Wallet System
    =================================================== */
-/* Hide page-main on protected content pages if unverified or trial expired */
-body.protected-page.auth-unverified .page-main,
-body.protected-page.paywall-expired .page-main,
-html.auth-unverified body.protected-page .page-main {
+/* Only hide page-main on protected content pages if membership trial is strictly expired */
+body.protected-page.paywall-expired .page-main {
     display: none !important;
+}
+
+/* Allow page-main to render for Googlebot & guests on protected pages (academic preview mode) */
+body.protected-page.auth-unverified .page-main,
+html.auth-unverified body.protected-page .page-main {
+    display: block !important;
 }
 
 /* Payment confirmation pages are never blocked */
@@ -2460,15 +2464,107 @@ body.protected-page.access-granted .page-main {
     padding: 6.5rem 1.5rem 4rem;
 }
 
-/* Display auth gate / paywall when unverified or expired */
-body.protected-page.auth-unverified .auth-gate,
-body.protected-page.paywall-expired .auth-gate {
+/* Display auth gate / paywall ONLY when expired or on membership page for unverified */
+body.protected-page.paywall-expired .auth-gate,
+body.page-membership.auth-unverified .auth-gate {
     display: flex !important;
+}
+
+/* Academic Preview Banner on Protected Content Pages for Unverified Visitors & Googlebot */
+.academic-preview-banner {
+    display: none;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(16, 185, 129, 0.08));
+    border: 1px solid rgba(37, 99, 235, 0.25);
+    border-radius: 18px;
+    padding: 1.25rem 1.75rem;
+    margin: 1.5rem auto 2rem;
+    max-width: 1200px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+}
+
+body.protected-page.auth-unverified .academic-preview-banner,
+html.auth-unverified body.protected-page .academic-preview-banner {
+    display: flex !important;
+}
+
+.preview-banner-content {
+    flex: 1;
+}
+
+.preview-banner-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #059669;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+    margin-bottom: 0.5rem;
+}
+
+.preview-banner-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0 0 0.3rem;
+}
+
+.preview-banner-text {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.btn-preview-google {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: #ffffff;
+    color: #1f2937;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    padding: 0.75rem 1.4rem;
+    font-size: 0.925rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.btn-preview-google:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .academic-preview-banner {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+        padding: 1.25rem;
+    }
+    .btn-preview-google {
+        justify-content: center;
+    }
 }
 
 /* Hide auth gate when access is granted or on membership page for expired users */
 html.access-granted .auth-gate,
 body.access-granted .auth-gate,
+body.protected-page.auth-unverified .auth-gate,
 body.page-membership.paywall-expired .auth-gate,
 body.page-confirmation .auth-gate {
     display: none !important;

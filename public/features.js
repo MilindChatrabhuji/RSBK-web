@@ -161,7 +161,14 @@
         { title: "Classical Yantras & Puta System Video", category: "terms", url: "videos.html?search=Yantras", desc: "Exhibition and operation of Dola, Valuka, Damaru Yantras and Puta heating." },
         
         // Research & Evidence Hub
-        { title: "Research & Evidence Hub", category: "pages", url: "research.html", desc: "Digital repository for research papers, review articles, and evidence in RSBK." }
+        { title: "Research & Evidence Hub", category: "pages", url: "research.html", desc: "Digital repository for peer-reviewed research papers, review articles, and evidence in RSBK." },
+
+        // Master Subject Encyclopedia & Terminology Compendium
+        { title: "RSBK Classical Subject Encyclopedia & Compendium", category: "pages", url: "glossary.html", desc: "Authoritative NCISM digital compendium covering 100+ classical terms, Shlokas, Maharasa, and SOPs." },
+        { title: "Maharasa & Uparasa Classical Compendium", category: "terms", url: "glossary.html", desc: "Abhraka, Vaikranta, Makshika, Vimala, Shilajatu, Sasyaka, Chapala, Rasaka definitions and Shodhana SOPs." },
+        { title: "Bhasma Pariksha: Varitara, Rekhapurna & Apunarbhava", category: "terms", url: "glossary.html", desc: "Nanomedicine quality criteria, floatation physics, silver foil tests, and reduction stability." },
+        { title: "Panchavidha Kashaya Kalpana (Swarasa, Kalka, Kwatha, Hima, Phanta)", category: "terms", url: "glossary.html", desc: "Primary pharmaceutical dosage extractions, drug-water ratios, and clinical posology." },
+        { title: "Sneha Siddhi Lakshana (Ghrita & Taila Paka Criteria)", category: "terms", url: "glossary.html", desc: "Vartivat Kalka, Shabdahino Agnou, Phenodgama, and Phenashanti quality control endpoints." }
     ];
 
     function initGlobalSearch() {
