@@ -74,25 +74,43 @@ body {
     --page-top-clearance: 6.75rem; /* 108px: guarantees 36px clean clearance below fixed navbar */
 }
 
-.page-main > section:first-child,
-.page-main > div:first-child,
+/* Universal rule: Any primary section or container directly inside page-main */
 .page-main > section:first-of-type,
-.page-main > div:first-of-type,
+.page-main > .forum-page-container,
 .encyclopedia-hero,
 .research-hub-section,
 .drive-embed-section,
 .videos-hub-section,
 .books-section,
-.forum-page-container,
 .membership-section,
 .profile-section,
 .admin-main-wrapper {
     padding-top: var(--page-top-clearance) !important;
 }
 
+/* Academic Preview Banner clearance: guarantees it is never clipped under fixed navbar */
+.page-main > .academic-preview-banner {
+    margin-top: 5.75rem !important;
+    padding: 1.25rem 1.75rem !important;
+}
+
+/* When the preview banner is active, balance the subsequent section padding */
+.academic-preview-banner + section,
+.academic-preview-banner + div {
+    padding-top: 1.5rem !important;
+}
+
 @media (max-width: 768px) {
     :root {
         --page-top-clearance: 5.5rem; /* 88px: guarantees clean mobile clearance */
+    }
+    .page-main > .academic-preview-banner {
+        margin-top: 5rem !important;
+        padding: 1.15rem !important;
+    }
+    .academic-preview-banner + section,
+    .academic-preview-banner + div {
+        padding-top: 1rem !important;
     }
 }
 
@@ -2510,8 +2528,9 @@ body.page-membership.auth-unverified .auth-gate {
     border: 1px solid rgba(37, 99, 235, 0.25);
     border-radius: 18px;
     padding: 1.25rem 1.75rem;
-    margin: 1.5rem auto 2rem;
+    margin: 5.75rem auto 1.5rem;
     max-width: 1200px;
+    width: calc(100% - 2.5rem);
     align-items: center;
     justify-content: space-between;
     gap: 1.5rem;
