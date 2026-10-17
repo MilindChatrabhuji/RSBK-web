@@ -63,6 +63,39 @@ body {
     width: 100%;
 }
 
+/* =========================================================================
+   PERMANENT SAFEGUARD: Universal Top Clearance for Fixed Navbar
+   Guarantees that every page header, badge box, hero banner, or first
+   section has sufficient top padding to prevent clipping beneath the
+   fixed top navbar on desktop and mobile across all current and future pages.
+   ========================================================================= */
+:root {
+    --navbar-height: 72px;
+    --page-top-clearance: 6.75rem; /* 108px: guarantees 36px clean clearance below fixed navbar */
+}
+
+.page-main > section:first-child,
+.page-main > div:first-child,
+.page-main > section:first-of-type,
+.page-main > div:first-of-type,
+.encyclopedia-hero,
+.research-hub-section,
+.drive-embed-section,
+.videos-hub-section,
+.books-section,
+.forum-page-container,
+.membership-section,
+.profile-section,
+.admin-main-wrapper {
+    padding-top: var(--page-top-clearance) !important;
+}
+
+@media (max-width: 768px) {
+    :root {
+        --page-top-clearance: 5.5rem; /* 88px: guarantees clean mobile clearance */
+    }
+}
+
 /* Background Effects */
 .background-effects {
     position: fixed;
