@@ -393,6 +393,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const currentPath = window.location.pathname.toLowerCase();
     const isHomepage = currentPath.endsWith('/') || currentPath.endsWith('index.html') || currentPath.endsWith('index');
     const isMembershipPage = currentPath.includes('membership');
+    const isProfilePage = currentPath.includes('profile');
     const isConfirmationPage = currentPath.includes('payment-confirmation');
     const isProtectedContentPage = document.body.classList.contains('protected-page') && !isConfirmationPage;
 
@@ -441,18 +442,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (isCachedAuth && cachedAccessValid) {
             authGate.style.display = 'none';
         } else {
+            const isMem = isMembershipPage;
+            const isProf = isProfilePage;
+            let initialTitle = 'Sign In with Google for Instant Free Access';
+            let initialDesc = 'Curriculum handbooks, practical video demonstrations, peer-reviewed research papers, discussion forums, and the complete reference books archive are completely free of charge for <strong>UG &amp; PG students, teachers, doctors, researchers, and everyone</strong>. Sign in with Google to access immediately.';
+            let initialBadge = '100% Free Academic Access';
+            let initialIcon = 'lock-open-outline';
+
+            if (isMem) {
+                initialTitle = 'Sign In to Access Membership & Wallet';
+                initialDesc = 'Sign in with your Google account (100% Free) to activate your 30-day complimentary access, view your wallet balance, and manage your membership.';
+                initialBadge = '30-Day Free Trial Included';
+                initialIcon = 'wallet-outline';
+            } else if (isProf) {
+                initialTitle = 'Sign In to Access Your Academic Profile';
+                initialDesc = 'Sign in with your Google account to view your verified academic credentials, manage faculty or student information, and access your reading history.';
+                initialBadge = 'Academic Member Verification';
+                initialIcon = 'person-circle-outline';
+            }
+
             authGate.innerHTML = `
                 <div class="auth-gate-card paywall-card-trial">
-                    <div class="paywall-trial-badge" style="background: rgba(16, 185, 129, 0.15); color: #059669; border-color: rgba(16, 185, 129, 0.3);">
-                        <ion-icon name="sparkles"></ion-icon> 100% Free Academic Access
+                    <div class="paywall-trial-badge" style="background: rgba(37, 99, 235, 0.12); color: var(--primary); border-color: rgba(37, 99, 235, 0.3);">
+                        <ion-icon name="sparkles"></ion-icon> ${initialBadge}
                     </div>
                     <div class="auth-gate-icon">
-                        <ion-icon name="lock-open-outline" style="color: #059669;"></ion-icon>
+                        <ion-icon name="${initialIcon}" style="color: var(--primary);"></ion-icon>
                     </div>
-                    <h2 class="auth-gate-title">Sign In with Google for Instant Free Access</h2>
-                    <p class="auth-gate-desc">
-                        Curriculum handbooks, practical video demonstrations, peer-reviewed research papers, discussion forums, and the complete reference books archive are completely free of charge for <strong>UG &amp; PG students, teachers, doctors, researchers, and everyone</strong>. Sign in with Google to access immediately.
-                    </p>
+                    <h2 class="auth-gate-title">${initialTitle}</h2>
+                    <p class="auth-gate-desc">${initialDesc}</p>
 
                     <div class="paywall-features-list">
                         <div class="paywall-feature-item">
@@ -675,9 +693,85 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
+        // Case 3: On Profile page, signed-in users can always view & manage their profile even if expired
+        if (isProfilePage && accessInfo.status === 'expired') {
+            if (gate) gate.style.display = 'none';
+            if (main) main.style.display = 'block';
+            document.body.classList.add('paywall-expired');
+            document.body.classList.remove('auth-unverified');
+            return;
+        }
+
         if (accessInfo.status === 'unauthenticated') {
             document.body.classList.add('auth-unverified');
             document.body.classList.remove('paywall-expired');
+
+            if (isMembershipPage || isProfilePage) {
+                // Personal Account Pages (Membership & Profile) require authentication
+                if (main) main.style.display = 'none';
+                if (gate) {
+                    gate.style.display = 'flex';
+                    const isMem = isMembershipPage;
+                    const gateTitle = isMem ? 'Sign In to Access Membership & Wallet' : 'Sign In to Access Your Academic Profile';
+                    const gateDesc = isMem
+                        ? 'Sign in with your Google account (100% Free) to activate your 30-day complimentary access, view your wallet balance, and manage your membership.'
+                        : 'Sign in with your Google account to view your verified academic credentials, personalized bookmarks, reading history, and research publications.';
+                    const gateBadge = isMem ? '30-Day Free Trial Included' : 'Academic Member Verification';
+                    const gateIcon = isMem ? 'wallet-outline' : 'person-circle-outline';
+
+                    gate.innerHTML = `
+                        <div class="auth-gate-card paywall-card-trial">
+                            <div class="paywall-trial-badge" style="background: rgba(37, 99, 235, 0.12); color: var(--primary); border-color: rgba(37, 99, 235, 0.3);">
+                                <ion-icon name="sparkles"></ion-icon> ${gateBadge}
+                            </div>
+                            <div class="auth-gate-icon">
+                                <ion-icon name="${gateIcon}" style="color: var(--primary);"></ion-icon>
+                            </div>
+                            <h2 class="auth-gate-title">${gateTitle}</h2>
+                            <p class="auth-gate-desc">${gateDesc}</p>
+
+                            <div class="paywall-features-list">
+                                <div class="paywall-feature-item">
+                                    <ion-icon name="checkmark-circle"></ion-icon>
+                                    <span><strong>100% Free 30-Day Pass</strong> — Instant activation upon signing in with your Google account.</span>
+                                </div>
+                                <div class="paywall-feature-item">
+                                    <ion-icon name="checkmark-circle"></ion-icon>
+                                    <span><strong>Instant 1-Click Access</strong> — No passwords, forms, or payment details required.</span>
+                                </div>
+                                <div class="paywall-feature-item">
+                                    <ion-icon name="checkmark-circle"></ion-icon>
+                                    <span><strong>Academic Cloud Sync</strong> — Automatically saves your curriculum bookmarks, notes, and profile.</span>
+                                </div>
+                            </div>
+
+                            <button id="gateGoogleSignInBtn" class="btn-google-gate" type="button" title="Sign in with Google">
+                                <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20">
+                                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+                                    <path fill="#34A853" d="M12 24c3.3 0 6.08-1.09 8.1-2.96l-3.88-3.05c-1.08.72-2.45 1.16-4.22 1.16-3.24 0-5.98-2.18-6.96-5.11H1.05v3.14C3.06 21.2 7.22 24 12 24z"/>
+                                    <path fill="#FBBC05" d="M5.04 14.04c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.32H1.05C.38 7.66 0 9.16 0 10.75s.38 3.09 1.05 4.43l3.99-3.14z"/>
+                                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.22 0 3.06 2.8 1.05 6.82l3.99 3.14c.98-2.93 3.72-5.21 6.96-5.21z"/>
+                                </svg>
+                                <span>Continue with Google</span>
+                            </button>
+
+                            <div class="auth-gate-footer">
+                                <a href="index.html" class="auth-gate-back-link">
+                                    <ion-icon name="arrow-back-outline"></ion-icon> Return to Homepage
+                                </a>
+                            </div>
+                        </div>
+                    `;
+
+                    const gateBtn = gate.querySelector('#gateGoogleSignInBtn');
+                    if (gateBtn && onGoogleSignIn) {
+                        gateBtn.addEventListener('click', onGoogleSignIn);
+                    }
+                }
+                return;
+            }
+
+            // Academic content pages (books, videos, research, students, teachers)
             if (gate) gate.style.display = 'none';
             if (main) main.style.display = 'block';
 

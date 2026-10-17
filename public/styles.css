@@ -2485,18 +2485,25 @@ body.page-confirmation .page-main {
     display: block !important;
 }
 
-/* On membership page: allow main view when access-granted OR paywall-expired (so expired users can recharge) */
+/* On membership & profile pages: allow main view when verified (active trial, paid, or expired trial) */
 body.page-membership.access-granted .page-main,
-body.page-membership.paywall-expired .page-main {
+body.page-membership.paywall-expired .page-main,
+body.page-profile.access-granted .page-main,
+body.page-profile.paywall-expired .page-main {
     display: block !important;
 }
 
-/* If unauthenticated on membership page, hide page-main and show auth gate */
+/* If unauthenticated on membership or profile page, strictly hide page-main and display auth gate */
 body.page-membership.auth-unverified .page-main,
-html.auth-unverified body.page-membership .page-main {
+html.auth-unverified body.page-membership .page-main,
+body.page-profile.auth-unverified .page-main,
+html.auth-unverified body.page-profile .page-main {
     display: none !important;
 }
-body.page-membership.auth-unverified .auth-gate {
+body.page-membership.auth-unverified .auth-gate,
+html.auth-unverified body.page-membership .auth-gate,
+body.page-profile.auth-unverified .auth-gate,
+html.auth-unverified body.page-profile .auth-gate {
     display: flex !important;
 }
 
