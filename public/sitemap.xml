@@ -31,7 +31,7 @@
     <!-- Reference Books Digital Archive -->
     <url>
         <loc>https://rsbk-online.web.app/books.html</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-23</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
@@ -39,7 +39,7 @@
     <!-- Video Hub & Practical Demonstrations -->
     <url>
         <loc>https://rsbk-online.web.app/videos.html</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-23</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
@@ -47,7 +47,7 @@
     <!-- For Students: Curricula, Handbooks & Question Banks -->
     <url>
         <loc>https://rsbk-online.web.app/students.html</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-23</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
@@ -55,7 +55,7 @@
     <!-- Academic Discussion Forum -->
     <url>
         <loc>https://rsbk-online.web.app/forum.html</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-23</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
     </url>
@@ -63,7 +63,7 @@
     <!-- For Teachers: Overview & Blueprints -->
     <url>
         <loc>https://rsbk-online.web.app/teachers.html</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-23</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
@@ -71,7 +71,7 @@
     <!-- For Teachers: Undergraduate (UG) Handbooks -->
     <url>
         <loc>https://rsbk-online.web.app/teachers-ug.html</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-23</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
@@ -79,7 +79,7 @@
     <!-- For Teachers: Postgraduate (PG) Portal -->
     <url>
         <loc>https://rsbk-online.web.app/teachers-pg.html</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-23</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
@@ -87,7 +87,7 @@
     <!-- For Teachers: PG Second Semester Handbooks -->
     <url>
         <loc>https://rsbk-online.web.app/teachers-pg-sem2.html</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-23</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
@@ -95,7 +95,7 @@
     <!-- For Teachers: PG Semesters 3 to 6 Handbooks -->
     <url>
         <loc>https://rsbk-online.web.app/teachers-pg-sem3-6.html</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-23</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
@@ -103,7 +103,7 @@
     <!-- Membership & Wallet -->
     <url>
         <loc>https://rsbk-online.web.app/membership.html</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-23</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
